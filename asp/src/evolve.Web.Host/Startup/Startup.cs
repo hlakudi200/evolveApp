@@ -96,6 +96,11 @@ namespace evolve.Web.Host.Startup
 
             app.UseAbpRequestLocalization();
 
+            if (env.IsDevelopment())
+            {
+                app.UseHttpsRedirection(); // Only in Development environment
+            }
+
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapHub<AbpCommonHub>("/signalr");
@@ -103,19 +108,18 @@ namespace evolve.Web.Host.Startup
                 endpoints.MapControllerRoute("defaultWithArea", "{area}/{controller=Home}/{action=Index}/{id?}");
             });
 
-            // Enable middleware to serve generated Swagger as a JSON endpoint
+            // Swagger
             app.UseSwagger(c => { c.RouteTemplate = "swagger/{documentName}/swagger.json"; });
 
-            // Enable middleware to serve swagger-ui assets (HTML, JS, CSS etc.)
             app.UseSwaggerUI(options =>
             {
-                // specifying the Swagger JSON endpoint.
                 options.SwaggerEndpoint($"/swagger/{_apiVersion}/swagger.json", $"evolve API {_apiVersion}");
                 options.IndexStream = () => Assembly.GetExecutingAssembly()
                     .GetManifestResourceStream("evolve.Web.Host.wwwroot.swagger.ui.index.html");
-                options.DisplayRequestDuration(); // Controls the display of the request duration (in milliseconds) for "Try it out" requests.
-            }); // URL: /swagger
+                options.DisplayRequestDuration();
+            });
         }
+
 
         private void ConfigureSwagger(IServiceCollection services)
         {
