@@ -1,0 +1,13 @@
+﻿using System;
+using System.Collections.Generic;
+using Abp.Domain.Entities.Auditing;
+
+namespace evolve.Domain.TaxiManagement
+{
+    public class Lane : FullAuditedEntity<Guid>
+    {
+        public Route DesignatedRoute { get; set; }
+        public int Capacity { get; set; }
+        public List<Taxi> QueuedTaxis { get; set; }
+    }
+}
