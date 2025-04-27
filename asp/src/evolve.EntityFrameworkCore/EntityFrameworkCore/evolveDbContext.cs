@@ -1,8 +1,13 @@
-﻿using System.Linq;
-using System;
+﻿using System;
+using System.Linq;
 using Abp.Zero.EntityFrameworkCore;
 using evolve.Authorization.Roles;
 using evolve.Authorization.Users;
+using evolve.Domain.Adminstration;
+using evolve.Domain.CargoManagement;
+using evolve.Domain.DriverManagement;
+using evolve.Domain.PassengerManagement;
+using evolve.Domain.TaxiManagement;
 using evolve.MultiTenancy;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,7 +15,22 @@ namespace evolve.EntityFrameworkCore;
 
 public class evolveDbContext : AbpZeroDbContext<Tenant, Role, User, evolveDbContext>
 {
-    /* Define a DbSet for each entity of the application */
+
+    public DbSet<Cargo> Cargos { get; set; }
+    public DbSet<Driver> Drivers { get; set; }
+    public DbSet<Facility> Facilities { get; set; }
+    public DbSet<Lane> Lanes { get; set; }
+    public DbSet<LocalAuthority> LocalAuthorities { get; set; }
+    public DbSet<LostItem> LostItems { get; set; }
+    public DbSet<Marshal> Marshals { get; set; }
+    public DbSet<Passenger> Passengers { get; set; }
+    public DbSet<Payment> Payments { get; set; }
+    public DbSet<Recepient> Recepients { get; set; }
+    public DbSet<Route> Routes { get; set; }
+    public DbSet<Sender> Senders { get; set; }
+    public DbSet<Taxi> Taxis { get; set; }
+    public DbSet<TaxiAssociation> TaxiAssociations { get; set; }
+    public DbSet<TaxiRank> TaxiRanks { get; set; }
 
     public evolveDbContext(DbContextOptions<evolveDbContext> options)
         : base(options)
