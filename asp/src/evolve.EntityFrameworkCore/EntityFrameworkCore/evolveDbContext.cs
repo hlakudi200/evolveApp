@@ -31,6 +31,9 @@ public class evolveDbContext : AbpZeroDbContext<Tenant, Role, User, evolveDbCont
     public DbSet<Taxi> Taxis { get; set; }
     public DbSet<TaxiAssociation> TaxiAssociations { get; set; }
     public DbSet<TaxiRank> TaxiRanks { get; set; }
+    public DbSet<Que> Ques { get; set; }
+
+
 
     public evolveDbContext(DbContextOptions<evolveDbContext> options)
         : base(options)

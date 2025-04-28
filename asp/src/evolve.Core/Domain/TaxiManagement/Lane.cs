@@ -12,6 +12,6 @@ namespace evolve.Domain.TaxiManagement
         [ForeignKey(nameof(RouteId))]
         public Route DesignatedRoute { get; set; }
         public int Capacity { get; set; }
-        public List<Taxi> QueuedTaxis { get; set; }
+        public List<Que> Queus { get; set; }
     }
 }
