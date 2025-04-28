@@ -1,14 +1,16 @@
 
   
-  export interface ITaxi {
-    id: string;
-    registrationNumber: string;
-    driverId:string
-    driver?: IDriver;
-    passengerCapacity: number;
-    assignedRoute: IRoute;
-    isFull: boolean;
-  }
+export interface ITaxi {
+  id: string;
+  registrationNumber: string;
+  driverId: string;
+  routeId: string; 
+  passengerCapacity: number;
+  isFull: boolean;
+  driverFullName: string;
+  driverLicenseNumber: string;
+  assignedRoute: IRoute;
+}
   
   export interface IDriver {
     id: string;
@@ -32,6 +34,7 @@
     licenseType: string;
     isActive: boolean;
     taxiAssociationId: string;
+    AssociationName :string;
     association: IAssociation;
     payments: IPayment[];
   }
@@ -45,13 +48,6 @@
   
   export interface IRoute {
     id: string;
-    creationTime?: string;
-    creatorUserId?: number;
-    lastModificationTime?: string;
-    lastModifierUserId?: number;
-    isDeleted?: boolean;
-    deleterUserId?: number;
-    deletionTime?: string;
     origin: string;
     destination: string;
     fareAmount: number;
