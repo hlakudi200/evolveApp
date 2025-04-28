@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using Abp.Application.Services.Dto;
 using Abp.AutoMapper;
-using evolve.Domain.DriverManagement;
 using evolve.Domain.TaxiManagement;
+using evolve.Services.TaxiManagement.RoutesServices.DTO;
 
 namespace evolve.Services.TaxiManagement.TaxiAssociationService.DTO
 {
@@ -11,7 +11,7 @@ namespace evolve.Services.TaxiManagement.TaxiAssociationService.DTO
     public class TaxiAssociationDto : EntityDto<Guid>
     {
         public string Name { get; set; }
-        public List<Route> ControlledRoutes { get; set; }
-        public List<Driver> Members { get; set; }
+        public List<RouteDto> ControlledRoutes { get; set; }
+        public List<MemberDto> Members { get; set; }
     }
 }
