@@ -55,6 +55,6 @@ namespace evolve.Domain.DriverManagement
         [MaxLength(50)]
         public string Country { get; set; } = string.Empty;
         public List<Route> ControlledRoutes { get; set; }
-        public List<Driver> Members { get; set; }
+
     }
 }
