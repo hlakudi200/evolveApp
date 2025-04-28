@@ -32,30 +32,7 @@ namespace evolve.Services.DriverManagement.DriverService
                 throw new UserFriendlyException("Error creating driver", ex);
             }
         }
-        //public async Task<List<TaxiDto>> GetAllInclude()
-        //{
-        //    var query = await Repository.GetAllAsync();
 
-        //    var taxisWithDriverAndRoute = await query
-        //        .Include(p => p.AssignedRoute)
-        //        .Include(p => p.Driver)
-        //        .ToListAsync();
-
-        //    var results = taxisWithDriverAndRoute.Select(taxi => new TaxiDto
-        //    {
-        //        Id = taxi.Id,
-        //        RegistrationNumber = taxi.RegistrationNumber,
-        //        DriverId = taxi.DriverId,
-        //        RouteId = taxi.RouteId,
-        //        PassengerCapacity = taxi.PassengerCapacity,
-        //        IsFull = taxi.IsFull,
-        //        DriverFullName = taxi.Driver?.FullName ?? string.Empty,
-        //        DriverLicenseNumber = taxi.Driver?.LicenseNumber ?? string.Empty,
-        //        AssignedRoute = taxi.AssignedRoute
-        //    }).ToList();
-
-        //    return results;
-        //}
         public async Task<List<DriverDto>> GetAllInclude()
         {
             var query = await Repository.GetAllAsync();

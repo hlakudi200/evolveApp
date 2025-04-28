@@ -6,7 +6,7 @@ using evolve.Domain.DriverManagement;
 namespace evolve.Services.TaxiManagement.TaxiAssociationService.DTO
 {
     [AutoMap(typeof(Driver))]
-    public class MemberDto:EntityDto<Guid>
+    public class MemberDto : EntityDto<Guid>
     {
         public string FirstName { get; set; }
         public string Surname { get; set; }

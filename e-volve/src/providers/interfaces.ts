@@ -35,7 +35,7 @@ export interface ITaxi {
     isActive: boolean;
     taxiAssociationId: string;
     AssociationName :string;
-    association: IAssociation;
+    association?: IAssociation;
     payments: IPayment[];
   }
   
@@ -43,7 +43,15 @@ export interface ITaxi {
     id: string;
     name: string;
     controlledRoutes: IRoute[];
-    members: IDriver[];
+    members: IMember[];
+  }
+  
+  export interface IMember {
+    firstName: string;
+    surname: string;
+    fullName: string;
+    licenseNumber: string;
+    isActive: boolean;
   }
   
   export interface IRoute {

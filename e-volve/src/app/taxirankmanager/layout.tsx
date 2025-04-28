@@ -20,6 +20,7 @@ import styles from "./styles/globals.module.css";
 import { TaxiProvider } from "@/providers/taxi";
 import { DriverProvider } from "@/providers/driver";
 import { RouteProvider } from "@/providers/route";
+import { AssociationProvider } from "@/providers/association";
 // import { EmployeeProvider } from "@/providers/employee";
 // import { EmailProvider } from "@/providers/email";
 // import { useAuthActions, useAuthState } from "@/providers/auth";
@@ -58,7 +59,7 @@ const TaxiRankManager = ({ children }: { children: React.ReactNode }) => {
       label: "Taxis",
     },
     {
-      key: "/taxirankmanager/drivers",
+      key: "/taxirankmanager/driver",
       icon: <UsergroupAddOutlined />,
       label: "Drivers",
     },
@@ -85,8 +86,10 @@ const TaxiRankManager = ({ children }: { children: React.ReactNode }) => {
   ];
 
   return (
+   
     <DriverProvider>
-      <TaxiProvider>
+       <AssociationProvider>
+       <TaxiProvider>
         <RouteProvider>
           <Layout className={styles.layout}>
             <Sider trigger={null} collapsible collapsed={collapsed}>
@@ -133,6 +136,8 @@ const TaxiRankManager = ({ children }: { children: React.ReactNode }) => {
           </Layout>
         </RouteProvider>
       </TaxiProvider>
+       </AssociationProvider>
+      
     </DriverProvider>
   );
 };
