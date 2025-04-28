@@ -9,7 +9,6 @@ import {
   Form,
   InputNumber,
   Space,
-  Typography,
   Popconfirm,
 } from "antd";
 import {
@@ -19,8 +18,6 @@ import {
 } from "@ant-design/icons";
 import type { TableProps } from "antd";
 import { IRoute } from "@/providers/interfaces";
-
-const { Title } = Typography;
 
 const Routes: React.FC = () => {
   const { getRoutes, createRoute, updateRoute, deleteRoute } =
