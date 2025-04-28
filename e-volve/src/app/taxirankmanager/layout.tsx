@@ -75,6 +75,11 @@ const TaxiRankManager = ({ children }: { children: React.ReactNode }) => {
       label: "Lanes",
     },
     {
+      key: "/taxirankmanager/routes",
+      icon: <PushpinFilled />,
+      label: "Routes",
+    },
+    {
       key: "/taxirankmanager/associations",
       icon: <TeamOutlined />,
       label: "Associations",

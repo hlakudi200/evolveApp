@@ -69,7 +69,7 @@ export interface ITaxi {
   }
   
   export interface IRoute {
-    id: string;
+    id?: string;
     origin: string;
     destination: string;
     fareAmount: number;

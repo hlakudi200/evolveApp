@@ -157,7 +157,7 @@ const ManageTaxis = () => {
       key: "actions",
       render: (_: unknown, record: { id: string }) => (
         <div className="flex gap-2">
-          <Button type="link" onClick={() => openModal(record)}>
+          <Button type="default" onClick={() => openModal(record)}>
             Edit
           </Button>
           <Popconfirm
@@ -166,7 +166,7 @@ const ManageTaxis = () => {
             okText="Yes"
             cancelText="No"
           >
-            <Button type="link" danger>
+            <Button type="primary" danger>
               Delete
             </Button>
           </Popconfirm>
@@ -178,7 +178,6 @@ const ManageTaxis = () => {
   return (
     <div className="p-6 bg-white rounded-xl shadow-md">
       <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold">Manage Taxis</h1>
         <Button
           type="primary"
           icon={<PlusOutlined />}

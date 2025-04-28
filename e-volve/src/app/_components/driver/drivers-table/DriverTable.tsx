@@ -88,7 +88,7 @@ const DriverTable = () => {
             Edit
           </Button>
           <Popconfirm title="Are you sure?" onConfirm={() => handleDelete(record.id)}>
-            <Button type="link" danger>
+            <Button type="primary" danger>
               Delete
             </Button>
           </Popconfirm>

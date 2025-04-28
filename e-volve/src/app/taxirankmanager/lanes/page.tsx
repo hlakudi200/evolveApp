@@ -175,8 +175,8 @@ const Lanes = () => {
       render: (_, record) => (
         <Space>
           <Button
-            type="primary"
-            size="small"
+            type="default"
+            
             onClick={() => {
               setSelectedLane(record);
               setIsUpdateModalVisible(true);
@@ -188,7 +188,7 @@ const Lanes = () => {
             title="Are you sure you want to delete this lane?"
             onConfirm={() => handleDelete(record.id)}
           >
-            <Button type="primary" size="small" danger>
+            <Button type="primary"  danger>
               Delete
             </Button>
           </Popconfirm>
