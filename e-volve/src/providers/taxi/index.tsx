@@ -36,7 +36,7 @@ export const TaxiProvider = ({
 
   const getTaxis = async () => {
     dispatch(getTaxisPending());
-    const endpoint = `https://fakestoreapi.com/Taxis`;
+    const endpoint = `/api/services/app/Taxi/GetAllInclude`;
     await axios(endpoint)
       .then((response) => {
         dispatch(getTaxisSuccess(response.data));
@@ -63,7 +63,7 @@ export const TaxiProvider = ({
 
   const createTaxi = async (Taxi: ITaxi) => {
     dispatch(createTaxiPending());
-    const endpoint = `/Taxis`;
+    const endpoint = `/api/services/app/Taxi/Create`;
     await instance
       .post(endpoint, Taxi)
       .then((response) => {
@@ -77,7 +77,7 @@ export const TaxiProvider = ({
 
   const updateTaxi = async (Taxi: ITaxi) => {
     dispatch(updateTaxiPending());
-    const endpoint = `/Taxis/${Taxi.id}`;
+    const endpoint = `/api/services/app/Taxi/Update`;
     await instance
       .put(endpoint, Taxi)
       .then((response) => {

@@ -1809,24 +1809,19 @@ namespace evolve.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<string>("AddressLine1")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
+                        .HasColumnType("text");
 
                     b.Property<string>("AddressLine2")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
+                        .HasColumnType("text");
 
                     b.Property<string>("CellPhoneNo")
-                        .HasMaxLength(10)
-                        .HasColumnType("character varying(10)");
+                        .HasColumnType("text");
 
                     b.Property<string>("City")
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
+                        .HasColumnType("text");
 
                     b.Property<string>("Country")
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("CreationTime")
                         .HasColumnType("timestamp with time zone");
@@ -1834,7 +1829,7 @@ namespace evolve.Migrations
                     b.Property<long?>("CreatorUserId")
                         .HasColumnType("bigint");
 
-                    b.Property<DateTime?>("DateOfBirth")
+                    b.Property<DateTime>("DateOfBirth")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<long?>("DeleterUserId")
@@ -1844,24 +1839,19 @@ namespace evolve.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Email")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
+                        .HasColumnType("text");
 
                     b.Property<string>("FirstName")
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
+                        .HasColumnType("text");
 
                     b.Property<string>("FullName")
-                        .HasMaxLength(150)
-                        .HasColumnType("character varying(150)");
+                        .HasColumnType("text");
 
                     b.Property<string>("Gender")
-                        .HasMaxLength(10)
-                        .HasColumnType("character varying(10)");
+                        .HasColumnType("text");
 
                     b.Property<string>("IdentificationNumber")
-                        .HasMaxLength(13)
-                        .HasColumnType("character varying(13)");
+                        .HasColumnType("text");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
@@ -1875,42 +1865,31 @@ namespace evolve.Migrations
                     b.Property<long?>("LastModifierUserId")
                         .HasColumnType("bigint");
 
-                    b.Property<DateTime?>("LicenseExpiryDate")
+                    b.Property<DateTime>("LicenseExpiryDate")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("LicenseNumber")
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)");
+                        .HasColumnType("text");
 
                     b.Property<string>("LicenseType")
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)");
-
-                    b.Property<Guid?>("MarshalId")
-                        .HasColumnType("uuid");
+                        .HasColumnType("text");
 
                     b.Property<string>("PostalCode")
-                        .HasMaxLength(10)
-                        .HasColumnType("character varying(10)");
+                        .HasColumnType("text");
 
                     b.Property<string>("Province")
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
+                        .HasColumnType("text");
 
                     b.Property<string>("SecondName")
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
+                        .HasColumnType("text");
 
                     b.Property<string>("Surname")
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
+                        .HasColumnType("text");
 
-                    b.Property<Guid?>("TaxiAssociationId")
+                    b.Property<Guid>("TaxiAssociationId")
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("MarshalId");
 
                     b.HasIndex("TaxiAssociationId");
 
@@ -2131,20 +2110,20 @@ namespace evolve.Migrations
                     b.Property<long?>("LastModifierUserId")
                         .HasColumnType("bigint");
 
-                    b.Property<Guid?>("LostRouteId")
-                        .HasColumnType("uuid");
-
                     b.Property<DateTime>("LostTime")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<Guid?>("OwnerId")
+                    b.Property<Guid>("PassangerId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("RouteId")
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("LostRouteId");
+                    b.HasIndex("PassangerId");
 
-                    b.HasIndex("OwnerId");
+                    b.HasIndex("RouteId");
 
                     b.ToTable("LostItems");
                 });
@@ -2281,9 +2260,6 @@ namespace evolve.Migrations
                     b.Property<DateTime?>("DeletionTime")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<Guid?>("DesignatedRouteId")
-                        .HasColumnType("uuid");
-
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
@@ -2293,12 +2269,15 @@ namespace evolve.Migrations
                     b.Property<long?>("LastModifierUserId")
                         .HasColumnType("bigint");
 
+                    b.Property<Guid>("RouteId")
+                        .HasColumnType("uuid");
+
                     b.Property<Guid?>("TaxiRankId")
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("DesignatedRouteId");
+                    b.HasIndex("RouteId");
 
                     b.HasIndex("TaxiRankId");
 
@@ -2365,9 +2344,6 @@ namespace evolve.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<Guid?>("AssignedRouteId")
-                        .HasColumnType("uuid");
-
                     b.Property<DateTime>("CreationTime")
                         .HasColumnType("timestamp with time zone");
 
@@ -2380,7 +2356,7 @@ namespace evolve.Migrations
                     b.Property<DateTime?>("DeletionTime")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<Guid?>("DriverId")
+                    b.Property<Guid>("DriverId")
                         .HasColumnType("uuid");
 
                     b.Property<bool>("IsDeleted")
@@ -2404,13 +2380,16 @@ namespace evolve.Migrations
                     b.Property<string>("RegistrationNumber")
                         .HasColumnType("text");
 
-                    b.HasKey("Id");
+                    b.Property<Guid>("RouteId")
+                        .HasColumnType("uuid");
 
-                    b.HasIndex("AssignedRouteId");
+                    b.HasKey("Id");
 
                     b.HasIndex("DriverId");
 
                     b.HasIndex("LaneId");
+
+                    b.HasIndex("RouteId");
 
                     b.ToTable("Taxis");
                 });
@@ -2803,26 +2782,28 @@ namespace evolve.Migrations
 
             modelBuilder.Entity("evolve.Domain.DriverManagement.Driver", b =>
                 {
-                    b.HasOne("evolve.Domain.DriverManagement.Marshal", null)
-                        .WithMany("Members")
-                        .HasForeignKey("MarshalId");
-
                     b.HasOne("evolve.Domain.TaxiManagement.TaxiAssociation", "Association")
                         .WithMany("Members")
-                        .HasForeignKey("TaxiAssociationId");
+                        .HasForeignKey("TaxiAssociationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Association");
                 });
 
             modelBuilder.Entity("evolve.Domain.PassengerManagement.LostItem", b =>
                 {
-                    b.HasOne("evolve.Domain.TaxiManagement.Route", "LostRoute")
-                        .WithMany()
-                        .HasForeignKey("LostRouteId");
-
                     b.HasOne("evolve.Domain.PassengerManagement.Passenger", "Owner")
                         .WithMany()
-                        .HasForeignKey("OwnerId");
+                        .HasForeignKey("PassangerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("evolve.Domain.TaxiManagement.Route", "LostRoute")
+                        .WithMany()
+                        .HasForeignKey("RouteId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("LostRoute");
 
@@ -2854,7 +2835,9 @@ namespace evolve.Migrations
                 {
                     b.HasOne("evolve.Domain.TaxiManagement.Route", "DesignatedRoute")
                         .WithMany()
-                        .HasForeignKey("DesignatedRouteId");
+                        .HasForeignKey("RouteId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("evolve.Domain.TaxiManagement.TaxiRank", null)
                         .WithMany("Lanes")
@@ -2876,17 +2859,21 @@ namespace evolve.Migrations
 
             modelBuilder.Entity("evolve.Domain.TaxiManagement.Taxi", b =>
                 {
-                    b.HasOne("evolve.Domain.TaxiManagement.Route", "AssignedRoute")
-                        .WithMany()
-                        .HasForeignKey("AssignedRouteId");
-
                     b.HasOne("evolve.Domain.DriverManagement.Driver", "Driver")
                         .WithMany()
-                        .HasForeignKey("DriverId");
+                        .HasForeignKey("DriverId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("evolve.Domain.TaxiManagement.Lane", null)
                         .WithMany("QueuedTaxis")
                         .HasForeignKey("LaneId");
+
+                    b.HasOne("evolve.Domain.TaxiManagement.Route", "AssignedRoute")
+                        .WithMany()
+                        .HasForeignKey("RouteId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("AssignedRoute");
 
@@ -3011,8 +2998,6 @@ namespace evolve.Migrations
             modelBuilder.Entity("evolve.Domain.DriverManagement.Marshal", b =>
                 {
                     b.Navigation("ControlledRoutes");
-
-                    b.Navigation("Members");
                 });
 
             modelBuilder.Entity("evolve.Domain.TaxiManagement.Lane", b =>

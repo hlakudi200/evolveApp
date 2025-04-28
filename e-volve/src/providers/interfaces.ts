@@ -3,7 +3,8 @@
   export interface ITaxi {
     id: string;
     registrationNumber: string;
-    driver: IDriver;
+    driverId:string
+    driver?: IDriver;
     passengerCapacity: number;
     assignedRoute: IRoute;
     isFull: boolean;
