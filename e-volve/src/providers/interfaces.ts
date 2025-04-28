@@ -41,8 +41,9 @@ export interface ITaxi {
   
   export interface ILane{
     id?:string;
-    designatedRoute:IRoute;
-    capacity:string;
+    routeId?:string;
+    designatedRoute?:IRoute;
+    capacity:number;
     queus?:IQue[]
   }
 

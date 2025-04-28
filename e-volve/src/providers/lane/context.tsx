@@ -13,7 +13,7 @@ export interface ILaneActionContext {
   getLanes: () => void;
   getLane: (id: string) => void;
   createLane: (Lane: ILane) => void;
-  updateLane: (Lane: ILane) => void;
+  updateLane: (Lane: ILane) => Promise<void>;
   deleteLane: (id: string) => void;
 }
 

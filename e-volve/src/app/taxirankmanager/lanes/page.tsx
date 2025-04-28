@@ -16,12 +16,16 @@ import {
 } from "antd";
 import { PlusOutlined, ReloadOutlined } from "@ant-design/icons";
 import { useLaneActions, useLaneState } from "@/providers/lane";
+import { useRouteActions } from "@/providers/route";
 import { ILane } from "@/providers/interfaces";
 import { ColumnsType } from "antd/es/table";
+import CreateLaneForm from "@/app/_components/lane/create-lane/CreateLaneForm";
+import UpdateLaneForm from "@/app/_components/lane/update-lane/UpdateLaneForm";
 
 const Lanes = () => {
   const { getLanes, deleteLane } = useLaneActions();
   const { Lanes, isPending, isError, isSuccess } = useLaneState();
+  const { getRoutes } = useRouteActions();
 
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedLane, setSelectedLane] = useState<ILane | null>(null);
@@ -31,6 +35,7 @@ const Lanes = () => {
 
   useEffect(() => {
     getLanes();
+    getRoutes();
     if (typeof window !== "undefined") {
       const handleResize = () => {
         setIsMobile(window.innerWidth < 768);
@@ -66,8 +71,14 @@ const Lanes = () => {
   };
 
   const filteredLanes = Lanes?.filter((lane) => {
-    const origin = typeof lane.designatedRoute === "object" ? lane.designatedRoute.origin?.toLowerCase() : "";
-    const destination = typeof lane.designatedRoute === "object" ? lane.designatedRoute.destination?.toLowerCase() : "";
+    const origin =
+      typeof lane.designatedRoute === "object"
+        ? lane.designatedRoute.origin?.toLowerCase()
+        : "";
+    const destination =
+      typeof lane.designatedRoute === "object"
+        ? lane.designatedRoute.destination?.toLowerCase()
+        : "";
     return (
       origin.includes(searchTerm.toLowerCase()) ||
       destination.includes(searchTerm.toLowerCase())
@@ -80,11 +91,18 @@ const Lanes = () => {
       dataIndex: ["designatedRoute", "origin"],
       key: "origin",
       sorter: (a, b) =>
-        (typeof a.designatedRoute === "object" ? a.designatedRoute.origin : "").localeCompare(
+        (typeof a.designatedRoute === "object"
+          ? a.designatedRoute.origin
+          : ""
+        ).localeCompare(
           typeof b.designatedRoute === "object" ? b.designatedRoute.origin : ""
         ),
       render: (_, record) => (
-        <span>{typeof record.designatedRoute === "object" ? record.designatedRoute.origin : ""}</span>
+        <span>
+          {typeof record.designatedRoute === "object"
+            ? record.designatedRoute.origin
+            : ""}
+        </span>
       ),
     },
     {
@@ -92,8 +110,13 @@ const Lanes = () => {
       dataIndex: ["designatedRoute", "destination"],
       key: "destination",
       sorter: (a, b) =>
-        (typeof a.designatedRoute === "object" ? a.designatedRoute.destination : "").localeCompare(
-          typeof b.designatedRoute === "object" ? b.designatedRoute.destination : ""
+        (typeof a.designatedRoute === "object"
+          ? a.designatedRoute.destination
+          : ""
+        ).localeCompare(
+          typeof b.designatedRoute === "object"
+            ? b.designatedRoute.destination
+            : ""
         ),
     },
     {
@@ -101,16 +124,24 @@ const Lanes = () => {
       dataIndex: ["designatedRoute", "fareAmount"],
       key: "fareAmount",
       sorter: (a, b) =>
-        (typeof a.designatedRoute === "object" ? a.designatedRoute.fareAmount ?? 0 : 0) -
-        (typeof b.designatedRoute === "object" ? b.designatedRoute.fareAmount ?? 0 : 0),
+        (typeof a.designatedRoute === "object"
+          ? a.designatedRoute.fareAmount ?? 0
+          : 0) -
+        (typeof b.designatedRoute === "object"
+          ? b.designatedRoute.fareAmount ?? 0
+          : 0),
     },
     {
       title: "Travel Time (min)",
       dataIndex: ["designatedRoute", "estimatedTravelTime"],
       key: "estimatedTravelTime",
       sorter: (a, b) =>
-        (typeof a.designatedRoute === "object" ? a.designatedRoute.estimatedTravelTime ?? 0 : 0) -
-        (typeof b.designatedRoute === "object" ? b.designatedRoute.estimatedTravelTime ?? 0 : 0),
+        (typeof a.designatedRoute === "object"
+          ? a.designatedRoute.estimatedTravelTime ?? 0
+          : 0) -
+        (typeof b.designatedRoute === "object"
+          ? b.designatedRoute.estimatedTravelTime ?? 0
+          : 0),
     },
     {
       title: "Capacity",
@@ -119,11 +150,15 @@ const Lanes = () => {
       sorter: (a, b) => Number(a.capacity) - Number(b.capacity),
     },
     {
-      title: "Status",
+      title: "Que Status",
       key: "status",
       render: (_, record) => {
         const open = record.queus?.[0]?.isOpen ?? false;
-        return open ? <Tag color="green">Open</Tag> : <Tag color="red">Closed</Tag>;
+        return open ? (
+          <Tag color="green">Open</Tag>
+        ) : (
+          <Tag color="red">Closed</Tag>
+        );
       },
       filters: [
         { text: "Open", value: "open" },
@@ -194,8 +229,15 @@ const Lanes = () => {
       {/* Table */}
       <div className="mt-4">
         {isPending ? (
-          <div className="text-center my-10">
-            <Spin size="large" tip="Loading lanes..." />
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              minHeight: "80vh",
+            }}
+          >
+            <Spin size="large" tip="Loading job posts..." />
           </div>
         ) : isError ? (
           <Alert
@@ -222,7 +264,6 @@ const Lanes = () => {
         )}
       </div>
 
-      {/* Create Modal */}
       <Modal
         title="Create New Lane"
         open={isCreateModalVisible}
@@ -230,11 +271,15 @@ const Lanes = () => {
         footer={null}
         destroyOnClose
       >
-        {/* Insert your Create Lane Form here */}
-        <div>Form to create lane goes here</div>
+        <CreateLaneForm
+          onSuccess={() => {
+            setIsCreateModalVisible(false);
+            getLanes();
+          }}
+          onCancel={() => setIsCreateModalVisible(false)}
+        />
       </Modal>
 
-      {/* Update Modal */}
       <Modal
         title="Update Lane"
         open={isUpdateModalVisible}
@@ -246,7 +291,18 @@ const Lanes = () => {
         destroyOnClose
       >
         {selectedLane && (
-          <div>Form to update lane from {typeof selectedLane.designatedRoute === "object" ? selectedLane.designatedRoute.origin : ""}</div>
+          <UpdateLaneForm
+            lane={selectedLane}
+            onSuccess={() => {
+              setIsUpdateModalVisible(false);
+              setSelectedLane(null);
+              getLanes();
+            }}
+            onCancel={() => {
+              setIsUpdateModalVisible(false);
+              setSelectedLane(null);
+            }}
+          />
         )}
       </Modal>
     </div>
