@@ -1,9 +1,5 @@
 import { getAxiosInstace } from "@/utils/axios-instance";
-import {
-  INITIAL_STATE,
-  TaxiActionContext,
-  TaxiStateContext,
-} from "./context";
+import { INITIAL_STATE, TaxiActionContext, TaxiStateContext } from "./context";
 import { ITaxi } from "../interfaces";
 import { TaxiReducer } from "./reducer";
 import { useContext, useReducer } from "react";
@@ -24,22 +20,20 @@ import {
   deleteTaxiSuccess,
   deleteTaxiError,
 } from "./actions";
-import axios from "axios";
 
-export const TaxiProvider = ({
-  children,
-}: {
-  children: React.ReactNode;
-}) => {
+
+export const TaxiProvider = ({ children }: { children: React.ReactNode }) => {
   const [state, dispatch] = useReducer(TaxiReducer, INITIAL_STATE);
   const instance = getAxiosInstace();
 
   const getTaxis = async () => {
     dispatch(getTaxisPending());
     const endpoint = `/api/services/app/Taxi/GetAllInclude`;
-    await axios(endpoint)
+    //console.log("Edpoint", endpoint);
+    await instance
+      .get(endpoint)
       .then((response) => {
-        dispatch(getTaxisSuccess(response.data));
+        dispatch(getTaxisSuccess(response.data.result));
       })
       .catch((error) => {
         console.error(error);
