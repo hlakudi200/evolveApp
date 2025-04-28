@@ -39,6 +39,12 @@ export interface ITaxi {
     payments: IPayment[];
   }
   
+  export interface ILane{
+    id?:string;
+    designatedRoute:string;
+    capacity:string;
+    queuedTaxis?:ITaxi[]
+  }
   export interface IAssociation {
     id: string;
     name: string;
