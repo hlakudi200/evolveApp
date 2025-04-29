@@ -1,9 +1,12 @@
 ﻿using System;
-using Abp.Domain.Entities.Auditing;
+using Abp.Application.Services.Dto;
+using Abp.AutoMapper;
+using evolve.Domain.Adminstration;
 
-namespace evolve.Domain.Adminstration
+namespace evolve.Services.Adminstration.FacilityAppService.DTO
 {
-    public class Facility : FullAuditedEntity<Guid>
+    [AutoMap(typeof(Facility))]
+    public class FacilityDto : EntityDto<Guid>
     {
         public string Name { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
