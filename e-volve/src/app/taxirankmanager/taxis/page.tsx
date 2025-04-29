@@ -81,7 +81,7 @@ const ManageTaxis = () => {
   };
 
   const handleDelete = async (id: string) => {
-    deleteTaxi(id);
+    await  deleteTaxi(id);
     message.success("Taxi deleted successfully");
     getTaxis();
   };

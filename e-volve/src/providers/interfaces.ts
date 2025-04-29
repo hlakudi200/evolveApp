@@ -47,6 +47,14 @@ export interface ITaxi {
     queus?:IQue[]
   }
 
+  export interface IFacility{
+    id?:string;
+    name:string;
+    description:string;
+    unit:number;
+    isOperational:boolean
+  }
+
   export interface IQue{
    id?:string;
    creationDate:string;

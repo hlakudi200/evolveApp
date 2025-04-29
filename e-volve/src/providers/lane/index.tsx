@@ -88,7 +88,7 @@ export const LaneProvider = ({ children }: { children: React.ReactNode }) => {
 
   const deleteLane = async (id: string) => {
     dispatch(deleteLanePending());
-    const endpoint = `https://fakestoreapi.com/Lanes/${id}`;
+    const endpoint = `/api/services/app/Lane/Delete?Id=${id}`;
     await instance
       .delete(endpoint)
       .then((response) => {

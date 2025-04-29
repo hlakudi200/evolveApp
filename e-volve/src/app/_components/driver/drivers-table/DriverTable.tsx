@@ -42,7 +42,7 @@ const DriverTable = () => {
 
   const handleDelete = async (id: string) => {
     try {
-      deleteDriver(id);
+      await deleteDriver(id);
       message.success("Driver deleted successfully");
       getDrivers();
     } catch (error) {

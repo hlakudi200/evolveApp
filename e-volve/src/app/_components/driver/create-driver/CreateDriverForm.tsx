@@ -18,13 +18,13 @@ import {
   useAssociationState,
 } from "@/providers/association";
 import { IDriver } from "@/providers/interfaces";
-import { motion, AnimatePresence } from "framer-motion"; // 👈 import Framer Motion
+import { motion, AnimatePresence } from "framer-motion"; 
 
 const { Step } = Steps;
 const { Option } = Select;
 
 const CreateDriverForm = ({ onClose }: { onClose: () => void }) => {
-  const { createDriver } = useDriverActions();
+  const { createDriver,getDrivers} = useDriverActions();
   const { getAssociations } = useAssociationActions();
   const { Associations } = useAssociationState();
 
@@ -76,8 +76,10 @@ const CreateDriverForm = ({ onClose }: { onClose: () => void }) => {
 
       console.log("Final driver data:", finalDriverData);
 
-      createDriver(finalDriverData);
+      await createDriver(finalDriverData);
+      getDrivers();
       message.success("Driver created successfully");
+     
       onClose();
     } catch {
       message.error("Please complete the form before submitting");
@@ -100,7 +102,7 @@ const CreateDriverForm = ({ onClose }: { onClose: () => void }) => {
         <Form form={form} layout="vertical" initialValues={driverData || {}}>
           <AnimatePresence mode="wait">
             {" "}
-            {/* 👈 Animate transitions between steps */}
+            
             <motion.div
               key={currentStep}
               initial={{ opacity: 0, x: 100 }}

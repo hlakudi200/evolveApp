@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using evolve.EntityFrameworkCore;
@@ -11,9 +12,11 @@ using evolve.EntityFrameworkCore;
 namespace evolve.Migrations
 {
     [DbContext(typeof(evolveDbContext))]
-    partial class evolveDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250429075857_FacilityColumns")]
+    partial class FacilityColumns
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1618,6 +1621,9 @@ namespace evolve.Migrations
 
                     b.Property<Guid?>("TaxiRankId")
                         .HasColumnType("uuid");
+
+                    b.Property<string>("Type")
+                        .HasColumnType("text");
 
                     b.Property<int>("Unit")
                         .HasColumnType("integer");
