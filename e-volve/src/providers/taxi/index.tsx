@@ -29,7 +29,6 @@ export const TaxiProvider = ({ children }: { children: React.ReactNode }) => {
   const getTaxis = async () => {
     dispatch(getTaxisPending());
     const endpoint = `/api/services/app/Taxi/GetAllInclude`;
-    //console.log("Edpoint", endpoint);
     await instance
       .get(endpoint)
       .then((response) => {
@@ -85,7 +84,7 @@ export const TaxiProvider = ({ children }: { children: React.ReactNode }) => {
 
   const deleteTaxi = async (id: string) => {
     dispatch(deleteTaxiPending());
-    const endpoint = `https://fakestoreapi.com/Taxis/${id}`;
+    const endpoint = `/api/services/app/Taxi/Delete?Id=${id}`;
     await instance
       .delete(endpoint)
       .then((response) => {

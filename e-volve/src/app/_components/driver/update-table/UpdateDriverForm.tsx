@@ -30,7 +30,7 @@ const UpdateDriverForm = ({
   driver: IDriver;
   onClose: () => void;
 }) => {
-  const { updateDriver } = useDriverActions();
+  const { updateDriver, getDrivers } = useDriverActions();
   const { getAssociations } = useAssociationActions();
   const { Associations } = useAssociationState();
 
@@ -74,12 +74,12 @@ const UpdateDriverForm = ({
         allValues.secondName || ""
       } ${allValues.surname || ""}`.trim();
 
-      updateDriver({
+      await updateDriver({
         ...driver,
         ...allValues,
         fullName,
       });
-
+      getDrivers();
       message.success("Driver updated successfully");
       onClose();
     } catch {

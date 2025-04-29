@@ -35,7 +35,7 @@ export const FacilityProvider = ({ children }: { children: React.ReactNode }) =>
     await instance
       .get(endpoint)
       .then((response) => {
-        dispatch(getFacilitysSuccess(response.data.result));
+        dispatch(getFacilitysSuccess(response.data.result.items));
       })
       .catch((error) => {
         console.error(error);
@@ -88,7 +88,7 @@ export const FacilityProvider = ({ children }: { children: React.ReactNode }) =>
 
   const deleteFacility = async (id: string) => {
     dispatch(deleteFacilityPending());
-    const endpoint = `https://fakestoreapi.com/Facilitys/${id}`;
+    const endpoint = `/api/services/app/Facility/Delete?Id=${id}`;
     await instance
       .delete(endpoint)
       .then((response) => {

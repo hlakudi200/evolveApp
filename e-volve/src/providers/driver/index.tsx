@@ -88,7 +88,7 @@ export const DriverProvider = ({ children }: { children: React.ReactNode }) => {
 
   const deleteDriver = async (id: string) => {
     dispatch(deleteDriverPending());
-    const endpoint = `https://fakestoreapi.com/Drivers/${id}`;
+    const endpoint = `/api/services/app/Driver/Delete?Id=${id}`;
     await instance
       .delete(endpoint)
       .then((response) => {

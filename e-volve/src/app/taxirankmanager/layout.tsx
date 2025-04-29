@@ -22,6 +22,7 @@ import { DriverProvider } from "@/providers/driver";
 import { RouteProvider } from "@/providers/route";
 import { AssociationProvider } from "@/providers/association";
 import { LaneProvider } from "@/providers/lane";
+import { FacilityProvider } from "@/providers/facilities";
 // import { EmployeeProvider } from "@/providers/employee";
 // import { EmailProvider } from "@/providers/email";
 // import { useAuthActions, useAuthState } from "@/providers/auth";
@@ -93,61 +94,63 @@ const TaxiRankManager = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <DriverProvider>
-      <AssociationProvider>
-        <TaxiProvider>
-          <LaneProvider>
-            <RouteProvider>
-              <Layout className={styles.layout}>
-                <Sider trigger={null} collapsible collapsed={collapsed}>
-                  <div className="demo-logo-vertical" />
-                  <Menu
-                    onClick={({ key }) => router.push(key)}
-                    theme="dark"
-                    mode="inline"
-                    defaultSelectedKeys={["/hrManager"]}
-                    items={siderItems}
-                  />
-                </Sider>
-                <Layout>
-                  <Header
-                    style={{
-                      padding: 0,
-                      backgroundColor: "white",
-                      display: "flex",
-                      alignItems: "center",
-                    }}
-                  >
-                    <Button
-                      type="text"
-                      icon={
-                        collapsed ? (
-                          <MenuUnfoldOutlined />
-                        ) : (
-                          <MenuFoldOutlined />
-                        )
-                      }
-                      onClick={() => setCollapsed(!collapsed)}
-                      style={{
-                        fontSize: "16px",
-                        width: 64,
-                        height: 64,
-                      }}
+      <FacilityProvider>
+        <AssociationProvider>
+          <TaxiProvider>
+            <LaneProvider>
+              <RouteProvider>
+                <Layout className={styles.layout}>
+                  <Sider trigger={null} collapsible collapsed={collapsed}>
+                    <div className="demo-logo-vertical" />
+                    <Menu
+                      onClick={({ key }) => router.push(key)}
+                      theme="dark"
+                      mode="inline"
+                      defaultSelectedKeys={["/hrManager"]}
+                      items={siderItems}
                     />
-                    <div className={styles.profileMenu}>
-                      <Dropdown menu={userMenu} trigger={["click"]}>
-                        <Button type="text" icon={<UserOutlined />}>
-                          {/* {currentUser?.emailAddress ?? "User"} */}
-                        </Button>
-                      </Dropdown>
-                    </div>
-                  </Header>
-                  <Content className={styles.content}>{children}</Content>
+                  </Sider>
+                  <Layout>
+                    <Header
+                      style={{
+                        padding: 0,
+                        backgroundColor: "white",
+                        display: "flex",
+                        alignItems: "center",
+                      }}
+                    >
+                      <Button
+                        type="text"
+                        icon={
+                          collapsed ? (
+                            <MenuUnfoldOutlined />
+                          ) : (
+                            <MenuFoldOutlined />
+                          )
+                        }
+                        onClick={() => setCollapsed(!collapsed)}
+                        style={{
+                          fontSize: "16px",
+                          width: 64,
+                          height: 64,
+                        }}
+                      />
+                      <div className={styles.profileMenu}>
+                        <Dropdown menu={userMenu} trigger={["click"]}>
+                          <Button type="text" icon={<UserOutlined />}>
+                            {/* {currentUser?.emailAddress ?? "User"} */}
+                          </Button>
+                        </Dropdown>
+                      </div>
+                    </Header>
+                    <Content className={styles.content}>{children}</Content>
+                  </Layout>
                 </Layout>
-              </Layout>
-            </RouteProvider>
-          </LaneProvider>
-        </TaxiProvider>
-      </AssociationProvider>
+              </RouteProvider>
+            </LaneProvider>
+          </TaxiProvider>
+        </AssociationProvider>
+      </FacilityProvider>
     </DriverProvider>
   );
 };
