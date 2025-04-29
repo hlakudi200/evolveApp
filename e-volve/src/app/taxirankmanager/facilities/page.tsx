@@ -20,13 +20,8 @@ import type { ColumnsType } from "antd/es/table";
 import {
   SearchOutlined,
   PlusOutlined,
-  EditOutlined,
-  DeleteOutlined,
   ReloadOutlined,
-  ExclamationCircleOutlined,
 } from "@ant-design/icons";
-
-const { confirm } = Modal;
 
 const Facilities = () => {
   const { getFacilitys, updateFacility, createFacility, deleteFacility } =
@@ -176,7 +171,7 @@ const Facilities = () => {
     {
       title: "Actions",
       key: "actions",
-      render: (_: any, record: IFacility) => (
+      render: (_: unknown, record: IFacility) => (
         <Space size="middle">
           <Tooltip title="Edit">
             <Button
