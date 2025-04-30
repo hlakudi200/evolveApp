@@ -5,10 +5,8 @@ using System.Threading.Tasks;
 using Abp.Application.Services;
 using Abp.Domain.Repositories;
 using Abp.UI;
-using Castle.MicroKernel.Util;
 using evolve.Domain.DriverManagement;
 using evolve.Services.DriverManagement.DriverService.DTO;
-using evolve.Services.TaxiManagement.TaxiService.DTO;
 using Microsoft.EntityFrameworkCore;
 
 namespace evolve.Services.DriverManagement.DriverService
