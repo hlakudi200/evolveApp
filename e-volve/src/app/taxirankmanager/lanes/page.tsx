@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import {
   Table,
   Input,
@@ -17,7 +17,7 @@ import {
 import { PlusOutlined, ReloadOutlined } from "@ant-design/icons";
 import { useLaneActions, useLaneState } from "@/providers/lane";
 import { useRouteActions } from "@/providers/route";
-import { ILane } from "@/providers/interfaces";
+import { ILane, ITaxi } from "@/providers/interfaces";
 import { ColumnsType } from "antd/es/table";
 import CreateLaneForm from "@/app/_components/lane/create-lane/CreateLaneForm";
 import UpdateLaneForm from "@/app/_components/lane/update-lane/UpdateLaneForm";
@@ -32,6 +32,9 @@ const Lanes = () => {
   const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
   const [isUpdateModalVisible, setIsUpdateModalVisible] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  
+  // Add state for filtering queue data - moved outside the expandedRowRender function
+  const [queueFilter, setQueueFilter] = useState<"today" | "pastDay" | "fiveDays">("today");
 
   useEffect(() => {
     getLanes();
@@ -71,19 +74,126 @@ const Lanes = () => {
   };
 
   const filteredLanes = Lanes?.filter((lane) => {
-    const origin =
-      typeof lane.designatedRoute === "object"
-        ? lane.designatedRoute.origin?.toLowerCase()
-        : "";
-    const destination =
-      typeof lane.designatedRoute === "object"
-        ? lane.designatedRoute.destination?.toLowerCase()
-        : "";
+    const origin = typeof lane.designatedRoute === "object" ? lane.designatedRoute.origin?.toLowerCase() : "";
+    const destination = typeof lane.designatedRoute === "object" ? lane.designatedRoute.destination?.toLowerCase() : "";
     return (
       origin.includes(searchTerm.toLowerCase()) ||
       destination.includes(searchTerm.toLowerCase())
     );
   });
+
+  // State for queue open/closed filter
+  const [queueOpenFilter, setQueueOpenFilter] = useState<"all" | "open" | "closed">("all");
+  
+  // Fix for the hooks order issue - moved filter logic outside the expandedRowRender
+  const filterQueus = useCallback((queus: ILane["queus"] = []) => {
+    const now = new Date();
+    return queus.filter((que) => {
+      const created = new Date(que.creationDate);
+      const timeDiff = now.getTime() - created.getTime();
+      const dayDiff = timeDiff / (1000 * 60 * 60 * 24);
+      
+      // Time filter
+      const passesTimeFilter = 
+        (queueFilter === "today" && created.toDateString() === now.toDateString()) ||
+        (queueFilter === "pastDay" && dayDiff <= 1) ||
+        (queueFilter === "fiveDays" && dayDiff <= 5);
+      
+      // Open/closed filter
+      const passesStatusFilter = 
+        queueOpenFilter === "all" || 
+        (queueOpenFilter === "open" && que.isOpen) || 
+        (queueOpenFilter === "closed" && !que.isOpen);
+      
+      return passesTimeFilter && passesStatusFilter;
+    });
+  }, [queueFilter, queueOpenFilter]);
+
+  // Fixed expandedRowRender without any hooks inside
+  const expandedRowRender = (lane: ILane) => {
+    const filteredQueus = filterQueus(lane.queus);
+
+    return (
+      <div style={{ overflowX: "auto" }}>
+        <Row gutter={[16, 16]}>
+          <Col xs={24} md={12}>
+            <Space wrap style={{ marginBottom: 8 }}>
+              <Button 
+                type={queueFilter === "today" ? "primary" : "default"} 
+                onClick={() => setQueueFilter("today")}
+              >
+                Today
+              </Button>
+              <Button 
+                type={queueFilter === "pastDay" ? "primary" : "default"} 
+                onClick={() => setQueueFilter("pastDay")}
+              >
+                Past Day
+              </Button>
+              <Button 
+                type={queueFilter === "fiveDays" ? "primary" : "default"} 
+                onClick={() => setQueueFilter("fiveDays")}
+              >
+                Last 5 Days
+              </Button>
+            </Space>
+          </Col>
+          <Col xs={24} md={12}>
+            <Space wrap style={{ marginBottom: 8 }}>
+              <Button 
+                type={queueOpenFilter === "all" ? "primary" : "default"} 
+                onClick={() => setQueueOpenFilter("all")}
+              >
+                All Queues
+              </Button>
+              <Button 
+                type={queueOpenFilter === "open" ? "primary" : "default"} 
+                onClick={() => setQueueOpenFilter("open")}
+              >
+                Open Only
+              </Button>
+              <Button 
+                type={queueOpenFilter === "closed" ? "primary" : "default"} 
+                onClick={() => setQueueOpenFilter("closed")}
+              >
+                Closed Only
+              </Button>
+            </Space>
+          </Col>
+        </Row>
+        <div style={{ maxHeight: "300px", overflowY: "auto", border: "1px solid #f0f0f0", borderRadius: "4px" }}>
+          <Table
+            columns={[
+              {
+                title: "Creation Date",
+                dataIndex: "creationDate",
+                key: "creationDate",
+                render: (date: string) => new Date(date).toLocaleString(),
+              },
+              {
+                title: "Status",
+                dataIndex: "isOpen",
+                key: "isOpen",
+                render: (isOpen: boolean) =>
+                  isOpen ? <Tag color="green">Open</Tag> : <Tag color="red">Closed</Tag>,
+              },
+              {
+                title: "Number of Taxis",
+                dataIndex: "quedTaxis",
+                key: "quedTaxis",
+                render: (taxis: ITaxi[] = []) => taxis.length,
+              },
+            ]}
+            dataSource={filteredQueus}
+            rowKey={(record) => record.creationDate}
+            pagination={false}
+            scroll={{ x: true }}
+            size="small"
+          />
+        </div>
+      </div>
+    );
+  };
 
   const columns: ColumnsType<ILane> = [
     {
@@ -91,57 +201,28 @@ const Lanes = () => {
       dataIndex: ["designatedRoute", "origin"],
       key: "origin",
       sorter: (a, b) =>
-        (typeof a.designatedRoute === "object"
-          ? a.designatedRoute.origin
-          : ""
-        ).localeCompare(
-          typeof b.designatedRoute === "object" ? b.designatedRoute.origin : ""
-        ),
-      render: (_, record) => (
-        <span>
-          {typeof record.designatedRoute === "object"
-            ? record.designatedRoute.origin
-            : ""}
-        </span>
-      ),
+        (a.designatedRoute?.origin || "").localeCompare(b.designatedRoute?.origin || ""),
     },
     {
       title: "Destination",
       dataIndex: ["designatedRoute", "destination"],
       key: "destination",
       sorter: (a, b) =>
-        (typeof a.designatedRoute === "object"
-          ? a.designatedRoute.destination
-          : ""
-        ).localeCompare(
-          typeof b.designatedRoute === "object"
-            ? b.designatedRoute.destination
-            : ""
-        ),
+        (a.designatedRoute?.destination || "").localeCompare(b.designatedRoute?.destination || ""),
     },
     {
       title: "Fare Amount (R)",
       dataIndex: ["designatedRoute", "fareAmount"],
       key: "fareAmount",
       sorter: (a, b) =>
-        (typeof a.designatedRoute === "object"
-          ? a.designatedRoute.fareAmount ?? 0
-          : 0) -
-        (typeof b.designatedRoute === "object"
-          ? b.designatedRoute.fareAmount ?? 0
-          : 0),
+        (a.designatedRoute?.fareAmount ?? 0) - (b.designatedRoute?.fareAmount ?? 0),
     },
     {
       title: "Travel Time (min)",
       dataIndex: ["designatedRoute", "estimatedTravelTime"],
       key: "estimatedTravelTime",
       sorter: (a, b) =>
-        (typeof a.designatedRoute === "object"
-          ? a.designatedRoute.estimatedTravelTime ?? 0
-          : 0) -
-        (typeof b.designatedRoute === "object"
-          ? b.designatedRoute.estimatedTravelTime ?? 0
-          : 0),
+        (a.designatedRoute?.estimatedTravelTime ?? 0) - (b.designatedRoute?.estimatedTravelTime ?? 0),
     },
     {
       title: "Capacity",
@@ -154,11 +235,7 @@ const Lanes = () => {
       key: "status",
       render: (_, record) => {
         const open = record.queus?.[0]?.isOpen ?? false;
-        return open ? (
-          <Tag color="green">Open</Tag>
-        ) : (
-          <Tag color="red">Closed</Tag>
-        );
+        return open ? <Tag color="green">Open</Tag> : <Tag color="red">Closed</Tag>;
       },
       filters: [
         { text: "Open", value: "open" },
@@ -176,7 +253,6 @@ const Lanes = () => {
         <Space>
           <Button
             type="default"
-            
             onClick={() => {
               setSelectedLane(record);
               setIsUpdateModalVisible(true);
@@ -188,7 +264,7 @@ const Lanes = () => {
             title="Are you sure you want to delete this lane?"
             onConfirm={() => handleDelete(record.id)}
           >
-            <Button type="primary"  danger>
+            <Button type="primary" danger>
               Delete
             </Button>
           </Popconfirm>
@@ -199,7 +275,6 @@ const Lanes = () => {
 
   return (
     <div className="p-4">
-      {/* Top Controls */}
       <Row gutter={[16, 16]} justify="space-between" align="middle">
         <Col xs={24} sm={24} md={18}>
           <Space wrap>
@@ -226,18 +301,10 @@ const Lanes = () => {
         </Col>
       </Row>
 
-      {/* Table */}
       <div className="mt-4">
         {isPending ? (
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              minHeight: "80vh",
-            }}
-          >
-            <Spin size="large" tip="Loading job posts..." />
+          <div style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "80vh" }}>
+            <Spin size="large" tip="Loading lanes..." />
           </div>
         ) : isError ? (
           <Alert
@@ -246,7 +313,7 @@ const Lanes = () => {
             type="error"
             showIcon
           />
-        ) : isSuccess && filteredLanes && filteredLanes.length === 0 ? (
+        ) : isSuccess && filteredLanes?.length === 0 ? (
           <Alert
             message="No lanes found"
             description="Try adjusting your search."
@@ -260,6 +327,7 @@ const Lanes = () => {
             rowKey="id"
             pagination={{ pageSize: 5 }}
             scroll={{ x: "max-content" }}
+            expandable={{ expandedRowRender }}
           />
         )}
       </div>

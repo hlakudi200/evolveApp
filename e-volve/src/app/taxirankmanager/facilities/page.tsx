@@ -236,7 +236,7 @@ const Facilities = () => {
         bordered
       />
 
-      {/* Create Facility Modal */}
+   
       <Modal
         title="Create New Facility"
         open={isCreateModalVisible}
