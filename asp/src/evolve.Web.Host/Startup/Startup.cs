@@ -17,6 +17,9 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Hangfire;
+using Hangfire.Dashboard;
+using Hangfire.PostgreSql;
 
 namespace evolve.Web.Host.Startup
 {
@@ -37,7 +40,16 @@ namespace evolve.Web.Host.Startup
 
         public void ConfigureServices(IServiceCollection services)
         {
-            //MVC
+            // Add Hangfire services and configure PostgreSQL storage
+            services.AddHangfire(config =>
+            {
+                var connectionString = _appConfiguration.GetConnectionString("Default");
+                config.UsePostgreSqlStorage(connectionString); // Ensure Hangfire uses PostgreSQL storage
+            });
+
+            services.AddHangfireServer();  // Registers Hangfire server to process background jobs
+
+            // MVC and other configurations...
             services.AddControllersWithViews(options =>
             {
                 options.Filters.Add(new AbpAutoValidateAntiforgeryTokenAttribute());
@@ -48,57 +60,44 @@ namespace evolve.Web.Host.Startup
 
             services.AddSignalR();
 
-            // Configure CORS for angular2 UI
-            services.AddCors(
-                options => options.AddPolicy(
-                    _defaultCorsPolicyName,
-                    builder => builder
-                        .WithOrigins(
-                            // App:CorsOrigins in appsettings.json can contain more than one address separated by comma.
-                            _appConfiguration["App:CorsOrigins"]
-                                .Split(",", StringSplitOptions.RemoveEmptyEntries)
-                                .Select(o => o.RemovePostFix("/"))
-                                .ToArray()
-                        )
-                        .AllowAnyHeader()
-                        .AllowAnyMethod()
-                        .AllowCredentials()
-                )
-            );
+            // Configure CORS
+            services.AddCors(options => options.AddPolicy(
+                _defaultCorsPolicyName,
+                builder => builder.WithOrigins(
+                    _appConfiguration["App:CorsOrigins"]
+                        .Split(",", StringSplitOptions.RemoveEmptyEntries)
+                        .Select(o => o.RemovePostFix("/"))
+                        .ToArray())
+                    .AllowAnyHeader()
+                    .AllowAnyMethod()
+                    .AllowCredentials()));
 
-            // Swagger - Enable this line and the related lines in Configure method to enable swagger UI
+            // Swagger setup
             ConfigureSwagger(services);
 
-            // Configure Abp and Dependency Injection
+            // ABP configuration
             services.AddAbpWithoutCreatingServiceProvider<evolveWebHostModule>(
-                // Configure Log4Net logging
                 options => options.IocManager.IocContainer.AddFacility<LoggingFacility>(
-                    f => f.UseAbpLog4Net().WithConfig(_hostingEnvironment.IsDevelopment()
-                        ? "log4net.config"
-                        : "log4net.Production.config"
-                    )
+                    f => f.UseAbpLog4Net().WithConfig(_hostingEnvironment.IsDevelopment() ? "log4net.config" : "log4net.Production.config")
                 )
             );
         }
 
+
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
         {
-            app.UseAbp(options => { options.UseAbpRequestLocalization = false; }); // Initializes ABP framework.
-
-            app.UseCors(_defaultCorsPolicyName); // Enable CORS!
-
+            // Use ABP and configure other middleware
+            app.UseAbp(options => { options.UseAbpRequestLocalization = false; });
+            app.UseCors(_defaultCorsPolicyName);
             app.UseStaticFiles();
-
             app.UseRouting();
-
             app.UseAuthentication();
             app.UseAuthorization();
-
             app.UseAbpRequestLocalization();
 
             if (env.IsDevelopment())
             {
-                app.UseHttpsRedirection(); // Only in Development environment
+                app.UseHttpsRedirection();
             }
 
             app.UseEndpoints(endpoints =>
@@ -108,16 +107,21 @@ namespace evolve.Web.Host.Startup
                 endpoints.MapControllerRoute("defaultWithArea", "{area}/{controller=Home}/{action=Index}/{id?}");
             });
 
-            // Swagger
+            // Swagger setup
             app.UseSwagger(c => { c.RouteTemplate = "swagger/{documentName}/swagger.json"; });
-
             app.UseSwaggerUI(options =>
             {
                 options.SwaggerEndpoint($"/swagger/{_apiVersion}/swagger.json", $"evolve API {_apiVersion}");
-                options.IndexStream = () => Assembly.GetExecutingAssembly()
-                    .GetManifestResourceStream("evolve.Web.Host.wwwroot.swagger.ui.index.html");
+                options.IndexStream = () => Assembly.GetExecutingAssembly().GetManifestResourceStream("evolve.Web.Host.wwwroot.swagger.ui.index.html");
                 options.DisplayRequestDuration();
             });
+
+            app.UseHangfireDashboard("/hangfire", new DashboardOptions
+            {
+                Authorization = new[] { new HangfireAuthorizationFilter() }
+            });
+
+            ;
         }
 
 
@@ -172,6 +176,23 @@ namespace evolve.Web.Host.Startup
                     options.IncludeXmlComments(webCoreXmlPath);
                 }
             });
+        }
+
+        public class HangfireAuthorizationFilter : IDashboardAuthorizationFilter
+        {
+            public bool Authorize(DashboardContext context)
+            {
+                // For development environment, allow everyone
+                if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
+                    return true;
+
+                // For production, implement proper authorization
+                var httpContext = context.GetHttpContext();
+                return httpContext.User.Identity.IsAuthenticated;
+
+                // If using ABP roles/permissions:
+                // return httpContext.User.IsInRole("Admin");
+            }
         }
     }
 }

@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using Abp.Application.Services.Dto;
 using Abp.AutoMapper;
 using evolve.Domain.TaxiManagement;
+using evolve.Services.TaxiManagement.LaneService.DTO;
+using evolve.Services.TaxiManagement.RoutesServices.DTO;
 using evolve.Services.TaxiManagement.TaxiService.DTO;
 
 namespace evolve.Services.TaxiManagement.QueService.DTO
