@@ -20,7 +20,7 @@ namespace evolve.Services.TaxiManagement.LaneService
             var query = await Repository.GetAllReadonlyAsync();
 
             var lanes = await query
-                .Include(p => p.Queus)
+                .Include(p => p.Queus).ThenInclude(p => p.QuedTaxis)
                 .Include(p => p.DesignatedRoute)
                 .ToListAsync();
 
