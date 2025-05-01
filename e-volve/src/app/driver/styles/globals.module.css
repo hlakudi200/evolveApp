@@ -1,0 +1,67 @@
+.container {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    justify-content: space-between;
+    flex-wrap: wrap;
+  }
+  
+  .leftSection {
+    width: 35%;
+  }
+  
+  .middleSection {
+    width: 30%;
+    padding: 0 10px;
+    display: flex;
+  }
+  
+  .rightSection {
+    width: 35%;
+    display: flex;
+    flex-direction: column;
+  }
+  .content {
+    margin: 24px 16px;
+    padding: 24;
+    min-height: 280;
+  }
+  
+  .layout {
+    height: 100vh;
+  }
+  
+  .profileMenu {
+    margin-left: auto;
+    padding-right: 20;
+  }
+  
+  @media (max-width: 768px) {
+    .employeeContainer {
+      flex-direction: column;
+      align-items: center;
+    }
+  
+    .calendarSection {
+      display: none;
+    }
+    .profileSection,
+    .attendanceSection {
+      width: 100%;
+      margin-bottom: 16px;
+    }
+    .content {
+      margin: 8px -9px;
+      padding: 19px;
+      min-height: 280px;
+    }
+    .layout {
+      height: 100vh;
+    }
+  
+    .profileMenu {
+      margin-left: auto;
+      padding-right: 5;
+    }
+  }
+  
