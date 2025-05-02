@@ -15,6 +15,7 @@ export interface ILaneActionContext {
   createLane: (Lane: ILane) => void;
   updateLane: (Lane: ILane) => Promise<void>;
   deleteLane: (id: string) => void;
+  addTaxiToQue:(taxiId:string,queId:string)=>Promise<void>
 }
 
 export const INITIAL_STATE: ILaneStateContext = {
