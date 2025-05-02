@@ -40,5 +40,33 @@ namespace evolve.Services.TaxiManagement.TaxiService
             return results;
         }
 
+
+        public async Task<TaxiDto> GetTaxiByDriverId(Guid driverId)
+        {
+            var taxi = await Repository
+                .GetAll()
+                .Include(t => t.Driver)
+                .Include(t => t.AssignedRoute)
+                .FirstOrDefaultAsync(t => t.DriverId == driverId);
+
+            if (taxi == null)
+            {
+                return null;
+            }
+
+            return new TaxiDto
+            {
+                Id = taxi.Id,
+                RegistrationNumber = taxi.RegistrationNumber,
+                DriverId = taxi.DriverId,
+                RouteId = taxi.RouteId,
+                PassengerCapacity = taxi.PassengerCapacity,
+                IsFull = taxi.IsFull,
+                DriverFullName = taxi.Driver?.FullName ?? string.Empty,
+                DriverLicenseNumber = taxi.Driver?.LicenseNumber ?? string.Empty,
+                AssignedRoute = taxi.AssignedRoute
+            };
+        }
+
     }
 }
