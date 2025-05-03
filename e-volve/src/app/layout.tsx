@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import ConfigProvider from "antd/es/config-provider";
 import { componetsSettings, themeSettings } from "@/utils/theme-setting";
+import ToastProvider from "@/providers/toast/toast";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -20,6 +21,7 @@ export default function RootLayout({
       <ConfigProvider
         theme={{ token: themeSettings, components: componetsSettings }}
       >
+        <ToastProvider />
         <body>{children}</body>
       </ConfigProvider>
     </html>

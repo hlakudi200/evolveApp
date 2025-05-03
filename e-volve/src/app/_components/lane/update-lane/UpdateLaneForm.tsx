@@ -4,6 +4,7 @@ import { Form, Button, Select, InputNumber, message, Alert } from "antd";
 import { useLaneActions, useLaneState } from "@/providers/lane";
 import { useRouteState } from "@/providers/route";
 import { ILane, IRoute } from "@/providers/interfaces";
+import { Toast } from "@/providers/toast/toast";
 
 interface UpdateLaneFormProps {
   lane: ILane;
@@ -44,11 +45,11 @@ const UpdateLaneForm: React.FC<UpdateLaneFormProps> = ({
   // Watch for changes in the state from the provider
   useEffect(() => {
     if (isSuccess && isSubmitting) {
-      message.success("Lane updated successfully");
+      Toast("Lane updated successfully", "error");
       onSuccess();
       setIsSubmitting(false);
     } else if (isError && isSubmitting) {
-      message.error("Failed to update lane");
+      Toast("Failed to update lane", "error");
       setIsSubmitting(false);
     }
   }, [isSuccess, isError, isSubmitting, onSuccess]);
@@ -58,7 +59,7 @@ const UpdateLaneForm: React.FC<UpdateLaneFormProps> = ({
     capacity: number;
   }) => {
     if (!lane.id) {
-      message.error("Lane ID is missing");
+      Toast("Lane ID is missing", "error");
       return;
     }
 
@@ -72,7 +73,8 @@ const UpdateLaneForm: React.FC<UpdateLaneFormProps> = ({
       });
     } catch (error) {
       console.error("Error updating lane:", error);
-      message.error("An error occurred while updating the lane");
+
+      Toast("An error occurred while updating the lane", "error");
       setIsSubmitting(false);
     }
   };

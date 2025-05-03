@@ -21,6 +21,7 @@ import { ILane, ITaxi } from "@/providers/interfaces";
 import { ColumnsType } from "antd/es/table";
 import CreateLaneForm from "@/app/_components/lane/create-lane/CreateLaneForm";
 import UpdateLaneForm from "@/app/_components/lane/update-lane/UpdateLaneForm";
+import { Toast } from "@/providers/toast/toast";
 
 const Lanes = () => {
   const { getLanes, deleteLane } = useLaneActions();
@@ -57,11 +58,11 @@ const Lanes = () => {
     if (!id) return;
     try {
       await deleteLane(id);
-      message.success("Lane deleted successfully");
+      Toast("Lane deleted successfully","success")
       getLanes();
     } catch (error) {
       console.error(error);
-      message.error("Failed to delete lane");
+      Toast("Failed to delete lane","error")
     }
   };
 

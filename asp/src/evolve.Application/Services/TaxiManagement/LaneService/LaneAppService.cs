@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Abp.Application.Services;
 using Abp.Domain.Repositories;
@@ -28,6 +29,39 @@ namespace evolve.Services.TaxiManagement.LaneService
 
             return results;
         }
+
+        public async Task<List<LaneResponseDto>> GetLanesByTaxiId(Guid taxiId)
+        {
+            var query = await Repository.GetAllReadonlyAsync();
+
+            var lanes = await query
+                .Include(p => p.Queus)
+                    .ThenInclude(q => q.QuedTaxis)
+                .Include(p => p.DesignatedRoute)
+                .Where(lane => lane.Queus.Any(queue =>
+                    queue.QuedTaxis.Any(taxi => taxi.Id == taxiId)))
+                .ToListAsync();
+
+            // Filter only the queues and taxis where the taxiId matches
+            foreach (var lane in lanes)
+            {
+                lane.Queus = lane.Queus
+                    .Where(queue => queue.QuedTaxis.Any(taxi => taxi.Id == taxiId))
+                    .Select(queue =>
+                    {
+                        queue.QuedTaxis = queue.QuedTaxis
+                            .Where(taxi => taxi.Id == taxiId)
+                            .ToList();
+                        return queue;
+                    })
+                    .ToList();
+            }
+
+            var results = ObjectMapper.Map<List<LaneResponseDto>>(lanes);
+            return results;
+        }
+
+
 
     }
 }

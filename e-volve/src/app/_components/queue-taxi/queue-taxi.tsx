@@ -4,13 +4,14 @@ import { useLaneActions, useLaneState } from "@/providers/lane";
 //import { useDriverState } from "@/providers/driver";
 import { Form, Button, Select, Typography, Card, message } from "antd";
 import { useTaxiActions, useTaxiState } from "@/providers/taxi";
+import { Toast } from "@/providers/toast/toast";
 
 const { Option } = Select;
-const { Title} = Typography;
+const { Title } = Typography;
 
 const QueueTaxi = () => {
   const { addTaxiToQue, getLanes } = useLaneActions();
-  const { Lanes } = useLaneState();
+  const { Lanes, isError, isSuccess } = useLaneState();
   //const { Driver } = useDriverState();
   const { getTaxiByDriverId } = useTaxiActions();
   const { Taxi } = useTaxiState();
@@ -21,18 +22,26 @@ const QueueTaxi = () => {
   useEffect(() => {
     getLanes();
     getTaxiByDriverId("019680d0-642d-733b-b5e7-085c417a9ef7");
-    //the current driver id 
+    //the current driver id
   }, []);
 
   const handleSubmit = async (values: { queueId: string }) => {
     if (!Taxi) return;
     setLoading(true);
     try {
-      await addTaxiToQue(values.queueId, Taxi.id);
-      message.success("Successfully joined the queue!");
+      console.log(values.queueId, Taxi.id);
+      await addTaxiToQue(Taxi.id,values.queueId,).then(() => {
+        if (isSuccess) {
+          Toast("Successfully joined the queue!", "success");
+        }
+        if (isError) {
+          Toast("Failed to join queue.", "error");
+        }
+      });
+
       form.resetFields();
     } catch (error) {
-      message.error("Failed to join queue.");
+      Toast("Failed to join queue.", "error");
       console.error(error);
     } finally {
       setLoading(false);
@@ -42,7 +51,7 @@ const QueueTaxi = () => {
   return (
     <Card
       title={<Title level={3}>Join a Taxi Queue</Title>}
-      style={{ maxWidth: 500, margin: "0 auto" }}
+      style={{ width: "93%", margin: "0 auto" }}
     >
       <Form layout="vertical" form={form} onFinish={handleSubmit}>
         <Form.Item
@@ -53,7 +62,7 @@ const QueueTaxi = () => {
           <Select placeholder="Select a queue">
             {Lanes?.flatMap((lane) =>
               (lane.queus ?? [])
-                .filter((que) => que?.isOpen === true) 
+                .filter((que) => que?.isOpen === true)
                 .map((que) => (
                   <Option key={que.id} value={que.id!}>
                     {lane.designatedRoute?.origin} ➝{" "}
@@ -66,7 +75,7 @@ const QueueTaxi = () => {
         </Form.Item>
 
         <Form.Item>
-          <Button type="primary" htmlType="submit" loading={loading} block>
+          <Button type="primary" htmlType="submit" loading={loading}>
             Join Queue
           </Button>
         </Form.Item>

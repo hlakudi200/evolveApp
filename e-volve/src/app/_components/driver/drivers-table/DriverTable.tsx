@@ -18,6 +18,7 @@ import CreateDriverForm from "../create-driver/CreateDriverForm";
 import UpdateDriverForm from "../update-table/UpdateDriverForm";
 import { PlusOutlined, ReloadOutlined } from "@ant-design/icons";
 import { IDriver } from "@/providers/interfaces";
+import { Toast } from "@/providers/toast/toast";
 
 const DriverTable = () => {
   const { getDrivers, deleteDriver } = useDriverActions();
@@ -43,11 +44,11 @@ const DriverTable = () => {
   const handleDelete = async (id: string) => {
     try {
       await deleteDriver(id);
-      message.success("Driver deleted successfully");
+      Toast("Driver deleted successfully","success")
       getDrivers();
     } catch (error) {
       console.error(error);
-      message.error("Failed to delete driver");
+      Toast("Failed to delete driver","error")
     }
   };
 

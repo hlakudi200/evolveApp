@@ -18,13 +18,14 @@ import {
   useAssociationState,
 } from "@/providers/association";
 import { IDriver } from "@/providers/interfaces";
-import { motion, AnimatePresence } from "framer-motion"; 
+import { motion, AnimatePresence } from "framer-motion";
+import { Toast } from "@/providers/toast/toast";
 
 const { Step } = Steps;
 const { Option } = Select;
 
 const CreateDriverForm = ({ onClose }: { onClose: () => void }) => {
-  const { createDriver,getDrivers} = useDriverActions();
+  const { createDriver, getDrivers } = useDriverActions();
   const { getAssociations } = useAssociationActions();
   const { Associations } = useAssociationState();
 
@@ -49,7 +50,7 @@ const CreateDriverForm = ({ onClose }: { onClose: () => void }) => {
       setDriverData(allValues);
       setCurrentStep((prev) => prev + 1);
     } catch {
-      message.error("Please complete the current step");
+      Toast("Please complete the current step", "error");
     }
   };
 
@@ -78,11 +79,12 @@ const CreateDriverForm = ({ onClose }: { onClose: () => void }) => {
 
       await createDriver(finalDriverData);
       getDrivers();
-      message.success("Driver created successfully");
-     
+
+      Toast("Driver created successfully", "success");
+
       onClose();
     } catch {
-      message.error("Please complete the form before submitting");
+      Toast("Please complete the form before submitting", "error");
     }
   };
 
@@ -102,7 +104,6 @@ const CreateDriverForm = ({ onClose }: { onClose: () => void }) => {
         <Form form={form} layout="vertical" initialValues={driverData || {}}>
           <AnimatePresence mode="wait">
             {" "}
-            
             <motion.div
               key={currentStep}
               initial={{ opacity: 0, x: 100 }}
