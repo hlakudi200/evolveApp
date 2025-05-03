@@ -51,7 +51,7 @@ export const LaneProvider = ({ children }: { children: React.ReactNode }) => {
     const endpoint=`api/services/app/Que/AddTaxiToQue?queId=${queId}&taxiId=${taxiId}`
     await instance
     .post(endpoint)
-    .then((response) => {
+    .then(() => {
       dispatch(addTaxiToQueSuccess());
     })
     .catch((error) => {

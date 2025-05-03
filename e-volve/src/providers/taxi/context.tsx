@@ -15,6 +15,7 @@ export interface ITaxiActionContext {
   getTaxi: (id: string) => void;
   createTaxi: (Taxi: ITaxi) => void;
   updateTaxi: (Taxi: ITaxi) => void;
+  getTaxiByDriverId:(driverId:string)=>void
   deleteTaxi: (id: string) =>Promise<void>;
 }
 
