@@ -1,6 +1,6 @@
 import { createAction } from "redux-actions";
-import {ILaneStateContext } from "./context";
-import { ILane } from "../interfaces";
+import { ILaneStateContext } from "./context";
+import { ILane, ITaxiQues } from "../interfaces";
 
 export enum LaneActionEnums {
   getLanesPending = "GET_LANES_PENDING",
@@ -10,6 +10,10 @@ export enum LaneActionEnums {
   getLanePending = "GET_LANE_PENDING",
   getLaneSuccess = "GET_LANE_SUCCESS",
   getLaneError = "GET_LANE_ERROR",
+
+  getQuesByTaxiIdPending = "GET_QUES_BY_TAXIID_PENDING",
+  getQuesByTaxiIdSuccess = "GET_QUES_BY_TAXIID_SUCCESS",
+  getQuesByTaxiIdError = "GET_QUES_BY_TAXIID_ERROR",
 
   createLanePending = "CREATE_LANE_PENDING",
   createLaneSuccess = "CREATE_LANE_SUCCESS",
@@ -35,10 +39,7 @@ export const getLanesPending = createAction<ILaneStateContext>(
   () => ({ isPending: true, isSuccess: false, isError: false })
 );
 
-export const getLanesSuccess = createAction<
-  ILaneStateContext,
-  ILane[]
->(
+export const getLanesSuccess = createAction<ILaneStateContext, ILane[]>(
   LaneActionEnums.getLanesSuccess,
 
   (Lanes: ILane[]) => ({
@@ -80,15 +81,15 @@ export const createLanePending = createAction<ILaneStateContext>(
   () => ({ isPending: true, isSuccess: false, isError: false })
 );
 
-export const createLaneSuccess = createAction<
-  ILaneStateContext,
-  ILane
->(LaneActionEnums.createLaneSuccess, (Lane: ILane) => ({
-  isPending: false,
-  isSuccess: true,
-  isError: false,
-  Lane,
-}));
+export const createLaneSuccess = createAction<ILaneStateContext, ILane>(
+  LaneActionEnums.createLaneSuccess,
+  (Lane: ILane) => ({
+    isPending: false,
+    isSuccess: true,
+    isError: false,
+    Lane,
+  })
+);
 
 export const createLaneError = createAction<ILaneStateContext>(
   LaneActionEnums.createLaneError,
@@ -100,15 +101,15 @@ export const updateLanePending = createAction<ILaneStateContext>(
   () => ({ isPending: true, isSuccess: false, isError: false })
 );
 
-export const updateLaneSuccess = createAction<
-  ILaneStateContext,
-  ILane
->(LaneActionEnums.updateLaneSuccess, (Lane: ILane) => ({
-  isPending: false,
-  isSuccess: true,
-  isError: false,
-  Lane,
-}));
+export const updateLaneSuccess = createAction<ILaneStateContext, ILane>(
+  LaneActionEnums.updateLaneSuccess,
+  (Lane: ILane) => ({
+    isPending: false,
+    isSuccess: true,
+    isError: false,
+    Lane,
+  })
+);
 
 export const updateLaneError = createAction<ILaneStateContext>(
   LaneActionEnums.updateLaneError,
@@ -120,21 +121,20 @@ export const deleteLanePending = createAction<ILaneStateContext>(
   () => ({ isPending: true, isSuccess: false, isError: false })
 );
 
-export const deleteLaneSuccess = createAction<
-  ILaneStateContext,
-  ILane
->(LaneActionEnums.deleteLaneSuccess, (Lane: ILane) => ({
-  isPending: false,
-  isSuccess: true,
-  isError: false,
-  Lane,
-}));
+export const deleteLaneSuccess = createAction<ILaneStateContext, ILane>(
+  LaneActionEnums.deleteLaneSuccess,
+  (Lane: ILane) => ({
+    isPending: false,
+    isSuccess: true,
+    isError: false,
+    Lane,
+  })
+);
 
 export const deleteLaneError = createAction<ILaneStateContext>(
   LaneActionEnums.deleteLaneError,
   () => ({ isPending: false, isSuccess: false, isError: true })
 );
-
 
 //ADD TAXI TO QUE
 export const addTaxiToQuePending = createAction<ILaneStateContext>(
@@ -142,15 +142,42 @@ export const addTaxiToQuePending = createAction<ILaneStateContext>(
   () => ({ isPending: true, isSuccess: false, isError: false })
 );
 
-export const addTaxiToQueSuccess = createAction<
-  ILaneStateContext
->(LaneActionEnums.addTaxiToQueSuccess, () => ({
-  isPending: false,
-  isSuccess: true,
-  isError: false,
-}));
+export const addTaxiToQueSuccess = createAction<ILaneStateContext>(
+  LaneActionEnums.addTaxiToQueSuccess,
+  () => ({
+    isPending: false,
+    isSuccess: true,
+    isError: false,
+  })
+);
 
 export const addTaxiToQueError = createAction<ILaneStateContext>(
   LaneActionEnums.addTaxiToQueError,
+  () => ({ isPending: false, isSuccess: false, isError: true })
+);
+
+export const getQuesByTaxiIdPending = createAction<ILaneStateContext>(
+  LaneActionEnums.getQuesByTaxiIdPending,
+
+  () => ({ isPending: true, isSuccess: false, isError: false })
+);
+
+export const getQuesByTaxiIdSuccess = createAction<
+  ILaneStateContext,
+  ITaxiQues[]
+>(
+  LaneActionEnums.getQuesByTaxiIdSuccess,
+
+  (taxiQues: ITaxiQues[]) => ({
+    isPending: false,
+    isSuccess: true,
+    isError: false,
+    TaxiQues: taxiQues,
+  })
+);
+
+export const getQuesByTaxiIdError = createAction<ILaneStateContext>(
+  LaneActionEnums.getQuesByTaxiIdError,
+
   () => ({ isPending: false, isSuccess: false, isError: true })
 );

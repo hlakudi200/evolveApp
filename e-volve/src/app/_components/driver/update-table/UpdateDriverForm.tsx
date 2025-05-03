@@ -5,7 +5,6 @@ import {
   Input,
   Button,
   Select,
-  message,
   Steps,
   Card,
   Row,
@@ -19,6 +18,7 @@ import {
   useAssociationState,
 } from "@/providers/association";
 import DriverOverview from "../driver-overview/DriverOverview";
+import { Toast } from "@/providers/toast/toast";
 
 const { Step } = Steps;
 const { Option } = Select;
@@ -55,7 +55,7 @@ const UpdateDriverForm = ({
       setDriverData(allValues);
       setCurrentStep((prev) => prev + 1);
     } catch {
-      message.error("Please complete the current step");
+      Toast("Please complete the current step", "error");
     }
   };
 
@@ -80,10 +80,10 @@ const UpdateDriverForm = ({
         fullName,
       });
       getDrivers();
-      message.success("Driver updated successfully");
+      Toast("Driver updated successfully", "success");
       onClose();
     } catch {
-      message.error("Please complete the form before submitting");
+      Toast("Please complete the form before submitting", "error");
     }
   };
 

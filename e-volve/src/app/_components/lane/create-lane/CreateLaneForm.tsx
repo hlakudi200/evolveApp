@@ -1,9 +1,10 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { Form, Button, Select, InputNumber, message, Alert } from "antd";
+import { Form, Button, Select, InputNumber, Alert } from "antd";
 import { useLaneActions, useLaneState } from "@/providers/lane";
 import { useRouteState } from "@/providers/route";
 import { IRoute } from "@/providers/interfaces";
+import { Toast } from "@/providers/toast/toast";
 
 interface CreateLaneFormProps {
   onSuccess: () => void;
@@ -22,12 +23,12 @@ const CreateLaneForm: React.FC<CreateLaneFormProps> = ({
 
   useEffect(() => {
     if (isSuccess && isSubmitting) {
-      message.success("Lane created successfully");
+      Toast("Lane created successfully", "success");
       form.resetFields();
       onSuccess();
       setIsSubmitting(false);
     } else if (isError && isSubmitting) {
-      message.error("Failed to create lane");
+      Toast("Failed to create lane", "error");
       setIsSubmitting(false);
     }
   }, [isSuccess, isError, isSubmitting, form, onSuccess]);
@@ -39,15 +40,13 @@ const CreateLaneForm: React.FC<CreateLaneFormProps> = ({
     try {
       setIsSubmitting(true);
 
-
       createLane({
         routeId: values.routeId,
         capacity: values.capacity,
       });
-
     } catch (error) {
       console.error("Error creating lane:", error);
-      message.error("An error occurred while creating the lane");
+      Toast("An error occurred while creating the lane", "error");
       setIsSubmitting(false);
     }
   };

@@ -22,6 +22,7 @@ import {
   PlusOutlined,
   ReloadOutlined,
 } from "@ant-design/icons";
+import { Toast } from "@/providers/toast/toast";
 
 const Facilities = () => {
   const { getFacilitys, updateFacility, createFacility, deleteFacility } =
@@ -68,11 +69,11 @@ const Facilities = () => {
     if (!id) return;
     try {
       await deleteFacility(id);
-      message.success("Lane deleted successfully");
+      Toast("Lane deleted successfully", "success");
       getFacilitys();
     } catch (error) {
       console.error(error);
-      message.error("Failed to delete lane");
+      Toast("Failed to delete lane", "error");
     }
   };
 
@@ -97,13 +98,13 @@ const Facilities = () => {
   const handleCreateSubmit = async (values: IFacility) => {
     try {
       createFacility(values);
-      message.success("Facility created successfully");
+      Toast("Facility created successfully", "success");
       setIsCreateModalVisible(false);
       form.resetFields();
       getFacilitys();
     } catch (error) {
       console.error(error);
-      message.error("Failed to create facility");
+      Toast("Failed to create facility", "error");
     }
   };
 
@@ -112,14 +113,14 @@ const Facilities = () => {
 
     try {
       await updateFacility({ ...values, id: selectedFacility.id });
-      message.success("Facility updated successfully");
+      Toast("Facility updated successfully", "success");
       setIsUpdateModalVisible(false);
       updateForm.resetFields();
       setSelectedFacility(null);
       getFacilitys();
     } catch (error) {
       console.error(error);
-      message.error("Failed to update facility");
+      Toast("Failed to update facility", "error");
     }
   };
 
@@ -236,7 +237,6 @@ const Facilities = () => {
         bordered
       />
 
-   
       <Modal
         title="Create New Facility"
         open={isCreateModalVisible}

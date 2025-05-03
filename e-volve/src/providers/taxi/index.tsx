@@ -36,6 +36,7 @@ export const TaxiProvider = ({ children }: { children: React.ReactNode }) => {
       .get(endpoint)
       .then((response) => {
         dispatch(getTaxisSuccess(response.data.result));
+        console.log("taxi:",response.data.result)
       })
       .catch((error) => {
         console.error(error);
@@ -105,7 +106,7 @@ export const TaxiProvider = ({ children }: { children: React.ReactNode }) => {
     await instance
       .get(endpoint)
       .then((response) => {
-        dispatch(getTaxiByDriverIdSuccess(response.data));
+        dispatch(getTaxiByDriverIdSuccess(response.data.result));
       })
       .catch((error) => {
         console.error(error);

@@ -79,6 +79,18 @@ export const LaneReducer = handleActions<
       ...state,
       ...action.payload,
     }),
+    [LaneActionEnums.getQuesByTaxiIdPending]: (state, action) => ({
+      ...state,
+      ...action.payload,
+    }),
+    [LaneActionEnums.getQuesByTaxiIdSuccess]: (state, action) => ({
+      ...state,
+      ...action.payload,
+    }),
+    [LaneActionEnums.getQuesByTaxiIdError]: (state, action) => ({
+      ...state,
+      ...action.payload,
+    }),
 
   },
   INITIAL_STATE
