@@ -1,5 +1,5 @@
 import { createContext } from "react";
-import { ILane } from "../interfaces";
+import { ILane, ITaxiQues } from "../interfaces";
 
 export interface ILaneStateContext {
   isPending: boolean;
@@ -7,6 +7,7 @@ export interface ILaneStateContext {
   isError: boolean;
   Lane?: ILane;
   Lanes?: ILane[];
+  TaxiQues?:ITaxiQues[];
 }
 
 export interface ILaneActionContext {
@@ -16,6 +17,7 @@ export interface ILaneActionContext {
   updateLane: (Lane: ILane) => Promise<void>;
   deleteLane: (id: string) => void;
   addTaxiToQue:(taxiId:string,queId:string)=>Promise<void>
+  getQuesByTaxiId:(taxiId:string)=>Promise<void>
 }
 
 export const INITIAL_STATE: ILaneStateContext = {

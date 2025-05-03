@@ -46,7 +46,14 @@ export interface ITaxi {
     capacity:number;
     queus?:IQue[]
   }
-
+  
+  export interface ITaxiQues{
+    id?:string;
+    routeId?:string;
+    designatedRoute?:IRoute;
+    capacity:number;
+    queus?:IQue[]
+  } 
   export interface IFacility{
     id?:string;
     name:string;

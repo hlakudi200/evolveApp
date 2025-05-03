@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { useLaneActions, useLaneState } from "@/providers/lane";
 //import { useDriverState } from "@/providers/driver";
-import { Form, Button, Select, Typography, Card, message } from "antd";
+import { Form, Button, Select, Typography, Card } from "antd";
 import { useTaxiActions, useTaxiState } from "@/providers/taxi";
 import { Toast } from "@/providers/toast/toast";
 
@@ -30,7 +30,7 @@ const QueueTaxi = () => {
     setLoading(true);
     try {
       console.log(values.queueId, Taxi.id);
-      await addTaxiToQue(Taxi.id,values.queueId,).then(() => {
+      await addTaxiToQue(Taxi.id, values.queueId).then(() => {
         if (isSuccess) {
           Toast("Successfully joined the queue!", "success");
         }

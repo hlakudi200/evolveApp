@@ -1,9 +1,5 @@
 import { getAxiosInstace } from "@/utils/axios-instance";
-import {
-  INITIAL_STATE,
-  LaneActionContext,
-  LaneStateContext,
-} from "./context";
+import { INITIAL_STATE, LaneActionContext, LaneStateContext } from "./context";
 import { ILane } from "../interfaces";
 import { LaneReducer } from "./reducer";
 import { useContext, useReducer } from "react";
@@ -26,6 +22,9 @@ import {
   addTaxiToQuePending,
   addTaxiToQueSuccess,
   addTaxiToQueError,
+  getQuesByTaxiIdPending,
+  getQuesByTaxiIdSuccess,
+  getQuesByTaxiIdError,
 } from "./actions";
 
 export const LaneProvider = ({ children }: { children: React.ReactNode }) => {
@@ -46,19 +45,19 @@ export const LaneProvider = ({ children }: { children: React.ReactNode }) => {
       });
   };
 
-  const addTaxiToQue=async (taxiId:string,queId:string)=>{
-    dispatch(addTaxiToQuePending())
-    const endpoint=`api/services/app/Que/AddTaxiToQue?queId=${queId}&taxiId=${taxiId}`
+  const addTaxiToQue = async (taxiId: string, queId: string) => {
+    dispatch(addTaxiToQuePending());
+    const endpoint = `api/services/app/Que/AddTaxiToQue?queId=${queId}&taxiId=${taxiId}`;
     await instance
-    .post(endpoint)
-    .then(() => {
-      dispatch(addTaxiToQueSuccess());
-    })
-    .catch((error) => {
-      console.error(error);
-      dispatch(addTaxiToQueError());
-    });
-  }
+      .post(endpoint)
+      .then(() => {
+        dispatch(addTaxiToQueSuccess());
+      })
+      .catch((error) => {
+        console.error(error);
+        dispatch(addTaxiToQueError());
+      });
+  };
 
   const getLane = async (id: string) => {
     dispatch(getLanePending());
@@ -77,7 +76,7 @@ export const LaneProvider = ({ children }: { children: React.ReactNode }) => {
   const createLane = async (Lane: ILane) => {
     dispatch(createLanePending());
     const endpoint = `/api/services/app/Lane/Create`;
-    console.log("Lane:",Lane)
+    console.log("Lane:", Lane);
     await instance
       .post(endpoint, Lane)
       .then((response) => {
@@ -117,16 +116,32 @@ export const LaneProvider = ({ children }: { children: React.ReactNode }) => {
       });
   };
 
+  const getQuesByTaxiId = async (taxiId: string) => {
+    dispatch(getQuesByTaxiIdPending());
+    const endpoint = `/api/services/app/Lane/GetLanesByTaxiId?taxiId=${taxiId}`;
+    await instance
+      .get(endpoint)
+      .then((response) => {
+        dispatch(getQuesByTaxiIdSuccess(response.data.result));
+        console.log(response.data.result)
+      })
+      .catch((error) => {
+        console.error(error);
+        dispatch(getQuesByTaxiIdError());
+      });
+  };
+
   return (
     <LaneStateContext.Provider value={state}>
       <LaneActionContext.Provider
         value={{
+          getQuesByTaxiId,
           getLanes,
           getLane,
           createLane,
           updateLane,
           deleteLane,
-          addTaxiToQue
+          addTaxiToQue,
         }}
       >
         {children}
