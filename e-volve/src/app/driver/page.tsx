@@ -1,9 +1,12 @@
-import React from 'react'
-
-const Home=()=> {
+"use client";
+import React from "react";
+import QueueTaxi from "../_components/queue-taxi/queue-taxi";
+const Home = () => {
   return (
-    <div>Home page</div>
-  )
-}
+    <div>
+      <QueueTaxi></QueueTaxi>
+    </div>
+  );
+};
 
 export default Home;

@@ -19,6 +19,9 @@ import {
   deleteTaxiPending,
   deleteTaxiSuccess,
   deleteTaxiError,
+  getTaxiByDriverIdPending,
+  getTaxiByDriverIdSuccess,
+  getTaxiByDriverIdError,
 } from "./actions";
 
 
@@ -96,6 +99,21 @@ export const TaxiProvider = ({ children }: { children: React.ReactNode }) => {
       });
   };
 
+  const getTaxiByDriverId=async(driverId:string)=>{
+    dispatch(getTaxiByDriverIdPending());
+    const endpoint = `api/services/app/Taxi/GetTaxiByDriverId?driverId=${driverId}`;
+    await instance
+      .get(endpoint)
+      .then((response) => {
+        dispatch(getTaxiByDriverIdSuccess(response.data));
+      })
+      .catch((error) => {
+        console.error(error);
+        dispatch(getTaxiByDriverIdError());
+      });
+  }
+  
+
   return (
     <TaxiStateContext.Provider value={state}>
       <TaxiActionContext.Provider
@@ -105,6 +123,7 @@ export const TaxiProvider = ({ children }: { children: React.ReactNode }) => {
           createTaxi,
           updateTaxi,
           deleteTaxi,
+          getTaxiByDriverId
         }}
       >
         {children}

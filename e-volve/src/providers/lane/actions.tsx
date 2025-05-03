@@ -15,6 +15,10 @@ export enum LaneActionEnums {
   createLaneSuccess = "CREATE_LANE_SUCCESS",
   createLaneError = "CREATE_LANE_ERROR",
 
+  addTaxiToQuePending = "ADD_TAXI_TO_QUE_PENDING",
+  addTaxiToQueSuccess = "ADD_TAXI_TO_QUE_SUCCESS",
+  addTaxiToQueError = "ADD_TAXI_TO_QUE_ERROR",
+
   updateLanePending = "UPDATE_LANE_PENDING",
   updateLaneSuccess = "UPDATE_LANE_SUCCESS",
   updateLaneError = "UPDATE_LANE_ERROR",
@@ -128,5 +132,25 @@ export const deleteLaneSuccess = createAction<
 
 export const deleteLaneError = createAction<ILaneStateContext>(
   LaneActionEnums.deleteLaneError,
+  () => ({ isPending: false, isSuccess: false, isError: true })
+);
+
+
+//ADD TAXI TO QUE
+export const addTaxiToQuePending = createAction<ILaneStateContext>(
+  LaneActionEnums.addTaxiToQuePending,
+  () => ({ isPending: true, isSuccess: false, isError: false })
+);
+
+export const addTaxiToQueSuccess = createAction<
+  ILaneStateContext
+>(LaneActionEnums.addTaxiToQueSuccess, () => ({
+  isPending: false,
+  isSuccess: true,
+  isError: false,
+}));
+
+export const addTaxiToQueError = createAction<ILaneStateContext>(
+  LaneActionEnums.addTaxiToQueError,
   () => ({ isPending: false, isSuccess: false, isError: true })
 );

@@ -11,6 +11,10 @@ export enum TaxiActionEnums {
   getTaxiSuccess = "GET_TAXI_SUCCESS",
   getTaxiError = "GET_TAXI_ERROR",
 
+  getTaxiByDriverIdPending = "GET_TAXI_BY_DRIVERID_PENDING",
+  getTaxiByDriverIdSuccess = "GET_TAXI_BY_DRIVERID_SUCCESS",
+  getTaxiByDriverIdError = "GET_TAXI_BY_DRIVERID_ERROR",
+
   createTaxiPending = "CREATE_TAXI_PENDING",
   createTaxiSuccess = "CREATE_TAXI_SUCCESS",
   createTaxiError = "CREATE_TAXI_ERROR",
@@ -128,5 +132,25 @@ export const deleteTaxiSuccess = createAction<
 
 export const deleteTaxiError = createAction<ITaxiStateContext>(
   TaxiActionEnums.deleteTaxiError,
+  () => ({ isPending: false, isSuccess: false, isError: true })
+);
+
+export const getTaxiByDriverIdPending = createAction<ITaxiStateContext>(
+  TaxiActionEnums.getTaxiByDriverIdPending,
+  () => ({ isPending: true, isSuccess: false, isError: false })
+);
+
+export const getTaxiByDriverIdSuccess = createAction<ITaxiStateContext, ITaxi>(
+  TaxiActionEnums.getTaxiByDriverIdSuccess,
+  (Taxi: ITaxi) => ({
+    isPending: false,
+    isSuccess: true,
+    isError: false,
+    Taxi,
+  })
+);
+
+export const getTaxiByDriverIdError = createAction<ITaxiStateContext>(
+  TaxiActionEnums.getTaxiByDriverIdError,
   () => ({ isPending: false, isSuccess: false, isError: true })
 );

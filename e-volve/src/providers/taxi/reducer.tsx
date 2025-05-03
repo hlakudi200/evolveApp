@@ -67,6 +67,18 @@ export const TaxiReducer = handleActions<
       ...state,
       ...action.payload,
     }),
+    [TaxiActionEnums.getTaxiByDriverIdPending]: (state, action) => ({
+      ...state,
+      ...action.payload,
+    }),
+    [TaxiActionEnums.getTaxiByDriverIdSuccess]: (state, action) => ({
+      ...state,
+      ...action.payload,
+    }),
+    [TaxiActionEnums.getTaxiByDriverIdError]: (state, action) => ({
+      ...state,
+      ...action.payload,
+    }),
   },
   INITIAL_STATE
 );

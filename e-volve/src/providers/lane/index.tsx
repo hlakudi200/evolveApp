@@ -23,6 +23,9 @@ import {
   deleteLanePending,
   deleteLaneSuccess,
   deleteLaneError,
+  addTaxiToQuePending,
+  addTaxiToQueSuccess,
+  addTaxiToQueError,
 } from "./actions";
 
 export const LaneProvider = ({ children }: { children: React.ReactNode }) => {
@@ -42,6 +45,20 @@ export const LaneProvider = ({ children }: { children: React.ReactNode }) => {
         dispatch(getLanesError());
       });
   };
+
+  const addTaxiToQue=async (taxiId:string,queId:string)=>{
+    dispatch(addTaxiToQuePending())
+    const endpoint=`api/services/app/Que/AddTaxiToQue?queId=${queId}&taxiId=${taxiId}`
+    await instance
+    .post(endpoint)
+    .then(() => {
+      dispatch(addTaxiToQueSuccess());
+    })
+    .catch((error) => {
+      console.error(error);
+      dispatch(addTaxiToQueError());
+    });
+  }
 
   const getLane = async (id: string) => {
     dispatch(getLanePending());
@@ -109,6 +126,7 @@ export const LaneProvider = ({ children }: { children: React.ReactNode }) => {
           createLane,
           updateLane,
           deleteLane,
+          addTaxiToQue
         }}
       >
         {children}
