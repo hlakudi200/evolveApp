@@ -1,3 +1,4 @@
+"use client"
 import { getAxiosInstace } from "@/utils/axios-instance";
 import {
   INITIAL_STATE,
@@ -43,13 +44,14 @@ export const DriverProvider = ({ children }: { children: React.ReactNode }) => {
       });
   };
 
-  const getDriver = async (id: string) => {
+  const getDriver = async (id: number|undefined) => {
     dispatch(getDriverPending());
-    const endpoint = `/Drivers/${id}`;
+    const endpoint = `/api/services/app/Driver/GetDriverByUserId?userId=${id}`;
     await instance
       .get(endpoint)
       .then((response) => {
-        dispatch(getDriverSuccess(response.data));
+        dispatch(getDriverSuccess(response.data.result));
+        console.log("DriverData",response.data.result)
       })
       .catch((error) => {
         console.error(error);

@@ -30,7 +30,9 @@ import {
 } from "lucide-react";
 import { useTaxiActions, useTaxiState } from "@/providers/taxi";
 import { IQue, IRoute } from "@/providers/interfaces";
-import { formatDate,getCurrentTime } from "@/utils/driver-helpers";
+import { formatDate, getCurrentTime } from "@/utils/driver-helpers";
+import { useDriverActions, useDriverState } from "@/providers/driver";
+import { useAuthState } from "@/providers/auth";
 
 const { Title, Text } = Typography;
 const { TabPane } = Tabs;
@@ -42,13 +44,16 @@ interface QueuePositionResult {
 }
 
 const Home = () => {
-  const [userName, setUserName] = useState("User");
+  const [userName, setUserName] = useState<string | undefined>("User");
   const [showNotification, setShowNotification] = useState(false);
   const [api, contextHolder] = notification.useNotification();
   const [driverStatus] = useState("Offline");
   const [totalEarnings, setTotalEarnings] = useState(0);
   const [isQueueModalOpen, setIsQueueModalOpen] = useState(false);
   const [activeQueueTab, setActiveQueueTab] = useState("active");
+  const { Driver } = useDriverState();
+  const { currentUser } = useAuthState();
+  const { getDriver } = useDriverActions();
 
   const { getQuesByTaxiId } = useLaneActions();
   const { TaxiQues, isError, isPending } = useLaneState();
@@ -56,14 +61,19 @@ const Home = () => {
   const { Taxi } = useTaxiState();
 
   useEffect(() => {
-    // Simulate loading driver data
     setTimeout(() => {
-      setUserName("Michael");
+      setUserName(Driver?.firstName);
       setShowNotification(true);
       setTotalEarnings(142.5);
     }, 1000);
 
-    getTaxiByDriverId("019680d0-642d-733b-b5e7-085c417a9ef7");
+    getTaxiByDriverId(Driver?.id);
+  }, [Driver?.id]);
+
+  useEffect(() => {
+    if (currentUser?.id != undefined) {
+      getDriver(currentUser?.id);
+    }
   }, []);
 
   useEffect(() => {
@@ -84,7 +94,6 @@ const Home = () => {
     }
   }, [showNotification, userName, api]);
 
-
   const showQueueModal = () => {
     setIsQueueModalOpen(true);
   };
@@ -92,8 +101,6 @@ const Home = () => {
   const handleQueueModalCancel = () => {
     setIsQueueModalOpen(false);
   };
-
-  
 
   const getFilteredQueues = (
     isOpen: boolean
@@ -136,7 +143,6 @@ const Home = () => {
     };
   };
 
- 
   const renderQueueCard = (
     queue: IQue & { routeInfo?: IRoute; totalCapacity: number }
   ) => {
@@ -274,7 +280,7 @@ const Home = () => {
         >
           <Space direction="vertical" size={4}>
             <Title level={3} style={{ color: "white", margin: 0 }}>
-              {getCurrentTime()}, {userName}!
+              {getCurrentTime()}, {Driver?.firstName}!
             </Title>
             <Text style={{ color: "rgba(255,255,255,0.85)" }}>
               Your driver dashboard is ready
