@@ -1,3 +1,4 @@
+'use client'
 import { createContext } from "react";
 import { IDriver } from "../interfaces";
 
@@ -11,7 +12,7 @@ export interface IDriverStateContext {
 
 export interface IDriverActionContext {
   getDrivers: () => void;
-  getDriver: (id: string) => void;
+  getDriver: (id: number|undefined) => void;
   createDriver: (Driver: IDriver) => void;
   updateDriver: (Driver: IDriver) => void;
   deleteDriver: (id: string) => void;

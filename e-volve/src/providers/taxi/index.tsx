@@ -100,7 +100,7 @@ export const TaxiProvider = ({ children }: { children: React.ReactNode }) => {
       });
   };
 
-  const getTaxiByDriverId=async(driverId:string)=>{
+  const getTaxiByDriverId=async(driverId:string|undefined)=>{
     dispatch(getTaxiByDriverIdPending());
     const endpoint = `api/services/app/Taxi/GetTaxiByDriverId?driverId=${driverId}`;
     await instance

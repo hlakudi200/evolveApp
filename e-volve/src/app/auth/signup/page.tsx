@@ -9,7 +9,7 @@ import {
 import Link from "next/link";
 import React, {useState } from "react";
 import { useRouter } from "next/navigation";
-import { useAuthActions, useAuthState } from "@/providers/auth";
+import { useAuthActions} from "@/providers/auth";
 import { IUser } from "@/providers/auth/context";
 import { Toast } from "@/providers/toast/toast";
 import { motion } from "framer-motion";

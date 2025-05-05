@@ -1,11 +1,20 @@
-﻿using Abp.AspNetCore;
+﻿using System;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using Abp.AspNetCore;
 using Abp.AspNetCore.Mvc.Antiforgery;
 using Abp.AspNetCore.SignalR.Hubs;
 using Abp.Castle.Logging.Log4Net;
 using Abp.Extensions;
-using evolve.Configuration;
-using evolve.Identity;
 using Castle.Facilities.Logging;
+using evolve.Configuration;
+using evolve.Configurations;
+using evolve.Identity;
+using evolve.Services.EmailService;
+using Hangfire;
+using Hangfire.Dashboard;
+using Hangfire.PostgreSql;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -13,15 +22,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
-using System;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using Hangfire;
-using Hangfire.Dashboard;
-using Hangfire.PostgreSql;
-using evolve.Configurations;
-using evolve.Services.EmailService;
 
 namespace evolve.Web.Host.Startup
 {
@@ -50,7 +50,7 @@ namespace evolve.Web.Host.Startup
             });
 
             services.AddHangfireServer();  // Registers Hangfire server to process background jobs
-
+            services.AddTransient<IEmailService, EmailService>();
             // MVC and other configurations...
             services.AddControllersWithViews(options =>
             {

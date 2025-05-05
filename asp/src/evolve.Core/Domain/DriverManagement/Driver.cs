@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using Abp.Domain.Entities.Auditing;
+using evolve.Authorization.Users;
 using evolve.Domain.PassengerManagement;
 using evolve.Domain.TaxiManagement;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -11,6 +12,7 @@ namespace evolve.Domain.DriverManagement
     public class Driver : FullAuditedEntity<Guid>
     {
         public long UserId { get; set; }
+        public User User { get; set; }
         public string IdentificationNumber { get; set; }
         public string FirstName { get; set; } = string.Empty;
         public string SecondName { get; set; } = string.Empty;

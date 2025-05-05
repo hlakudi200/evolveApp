@@ -9,7 +9,7 @@ import {
   WalletOutlined,
   BookOutlined,
   UserOutlined,
-  CreditCardOutlined
+  CreditCardOutlined,
 } from "@ant-design/icons";
 import { Button, Dropdown, Layout, Menu } from "antd";
 import { ItemType, MenuItemType } from "antd/es/menu/interface";
@@ -20,18 +20,20 @@ import { RouteProvider } from "@/providers/route";
 import { AssociationProvider } from "@/providers/association";
 import { LaneProvider } from "@/providers/lane";
 import { FacilityProvider } from "@/providers/facilities";
-// import { EmployeeProvider } from "@/providers/employee";
-// import { EmailProvider } from "@/providers/email";
-// import { useAuthActions, useAuthState } from "@/providers/auth";
+import { EmailProvider } from "@/providers/email";
+import { useAuthActions, useAuthState } from "@/providers/auth";
+
 // import withAuth from "../hoc/withAuth";
 
 const { Header, Sider, Content } = Layout;
 
 const TaxiRankManager = ({ children }: { children: React.ReactNode }) => {
   const [collapsed, setCollapsed] = useState(false);
-  //   const { currentUser } = useAuthState();
-  //   const { signOut } = useAuthActions();
+  const { currentUser } = useAuthState();
+  const { signOut } = useAuthActions();
+
   const router = useRouter();
+
   const userMenu = {
     items: [
       {
@@ -40,7 +42,7 @@ const TaxiRankManager = ({ children }: { children: React.ReactNode }) => {
         icon: <LogoutOutlined />,
         onClick: () => {
           router.replace("/");
-          //   signOut();
+          signOut();
         },
       },
     ],
@@ -68,72 +70,74 @@ const TaxiRankManager = ({ children }: { children: React.ReactNode }) => {
       icon: <CreditCardOutlined />,
     },
     {
-        label: "Account",
-        key: "/driver/account",
-        icon: <UserOutlined />,
-      },
+      label: "Account",
+      key: "/driver/account",
+      icon: <UserOutlined />,
+    },
   ];
 
   return (
-    <DriverProvider>
-      <FacilityProvider>
-        <AssociationProvider>
-          <TaxiProvider>
-            <LaneProvider>
-              <RouteProvider>
-                <Layout className={styles.layout}>
-                  <Sider trigger={null} collapsible collapsed={collapsed}>
-                    <div className="demo-logo-vertical" />
-                    <Menu
-                      onClick={({ key }) => router.push(key)}
-                      theme="dark"
-                      mode="inline"
-                      defaultSelectedKeys={["/driver"]}
-                      items={siderItems}
-                    />
-                  </Sider>
-                  <Layout>
-                    <Header
-                      style={{
-                        padding: 0,
-                        backgroundColor: "white",
-                        display: "flex",
-                        alignItems: "center",
-                      }}
-                    >
-                      <Button
-                        type="text"
-                        icon={
-                          collapsed ? (
-                            <MenuUnfoldOutlined />
-                          ) : (
-                            <MenuFoldOutlined />
-                          )
-                        }
-                        onClick={() => setCollapsed(!collapsed)}
-                        style={{
-                          fontSize: "16px",
-                          width: 64,
-                          height: 64,
-                        }}
+    <EmailProvider>
+      <DriverProvider>
+        <FacilityProvider>
+          <AssociationProvider>
+            <TaxiProvider>
+              <LaneProvider>
+                <RouteProvider>
+                  <Layout className={styles.layout}>
+                    <Sider trigger={null} collapsible collapsed={collapsed}>
+                      <div className="demo-logo-vertical" />
+                      <Menu
+                        onClick={({ key }) => router.push(key)}
+                        theme="dark"
+                        mode="inline"
+                        defaultSelectedKeys={["/driver"]}
+                        items={siderItems}
                       />
-                      <div className={styles.profileMenu}>
-                        <Dropdown menu={userMenu} trigger={["click"]}>
-                          <Button type="text" icon={<UserOutlined />}>
-                            {/* {currentUser?.emailAddress ?? "User"} */}
-                          </Button>
-                        </Dropdown>
-                      </div>
-                    </Header>
-                    <Content className={styles.content}>{children}</Content>
+                    </Sider>
+                    <Layout>
+                      <Header
+                        style={{
+                          padding: 0,
+                          backgroundColor: "white",
+                          display: "flex",
+                          alignItems: "center",
+                        }}
+                      >
+                        <Button
+                          type="text"
+                          icon={
+                            collapsed ? (
+                              <MenuUnfoldOutlined />
+                            ) : (
+                              <MenuFoldOutlined />
+                            )
+                          }
+                          onClick={() => setCollapsed(!collapsed)}
+                          style={{
+                            fontSize: "16px",
+                            width: 64,
+                            height: 64,
+                          }}
+                        />
+                        <div className={styles.profileMenu}>
+                          <Dropdown menu={userMenu} trigger={["click"]}>
+                            <Button type="text" icon={<UserOutlined />}>
+                              {currentUser?.emailAddress ?? "User"}
+                            </Button>
+                          </Dropdown>
+                        </div>
+                      </Header>
+                      <Content className={styles.content}>{children}</Content>
+                    </Layout>
                   </Layout>
-                </Layout>
-              </RouteProvider>
-            </LaneProvider>
-          </TaxiProvider>
-        </AssociationProvider>
-      </FacilityProvider>
-    </DriverProvider>
+                </RouteProvider>
+              </LaneProvider>
+            </TaxiProvider>
+          </AssociationProvider>
+        </FacilityProvider>
+      </DriverProvider>
+    </EmailProvider>
   );
 };
 
