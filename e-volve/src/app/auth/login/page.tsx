@@ -46,11 +46,9 @@ const SignIn = () => {
 
   useEffect(() => {
     if (isSuccess) {
-      Toast("Welcome back!", "success");
       resetStateFlags();
-
       setTimeout(() => {
-        console.log(currentRole)
+        console.log(currentRole);
         switch (currentRole) {
           case "driver":
             router.push("/driver");
@@ -58,8 +56,11 @@ const SignIn = () => {
           case "rankmanager":
             router.push("/taxirankmanager");
             break;
-          default:
+          case "passenger":
             router.push("/passanger");
+            break;
+          default :
+            router.push("/auth/login");
             break;
         }
       }, 500);

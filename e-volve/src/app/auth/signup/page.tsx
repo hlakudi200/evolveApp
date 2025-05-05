@@ -7,13 +7,14 @@ import {
   IdcardOutlined,
 } from "@ant-design/icons";
 import Link from "next/link";
-import React, { useEffect, useState } from "react";
+import React, {useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthActions, useAuthState } from "@/providers/auth";
 import { IUser } from "@/providers/auth/context";
 import { Toast } from "@/providers/toast/toast";
 import { motion } from "framer-motion";
 import styles from "./styles.module.css";
+import { isStrongPassword } from "@/utils/auth-helpers";
 
 export interface IPassengerSignUp {
   id?: string;
@@ -28,8 +29,7 @@ export interface IPassengerSignUp {
 const SignUp = () => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
-  const { signUp, resetStateFlags } = useAuthActions();
-  const { isSuccess, isError } = useAuthState();
+  const { signUp } = useAuthActions();
   const router = useRouter();
   const handleSignUp = async (values: IPassengerSignUp) => {
     setLoading(true);
@@ -53,27 +53,29 @@ const SignUp = () => {
         return;
       }
 
+      if (!isStrongPassword(values.password)) {
+        Toast("Password must contain an uppercase letter, a number, and a special character", "error");
+        setLoading(false);
+        return;
+      }
+
       const userPayload: IUser = {
         userName: values.username,
         name: values.name,
         surname: values.surname,
         emailAddress: values.emailAddress,
         password: values.password,
-        roles: [],
       };
 
+      console.log("PayLoad:", userPayload);
       await signUp(userPayload);
 
-      if (isSuccess) {
-        Toast("Account created succesfully", "success");
-        router.push("/auth/login");
-      }
-      
+      Toast("Account created succesfully", "success");
+      router.push("/auth/login");
     } catch (error) {
       console.error(error);
-      if (isError) {
-        Toast("An error occurred. Please try again.", "error");
-      }
+
+      Toast("An error occurred. Please try again.", "error");
 
       setLoading(false);
     }
