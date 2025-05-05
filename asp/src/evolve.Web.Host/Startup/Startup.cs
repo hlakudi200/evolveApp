@@ -20,6 +20,8 @@ using System.Reflection;
 using Hangfire;
 using Hangfire.Dashboard;
 using Hangfire.PostgreSql;
+using evolve.Configurations;
+using evolve.Services.EmailService;
 
 namespace evolve.Web.Host.Startup
 {
@@ -59,6 +61,8 @@ namespace evolve.Web.Host.Startup
             AuthConfigurer.Configure(services, _appConfiguration);
 
             services.AddSignalR();
+
+            services.Configure<SmtpSettings>(_appConfiguration.GetSection("SmtpSettings"));
 
             // Configure CORS
             services.AddCors(options => options.AddPolicy(
