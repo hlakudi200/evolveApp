@@ -8,21 +8,15 @@ import {
   CreditCardOutlined,
   WalletOutlined,
 } from "@ant-design/icons";
-import {
-  Button,
-  Layout,
-  Typography,
-  Row,
-  Col,
-  Card,
-  Space,
-} from "antd";
+import { Button, Layout, Typography, Row, Col, Card, Space } from "antd";
 import styles from "./page.module.css";
+import { useRouter } from "next/navigation";
 
 const { Header, Content, Footer } = Layout;
 const { Title, Paragraph } = Typography;
 
 export default function Home() {
+  const router = useRouter();
   const features = [
     {
       icon: <ScheduleOutlined style={{ fontSize: 28, color: "#1890ff" }} />,
@@ -65,9 +59,19 @@ export default function Home() {
             E-Volve
           </Title>
           <Space size="large">
-            <a href="#hero" className={styles.navLink} style={{color:"white"}}>Home</a>
-            <a href="#features" className={styles.navLink}>Features</a>
-            <a href="#cta" className={styles.navLink}>Join</a>
+            <a
+              href="#hero"
+              className={styles.navLink}
+              style={{ color: "white" }}
+            >
+              Home
+            </a>
+            <a href="#features" className={styles.navLink}>
+              Features
+            </a>
+            <Button type="default" onClick={()=>{router.push("/auth/signup" )}}>
+              Join
+            </Button>
           </Space>
         </div>
       </Header>
@@ -89,16 +93,28 @@ export default function Home() {
 
       {/* Features Section */}
       <Content id="features" className={styles.features}>
-        <Title level={2} style={{ textAlign: "center", marginBottom: 40, color: "white" }}>
+        <Title
+          level={2}
+          style={{ textAlign: "center", marginBottom: 40, color: "white" }}
+        >
           Our Core Features
         </Title>
         <Row gutter={[24, 24]} justify="center">
           {features.map((f, i) => (
             <Col key={i} xs={24} sm={12} md={8}>
-              <Card hoverable  style={{ textAlign: "center", minHeight: 180, background: "#1c1c1c" }}>
+              <Card
+                hoverable
+                style={{
+                  textAlign: "center",
+                  minHeight: 180,
+                  background: "#1c1c1c",
+                }}
+              >
                 <Space direction="vertical" align="center">
                   {f.icon}
-                  <Title level={4} style={{ color: "white" }}>{f.title}</Title>
+                  <Title level={4} style={{ color: "white" }}>
+                    {f.title}
+                  </Title>
                   <Paragraph style={{ color: "white" }}>{f.desc}</Paragraph>
                 </Space>
               </Card>
@@ -111,16 +127,26 @@ export default function Home() {
       <Content className={styles.stats}>
         <Row justify="center" gutter={32}>
           <Col>
-            <Title level={3} style={{ color: "#ffd666" }}>75%</Title>
+            <Title level={3} style={{ color: "#ffd666" }}>
+              75%
+            </Title>
             <Paragraph style={{ color: "white" }}>Operational Boost</Paragraph>
           </Col>
           <Col>
-            <Title level={3} style={{ color: "#95de64" }}>90%</Title>
-            <Paragraph style={{ color: "white" }}>Customer Satisfaction</Paragraph>
+            <Title level={3} style={{ color: "#95de64" }}>
+              90%
+            </Title>
+            <Paragraph style={{ color: "white" }}>
+              Customer Satisfaction
+            </Paragraph>
           </Col>
           <Col>
-            <Title level={3} style={{ color: "#69c0ff" }}>60%</Title>
-            <Paragraph style={{ color: "white" }}>Faster Queue Rotation</Paragraph>
+            <Title level={3} style={{ color: "#69c0ff" }}>
+              60%
+            </Title>
+            <Paragraph style={{ color: "white" }}>
+              Faster Queue Rotation
+            </Paragraph>
           </Col>
         </Row>
       </Content>
@@ -128,14 +154,25 @@ export default function Home() {
       {/* Call to Action */}
       <Content id="cta" className={styles.cta}>
         <Title level={2}>Join the Movement</Title>
-        <Paragraph>Be part of South Africa’s transportation revolution</Paragraph>
-        <Button type="primary" size="large">Join Now</Button>
+        <Paragraph>
+          Be part of South Africa’s transportation revolution
+        </Paragraph>
+        <Button
+          type="primary"
+          size="large"
+          onClick={() => {
+            router.push("/auth/signup");
+          }}
+        >
+          Join Now
+        </Button>
       </Content>
 
       {/* Footer */}
       <Footer className={styles.footer}>
         <Paragraph style={{ color: "#aaa" }}>
-          © {new Date().getFullYear()} E-Volve. Built for the people on the move.
+          © {new Date().getFullYear()} E-Volve. Built for the people on the
+          move.
         </Paragraph>
       </Footer>
     </Layout>

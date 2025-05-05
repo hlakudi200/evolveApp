@@ -81,7 +81,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const signUp = async (user: IUser) => {
     dispatch(signUpPending());
-    const endpoint = `/api/services/app/Applicant/CreateApplicant`;
+    const endpoint = `/api/services/app/Passenger/CreatePassenger`;
 
     await instance
       .post(endpoint, user)

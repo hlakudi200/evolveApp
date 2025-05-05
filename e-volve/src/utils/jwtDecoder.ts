@@ -38,6 +38,7 @@ export const decodeToken = (accessToken: string): IDecodedToken => {
 };
 
 export const getRole = (accessToken: string): string => {
+  console.log("accessToken",accessToken)
   if (accessToken) {
     const decoded = decodeToken(accessToken);
     return `${decoded[AbpTokenProperies.role]}`.toLocaleLowerCase();
@@ -45,6 +46,7 @@ export const getRole = (accessToken: string): string => {
   return "provider";
 };
 export const getId = (token:string): string => {
+  console.log("Token",token )
   if (token) {
     const decoded = decodeToken(token);
     return `${decoded[AbpTokenProperies.nameidentifier]}`.toLocaleLowerCase();

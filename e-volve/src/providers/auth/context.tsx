@@ -44,9 +44,9 @@ export const INITIAL_STATE: IAuthStateContext = {
   isPending: false,
   isSuccess: false,
   isError: false,
-  currentUser: null,
+  currentUser: undefined,
 };
 
 export const AuthStateContext = createContext<IAuthStateContext>(INITIAL_STATE);
 
-export const AuthActionContext = createContext<IAuthActionContext>(undefined);
+export const AuthActionContext = createContext<IAuthActionContext|undefined>(undefined);
