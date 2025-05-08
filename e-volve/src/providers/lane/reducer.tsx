@@ -91,6 +91,30 @@ export const LaneReducer = handleActions<
       ...state,
       ...action.payload,
     }),
+    [LaneActionEnums.markTaxiAsArrivedPending]: (state, action) => ({
+      ...state,
+      ...action.payload,
+    }),
+    [LaneActionEnums.markTaxiAsArrivedSuccess]: (state, action) => ({
+      ...state,
+      ...action.payload,
+    }),
+    [LaneActionEnums.markTaxiAsArrivedError]: (state, action) => ({
+      ...state,
+      ...action.payload,
+    }),
+    [LaneActionEnums.dispatchTaxiPending]: (state, action) => ({
+      ...state,
+      ...action.payload,
+    }),
+    [LaneActionEnums.dispatchTaxiSuccess]: (state, action) => ({
+      ...state,
+      ...action.payload,
+    }),
+    [LaneActionEnums.dispatchTaxiError]: (state, action) => ({
+      ...state,
+      ...action.payload,
+    }),
 
   },
   INITIAL_STATE

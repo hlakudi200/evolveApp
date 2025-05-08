@@ -130,11 +130,17 @@ export const LaneProvider = ({ children }: { children: React.ReactNode }) => {
         dispatch(getQuesByTaxiIdError());
       });
   };
+  const markTaxiAsArrived=async(taxiId:string)=>{}
+  const dispatchTaxiFromQue=async(queid:string,taxiId:string)=>{
+
+  }
 
   return (
     <LaneStateContext.Provider value={state}>
       <LaneActionContext.Provider
         value={{
+          markTaxiAsArrived,
+          dispatchTaxiFromQue,
           getQuesByTaxiId,
           getLanes,
           getLane,
