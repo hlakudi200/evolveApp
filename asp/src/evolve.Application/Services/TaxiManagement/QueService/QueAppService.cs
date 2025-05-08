@@ -82,7 +82,24 @@ namespace evolve.Services.TaxiManagement.QueService
             // Persist the updated queue
             await Repository.UpdateAsync(que);
         }
+        public async Task MarkTaxiAsArrived(Guid taxiId)
+        {
+            var taxi = await _taxiRepository.FirstOrDefaultAsync(t => t.Id == taxiId);
 
+            if (taxi == null)
+                throw new Exception("Taxi not found.");
+
+            if (!taxi.IsDispatched)
+                throw new Exception("Taxi has not been dispatched.");
+
+            if (taxi.Status == "Arrived")
+                throw new Exception("Taxi has already arrived.");
+
+            taxi.Status = "Arrived";
+            taxi.ArrivalTime = DateTime.UtcNow;
+
+            await _taxiRepository.UpdateAsync(taxi);
+        }
 
     }
 }
