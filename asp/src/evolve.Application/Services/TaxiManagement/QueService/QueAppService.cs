@@ -57,5 +57,32 @@ namespace evolve.Services.TaxiManagement.QueService
             que.QuedTaxis.Add(taxi);
             await Repository.UpdateAsync(que);
         }
+        public async Task DispatchTaxiFromQue(Guid queId, Guid taxiId)
+        {
+            var que = await Repository
+                .GetAllIncluding(q => q.QuedTaxis)
+                .FirstOrDefaultAsync(q => q.Id == queId);
+
+            if (que == null)
+                throw new Exception("Queue not found.");
+
+            var taxi = que.QuedTaxis.FirstOrDefault(t => t.Id == taxiId);
+            if (taxi == null)
+                throw new Exception("Taxi not found in this queue.");
+
+            // Remove the taxi from the queue
+            que.QuedTaxis.Remove(taxi);
+
+            // Mark it as dispatched
+            taxi.IsDispatched = true;
+            taxi.DispatchTime = DateTime.UtcNow;
+            taxi.Status = "Dispatched";
+            await _taxiRepository.UpdateAsync(taxi);
+
+            // Persist the updated queue
+            await Repository.UpdateAsync(que);
+        }
+
+
     }
 }

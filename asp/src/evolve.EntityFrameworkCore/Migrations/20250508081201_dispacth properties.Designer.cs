@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using evolve.EntityFrameworkCore;
@@ -11,9 +12,11 @@ using evolve.EntityFrameworkCore;
 namespace evolve.Migrations
 {
     [DbContext(typeof(evolveDbContext))]
-    partial class evolveDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250508081201_dispacth properties")]
+    partial class dispacthproperties
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -2534,9 +2537,6 @@ namespace evolve.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<DateTime?>("ArrivalTime")
-                        .HasColumnType("timestamp with time zone");
-
                     b.Property<DateTime>("CreationTime")
                         .HasColumnType("timestamp with time zone");
 
@@ -2549,19 +2549,16 @@ namespace evolve.Migrations
                     b.Property<DateTime?>("DeletionTime")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<DateTime?>("DispatchTime")
-                        .HasColumnType("timestamp with time zone");
-
                     b.Property<Guid>("DriverId")
                         .HasColumnType("uuid");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
-                    b.Property<bool>("IsDispatched")
+                    b.Property<bool>("IsFull")
                         .HasColumnType("boolean");
 
-                    b.Property<bool>("IsFull")
+                    b.Property<bool>("IsOnTrip")
                         .HasColumnType("boolean");
 
                     b.Property<DateTime?>("LastModificationTime")
@@ -2581,9 +2578,6 @@ namespace evolve.Migrations
 
                     b.Property<Guid>("RouteId")
                         .HasColumnType("uuid");
-
-                    b.Property<string>("Status")
-                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
