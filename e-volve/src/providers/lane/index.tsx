@@ -25,6 +25,12 @@ import {
   getQuesByTaxiIdPending,
   getQuesByTaxiIdSuccess,
   getQuesByTaxiIdError,
+  markTaxiAsArrivedPending,
+  markTaxiAsArrivedSuccess,
+  markTaxiAsArrivedError,
+  dispatchTaxiPending,
+  dispatchTaxiSuccess,
+  dispatchTaxiError,
 } from "./actions";
 
 export const LaneProvider = ({ children }: { children: React.ReactNode }) => {
@@ -123,7 +129,7 @@ export const LaneProvider = ({ children }: { children: React.ReactNode }) => {
       .get(endpoint)
       .then((response) => {
         dispatch(getQuesByTaxiIdSuccess(response.data.result));
-        console.log(response.data.result)
+        console.log(response.data.result);
       })
       .catch((error) => {
         console.error(error);
@@ -131,10 +137,39 @@ export const LaneProvider = ({ children }: { children: React.ReactNode }) => {
       });
   };
 
+  const markTaxiAsArrived = async (taxiId: string) => {
+    dispatch(markTaxiAsArrivedPending());
+    const endpoint = `/api/services/app/Que/MarkTaxiAsArrived?taxiId=${taxiId}`;
+    await instance
+      .post(endpoint)
+      .then(() => {
+        dispatch(markTaxiAsArrivedSuccess());
+      })
+      .catch((error) => {
+        console.error(error);
+        dispatch(markTaxiAsArrivedError());
+      });
+  };
+  const dispatchTaxiFromQue = async (queid:string|undefined,taxiId:string|undefined) => {
+    dispatch(dispatchTaxiPending());
+    const endpoint = `/api/services/app/Que/DispatchTaxiFromQue?queId=${queid}&taxiId=${taxiId}`;
+    await instance
+      .post(endpoint)
+      .then(() => {
+        dispatch(dispatchTaxiSuccess());
+      })
+      .catch((error) => {
+        console.error(error);
+        dispatch(dispatchTaxiError());
+      });
+  };
+
   return (
     <LaneStateContext.Provider value={state}>
       <LaneActionContext.Provider
         value={{
+          markTaxiAsArrived,
+          dispatchTaxiFromQue,
           getQuesByTaxiId,
           getLanes,
           getLane,
