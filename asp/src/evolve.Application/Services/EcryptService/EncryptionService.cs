@@ -22,6 +22,7 @@ namespace evolve.Services.EcryptService
         {
             // Implementation of AES encryption
             // This is a simplified example - in production use a more robust implementation
+            // This is a simplified example - in production use a more robust implementation
             try
             {
                 using var aes = Aes.Create();
