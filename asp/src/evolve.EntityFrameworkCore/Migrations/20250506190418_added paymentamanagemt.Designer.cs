@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using evolve.EntityFrameworkCore;
@@ -11,9 +12,11 @@ using evolve.EntityFrameworkCore;
 namespace evolve.Migrations
 {
     [DbContext(typeof(evolveDbContext))]
-    partial class evolveDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250506190418_added paymentamanagemt")]
+    partial class addedpaymentamanagemt
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -2219,7 +2222,6 @@ namespace evolve.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<string>("GatewayResponseCode")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("GatewayTransactionId")
@@ -2237,7 +2239,14 @@ namespace evolve.Migrations
                     b.Property<DateTime>("PaymentDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("PaymentMethod")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<Guid?>("PayoutId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("QrCodeId")
                         .HasColumnType("uuid");
 
                     b.Property<string>("Status")
@@ -2254,7 +2263,61 @@ namespace evolve.Migrations
 
                     b.HasIndex("PayoutId");
 
+                    b.HasIndex("QrCodeId");
+
                     b.ToTable("Payments");
+                });
+
+            modelBuilder.Entity("evolve.Domain.PaymentManagement.PaymentQrCode", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long?>("CreatorUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("DeleterUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime?>("DeletionTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("DriverId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("ExpiryDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("GeneratedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime?>("LastModificationTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long?>("LastModifierUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("QrCodeContent")
+                        .HasColumnType("text");
+
+                    b.Property<string>("QrCodeImageUrl")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DriverId");
+
+                    b.ToTable("PaymentQrCode");
                 });
 
             modelBuilder.Entity("evolve.Domain.PaymentManagement.Payout", b =>
@@ -3020,9 +3083,26 @@ namespace evolve.Migrations
                         .WithMany("Payments")
                         .HasForeignKey("PayoutId");
 
+                    b.HasOne("evolve.Domain.PaymentManagement.PaymentQrCode", "QrCode")
+                        .WithMany()
+                        .HasForeignKey("QrCodeId");
+
                     b.Navigation("Driver");
 
                     b.Navigation("Payout");
+
+                    b.Navigation("QrCode");
+                });
+
+            modelBuilder.Entity("evolve.Domain.PaymentManagement.PaymentQrCode", b =>
+                {
+                    b.HasOne("evolve.Domain.DriverManagement.Driver", "Driver")
+                        .WithMany()
+                        .HasForeignKey("DriverId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Driver");
                 });
 
             modelBuilder.Entity("evolve.Domain.PaymentManagement.Payout", b =>

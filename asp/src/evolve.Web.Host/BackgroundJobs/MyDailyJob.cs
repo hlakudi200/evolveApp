@@ -33,12 +33,24 @@ namespace evolve.Web.Host.BackgroundJobs
             {
                 try
                 {
-                    _logger.LogInformation("⏰ Starting daily Que creation job...");
+                    _logger.LogInformation("⏰ Starting Que creation job...");
 
                     var lanes = await _laneRepository.GetAllListAsync();
+                    var today = DateTime.UtcNow.Date;
 
                     foreach (var lane in lanes)
                     {
+                        // Check if a Que already exists for this lane today
+                        var existingQue = await _queRepository.FirstOrDefaultAsync(
+                            q => q.LaneId == lane.Id && q.CreationDate.Date == today
+                        );
+
+                        if (existingQue != null)
+                        {
+                            _logger.LogInformation($"⚠️ Que already exists for Lane {lane.Id} today. Skipping...");
+                            continue;
+                        }
+
                         var que = new Que
                         {
                             LaneId = lane.Id,
@@ -47,11 +59,11 @@ namespace evolve.Web.Host.BackgroundJobs
                         };
 
                         await _queRepository.InsertAsync(que);
+                        _logger.LogInformation($"✅ Que created for Lane {lane.Id}.");
                     }
 
                     await uow.CompleteAsync();
-
-                    _logger.LogInformation("✅ Queues created for all lanes.");
+                    _logger.LogInformation("✅ Que creation job completed.");
                 }
                 catch (Exception ex)
                 {
@@ -60,5 +72,6 @@ namespace evolve.Web.Host.BackgroundJobs
                 }
             }
         }
+
     }
 }

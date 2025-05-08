@@ -48,19 +48,22 @@ namespace evolve.Web.Host.Startup
         {
             var recurringJobManager = IocManager.Resolve<IRecurringJobManager>();
 
+            // Create queues at the top of every hour (e.g., 00:00, 01:00, 02:00...)
             recurringJobManager.AddOrUpdate<MyDailyJob>(
-                "create-daily-queues",
+                "create-queues-hourly",
                 job => job.ExecuteAsync(),
-                Cron.Daily(0, 0)
+                "0 * * * *" // CRON: minute 0 of every hour
             );
 
-
+            // Close queues 5 minutes after creation (e.g., 00:05, 01:05, 02:05...)
             recurringJobManager.AddOrUpdate<CloseQueJob>(
-                "close-daily-queues",
+                "close-queues-hourly-offset",
                 job => job.ExecuteAsync(),
-                "59 11 * * *"
+                "5 * * * *" // CRON: minute 5 of every hour
             );
         }
+
+
 
 
 

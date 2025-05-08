@@ -42,24 +42,11 @@ namespace evolve.Services.TaxiManagement.LaneService
                     queue.QuedTaxis.Any(taxi => taxi.Id == taxiId)))
                 .ToListAsync();
 
-            // Filter only the queues and taxis where the taxiId matches
-            foreach (var lane in lanes)
-            {
-                lane.Queus = lane.Queus
-                    .Where(queue => queue.QuedTaxis.Any(taxi => taxi.Id == taxiId))
-                    .Select(queue =>
-                    {
-                        queue.QuedTaxis = queue.QuedTaxis
-                            .Where(taxi => taxi.Id == taxiId)
-                            .ToList();
-                        return queue;
-                    })
-                    .ToList();
-            }
-
+            // Do NOT filter the quedTaxis — keep full queue info
             var results = ObjectMapper.Map<List<LaneResponseDto>>(lanes);
             return results;
         }
+
 
 
 

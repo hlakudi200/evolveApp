@@ -33,6 +33,8 @@ import { IQue, IRoute } from "@/providers/interfaces";
 import { formatDate, getCurrentTime } from "@/utils/driver-helpers";
 import { useDriverActions, useDriverState } from "@/providers/driver";
 import { useAuthState } from "@/providers/auth";
+import Ques from "../taxirankmanager/ques/page";
+
 
 const { Title, Text } = Typography;
 const { TabPane } = Tabs;
@@ -56,7 +58,8 @@ const Home = () => {
   const { getDriver } = useDriverActions();
 
   const { getQuesByTaxiId } = useLaneActions();
-  const { TaxiQues, isError, isPending } = useLaneState();
+  const { TaxiQues, Lanes,isError, isPending } = useLaneState();
+
   const { getTaxiByDriverId } = useTaxiActions();
   const { Taxi } = useTaxiState();
 
@@ -124,24 +127,26 @@ const Home = () => {
   const getQueuePosition = (
     queue: IQue & { routeInfo?: IRoute; totalCapacity: number }
   ): QueuePositionResult => {
-    if (!queue?.quedTaxis || !Array.isArray(queue.quedTaxis))
+    if (!queue?.quedTaxis || !Array.isArray(queue.quedTaxis)) {
       return { position: 0, total: 0, percentage: 0 };
-
+    }
+  
     const myTaxiPosition = queue.quedTaxis.findIndex(
       (taxi) => taxi.registrationNumber === Taxi?.registrationNumber
     );
-
+  
+    const total = queue.quedTaxis.length;
+  
     return {
       position: myTaxiPosition >= 0 ? myTaxiPosition + 1 : 0,
-      total: queue.quedTaxis.length,
+      total,
       percentage:
         myTaxiPosition >= 0
-          ? ((queue.quedTaxis.length - myTaxiPosition - 1) /
-              queue.quedTaxis.length) *
-            100
+          ? ((total - myTaxiPosition - 1) / total) * 100
           : 0,
     };
   };
+  
 
   const renderQueueCard = (
     queue: IQue & { routeInfo?: IRoute; totalCapacity: number }

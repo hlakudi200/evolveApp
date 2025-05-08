@@ -51,6 +51,7 @@ namespace evolve.Web.Host.Startup
 
             services.AddHangfireServer();  // Registers Hangfire server to process background jobs
             services.AddTransient<IEmailService, EmailService>();
+
             // MVC and other configurations...
             services.AddControllersWithViews(options =>
             {
@@ -63,7 +64,8 @@ namespace evolve.Web.Host.Startup
             services.AddSignalR();
 
             services.Configure<SmtpSettings>(_appConfiguration.GetSection("SmtpSettings"));
-
+            var paymentConfig = _appConfiguration.GetSection("Payment").Get<PaymentConfiguration>();
+            services.AddSingleton(paymentConfig);
             // Configure CORS
             services.AddCors(options => options.AddPolicy(
                 _defaultCorsPolicyName,
@@ -102,6 +104,7 @@ namespace evolve.Web.Host.Startup
             if (env.IsDevelopment())
             {
                 app.UseHttpsRedirection();
+                app.UseDeveloperExceptionPage();
             }
 
             app.UseEndpoints(endpoints =>
