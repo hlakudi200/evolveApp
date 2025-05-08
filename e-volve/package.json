@@ -9,17 +9,24 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "antd": "^5.24.8",
+    "axios": "^1.9.0",
+    "framer-motion": "^12.9.2",
+    "jwt-decode": "^4.0.0",
+    "lucide-react": "^0.507.0",
+    "next": "15.3.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "next": "15.3.1"
+    "redux-actions": "^3.0.3"
   },
   "devDependencies": {
-    "typescript": "^5",
+    "@eslint/eslintrc": "^3",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/redux-actions": "^2.6.5",
     "eslint": "^9",
     "eslint-config-next": "15.3.1",
-    "@eslint/eslintrc": "^3"
+    "typescript": "^5"
   }
 }
