@@ -1,20 +1,11 @@
-﻿using System;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using Abp.AspNetCore;
+﻿using Abp.AspNetCore;
 using Abp.AspNetCore.Mvc.Antiforgery;
 using Abp.AspNetCore.SignalR.Hubs;
 using Abp.Castle.Logging.Log4Net;
 using Abp.Extensions;
-using Castle.Facilities.Logging;
 using evolve.Configuration;
-using evolve.Configurations;
 using evolve.Identity;
-using evolve.Services.EmailService;
-using Hangfire;
-using Hangfire.Dashboard;
-using Hangfire.PostgreSql;
+using Castle.Facilities.Logging;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -22,6 +13,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
+using System;
+using System.IO;
+using System.Linq;
+using System.Reflection;
 
 namespace evolve.Web.Host.Startup
 {
@@ -42,17 +37,7 @@ namespace evolve.Web.Host.Startup
 
         public void ConfigureServices(IServiceCollection services)
         {
-            // Add Hangfire services and configure PostgreSQL storage
-            services.AddHangfire(config =>
-            {
-                var connectionString = _appConfiguration.GetConnectionString("Default");
-                config.UsePostgreSqlStorage(connectionString); // Ensure Hangfire uses PostgreSQL storage
-            });
-
-            services.AddHangfireServer();  // Registers Hangfire server to process background jobs
-            services.AddTransient<IEmailService, EmailService>();
-
-            // MVC and other configurations...
+            //MVC
             services.AddControllersWithViews(options =>
             {
                 options.Filters.Add(new AbpAutoValidateAntiforgeryTokenAttribute());
@@ -63,49 +48,53 @@ namespace evolve.Web.Host.Startup
 
             services.AddSignalR();
 
-            services.Configure<SmtpSettings>(_appConfiguration.GetSection("SmtpSettings"));
-            var paymentConfig = _appConfiguration.GetSection("Payment").Get<PaymentConfiguration>();
-            services.AddSingleton(paymentConfig);
-            // Configure CORS
-            services.AddCors(options => options.AddPolicy(
-                _defaultCorsPolicyName,
-                builder => builder.WithOrigins(
-                    _appConfiguration["App:CorsOrigins"]
-                        .Split(",", StringSplitOptions.RemoveEmptyEntries)
-                        .Select(o => o.RemovePostFix("/"))
-                        .ToArray())
-                    .AllowAnyHeader()
-                    .AllowAnyMethod()
-                    .AllowCredentials()));
+            // Configure CORS for angular2 UI
+            services.AddCors(
+                options => options.AddPolicy(
+                    _defaultCorsPolicyName,
+                    builder => builder
+                        .WithOrigins(
+                            // App:CorsOrigins in appsettings.json can contain more than one address separated by comma.
+                            _appConfiguration["App:CorsOrigins"]
+                                .Split(",", StringSplitOptions.RemoveEmptyEntries)
+                                .Select(o => o.RemovePostFix("/"))
+                                .ToArray()
+                        )
+                        .AllowAnyHeader()
+                        .AllowAnyMethod()
+                        .AllowCredentials()
+                )
+            );
 
-            // Swagger setup
+            // Swagger - Enable this line and the related lines in Configure method to enable swagger UI
             ConfigureSwagger(services);
 
-            // ABP configuration
+            // Configure Abp and Dependency Injection
             services.AddAbpWithoutCreatingServiceProvider<evolveWebHostModule>(
+                // Configure Log4Net logging
                 options => options.IocManager.IocContainer.AddFacility<LoggingFacility>(
-                    f => f.UseAbpLog4Net().WithConfig(_hostingEnvironment.IsDevelopment() ? "log4net.config" : "log4net.Production.config")
+                    f => f.UseAbpLog4Net().WithConfig(_hostingEnvironment.IsDevelopment()
+                        ? "log4net.config"
+                        : "log4net.Production.config"
+                    )
                 )
             );
         }
 
-
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
         {
-            // Use ABP and configure other middleware
-            app.UseAbp(options => { options.UseAbpRequestLocalization = false; });
-            app.UseCors(_defaultCorsPolicyName);
+            app.UseAbp(options => { options.UseAbpRequestLocalization = false; }); // Initializes ABP framework.
+
+            app.UseCors(_defaultCorsPolicyName); // Enable CORS!
+
             app.UseStaticFiles();
+
             app.UseRouting();
+
             app.UseAuthentication();
             app.UseAuthorization();
-            app.UseAbpRequestLocalization();
 
-            if (env.IsDevelopment())
-            {
-                app.UseHttpsRedirection();
-                app.UseDeveloperExceptionPage();
-            }
+            app.UseAbpRequestLocalization();
 
             app.UseEndpoints(endpoints =>
             {
@@ -114,23 +103,19 @@ namespace evolve.Web.Host.Startup
                 endpoints.MapControllerRoute("defaultWithArea", "{area}/{controller=Home}/{action=Index}/{id?}");
             });
 
-            // Swagger setup
+            // Enable middleware to serve generated Swagger as a JSON endpoint
             app.UseSwagger(c => { c.RouteTemplate = "swagger/{documentName}/swagger.json"; });
+
+            // Enable middleware to serve swagger-ui assets (HTML, JS, CSS etc.)
             app.UseSwaggerUI(options =>
             {
+                // specifying the Swagger JSON endpoint.
                 options.SwaggerEndpoint($"/swagger/{_apiVersion}/swagger.json", $"evolve API {_apiVersion}");
-                options.IndexStream = () => Assembly.GetExecutingAssembly().GetManifestResourceStream("evolve.Web.Host.wwwroot.swagger.ui.index.html");
-                options.DisplayRequestDuration();
-            });
-
-            app.UseHangfireDashboard("/hangfire", new DashboardOptions
-            {
-                Authorization = new[] { new HangfireAuthorizationFilter() }
-            });
-
-            ;
+                options.IndexStream = () => Assembly.GetExecutingAssembly()
+                    .GetManifestResourceStream("evolve.Web.Host.wwwroot.swagger.ui.index.html");
+                options.DisplayRequestDuration(); // Controls the display of the request duration (in milliseconds) for "Try it out" requests.
+            }); // URL: /swagger
         }
-
 
         private void ConfigureSwagger(IServiceCollection services)
         {
@@ -183,23 +168,6 @@ namespace evolve.Web.Host.Startup
                     options.IncludeXmlComments(webCoreXmlPath);
                 }
             });
-        }
-
-        public class HangfireAuthorizationFilter : IDashboardAuthorizationFilter
-        {
-            public bool Authorize(DashboardContext context)
-            {
-                // For development environment, allow everyone
-                if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
-                    return true;
-
-                // For production, implement proper authorization
-                var httpContext = context.GetHttpContext();
-                return httpContext.User.Identity.IsAuthenticated;
-
-                // If using ABP roles/permissions:
-                // return httpContext.User.IsInRole("Admin");
-            }
         }
     }
 }

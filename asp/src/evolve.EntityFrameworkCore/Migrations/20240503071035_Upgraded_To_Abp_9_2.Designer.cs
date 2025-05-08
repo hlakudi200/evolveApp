@@ -4,6 +4,7 @@ using evolve.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,13 +12,15 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace evolve.Migrations
 {
     [DbContext(typeof(evolveDbContext))]
-    partial class evolveDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240503071035_Upgraded_To_Abp_9_2")]
+    partial class Upgraded_To_Abp_9_2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.0")
+                .HasAnnotation("ProductVersion", "8.0.4")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -102,7 +105,7 @@ namespace evolve.Migrations
 
                     b.ToTable("AbpFeatures");
 
-                    b.HasDiscriminator().HasValue("FeatureSetting");
+                    b.HasDiscriminator<string>("Discriminator").HasValue("FeatureSetting");
 
                     b.UseTphMappingStrategy();
                 });
@@ -156,8 +159,8 @@ namespace evolve.Migrations
                         .HasColumnType("nvarchar(256)");
 
                     b.Property<string>("Parameters")
-                        .HasMaxLength(2048)
-                        .HasColumnType("nvarchar(2048)");
+                        .HasMaxLength(1024)
+                        .HasColumnType("nvarchar(1024)");
 
                     b.Property<string>("ReturnValue")
                         .HasColumnType("nvarchar(max)");
@@ -219,7 +222,7 @@ namespace evolve.Migrations
 
                     b.ToTable("AbpPermissions");
 
-                    b.HasDiscriminator().HasValue("PermissionSetting");
+                    b.HasDiscriminator<string>("Discriminator").HasValue("PermissionSetting");
 
                     b.UseTphMappingStrategy();
                 });

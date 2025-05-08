@@ -2,7 +2,6 @@
 using Abp.Modules;
 using Abp.Reflection.Extensions;
 using evolve.Authorization;
-using evolve.PaymentService;
 
 namespace evolve;
 
@@ -21,7 +20,6 @@ public class evolveApplicationModule : AbpModule
         var thisAssembly = typeof(evolveApplicationModule).GetAssembly();
 
         IocManager.RegisterAssemblyByConvention(thisAssembly);
-        IocManager.Resolve<IPaymentService>();
 
         Configuration.Modules.AbpAutoMapper().Configurators.Add(
             // Scan the assembly for classes which inherit from AutoMapper.Profile

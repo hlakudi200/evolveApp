@@ -4,6 +4,7 @@ using evolve.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,13 +12,15 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace evolve.Migrations
 {
     [DbContext(typeof(evolveDbContext))]
-    partial class evolveDbContextModelSnapshot : ModelSnapshot
+    [Migration("20221213132802_Upgraded_To_Abp_8_0")]
+    partial class UpgradedToAbp80
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.0")
+                .HasAnnotation("ProductVersion", "7.0.0")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -82,8 +85,7 @@ namespace evolve.Migrations
 
                     b.Property<string>("Discriminator")
                         .IsRequired()
-                        .HasMaxLength(21)
-                        .HasColumnType("nvarchar(21)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -102,7 +104,7 @@ namespace evolve.Migrations
 
                     b.ToTable("AbpFeatures");
 
-                    b.HasDiscriminator().HasValue("FeatureSetting");
+                    b.HasDiscriminator<string>("Discriminator").HasValue("FeatureSetting");
 
                     b.UseTphMappingStrategy();
                 });
@@ -156,8 +158,8 @@ namespace evolve.Migrations
                         .HasColumnType("nvarchar(256)");
 
                     b.Property<string>("Parameters")
-                        .HasMaxLength(2048)
-                        .HasColumnType("nvarchar(2048)");
+                        .HasMaxLength(1024)
+                        .HasColumnType("nvarchar(1024)");
 
                     b.Property<string>("ReturnValue")
                         .HasColumnType("nvarchar(max)");
@@ -199,8 +201,7 @@ namespace evolve.Migrations
 
                     b.Property<string>("Discriminator")
                         .IsRequired()
-                        .HasMaxLength(21)
-                        .HasColumnType("nvarchar(21)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsGranted")
                         .HasColumnType("bit");
@@ -219,7 +220,7 @@ namespace evolve.Migrations
 
                     b.ToTable("AbpPermissions");
 
-                    b.HasDiscriminator().HasValue("PermissionSetting");
+                    b.HasDiscriminator<string>("Discriminator").HasValue("PermissionSetting");
 
                     b.UseTphMappingStrategy();
                 });
@@ -418,10 +419,6 @@ namespace evolve.Migrations
 
                     b.Property<DateTime>("CreationTime")
                         .HasColumnType("datetime2");
-
-                    b.Property<string>("FailReason")
-                        .HasMaxLength(1024)
-                        .HasColumnType("nvarchar(1024)");
 
                     b.Property<byte>("Result")
                         .HasColumnType("tinyint");
@@ -1088,10 +1085,6 @@ namespace evolve.Migrations
                     b.Property<string>("NotificationName")
                         .HasMaxLength(96)
                         .HasColumnType("nvarchar(96)");
-
-                    b.Property<string>("TargetNotifiers")
-                        .HasMaxLength(1024)
-                        .HasColumnType("nvarchar(1024)");
 
                     b.Property<int?>("TenantId")
                         .HasColumnType("int");
