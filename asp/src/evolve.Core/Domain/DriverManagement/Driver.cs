@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using Abp.Domain.Entities.Auditing;
 using evolve.Authorization.Users;
 using evolve.Domain.PassengerManagement;
+using evolve.Domain.PaymentMangement;
 using evolve.Domain.TaxiManagement;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
@@ -13,6 +14,7 @@ namespace evolve.Domain.DriverManagement
     {
         public long UserId { get; set; }
         public User User { get; set; }
+        public virtual DriverAccountDetails AccountDetails { get; set; }
         public string IdentificationNumber { get; set; }
         public string FirstName { get; set; } = string.Empty;
         public string SecondName { get; set; } = string.Empty;

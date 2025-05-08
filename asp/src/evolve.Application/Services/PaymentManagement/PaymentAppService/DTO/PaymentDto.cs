@@ -1,14 +1,20 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using Abp.Domain.Entities.Auditing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Abp.Application.Services.Dto;
+using Abp.AutoMapper;
 using evolve.Domain.DriverManagement;
+using evolve.Domain.PassengerManagement;
 using evolve.Domain.PaymentManagement;
 
-
-namespace evolve.Domain.PassengerManagement
+namespace evolve.Services.PaymentManagement.PaymentAppService.DTO
 {
-    public class Payment : FullAuditedEntity<Guid>
+    [AutoMap(typeof(Payment))]   
+    
+    public class PaymentDto : EntityDto<Guid>
     {
         public Guid DriverId { get; set; }
         public Driver Driver { get; set; }
@@ -23,6 +29,5 @@ namespace evolve.Domain.PassengerManagement
         [Required]
         public string Status { get; set; }
         public Guid? PayoutId { get; set; }
-        public Payout Payout { get; set; }
     }
 }

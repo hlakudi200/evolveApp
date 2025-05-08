@@ -152,8 +152,8 @@ namespace evolve.Services.DriverManagement.DriverService
             {
                 throw new UserFriendlyException("Driver not found");
             }
-           var user = await _userManager.GetUserByIdAsync(driver.UserId);
-           var driverDto = new DriverDto
+            var user = await _userManager.GetUserByIdAsync(driver.UserId);
+            var driverDto = new DriverDto
             {
                 Id = driver.Id,
                 IdentificationNumber = driver.IdentificationNumber,

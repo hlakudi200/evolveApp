@@ -1,18 +1,18 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { useLaneActions, useLaneState } from "@/providers/lane";
-//import { useDriverState } from "@/providers/driver";
 import { Form, Button, Select, Typography, Card } from "antd";
 import { useTaxiActions, useTaxiState } from "@/providers/taxi";
 import { Toast } from "@/providers/toast/toast";
 
+import { useDriverState } from "@/providers/driver";
 const { Option } = Select;
 const { Title } = Typography;
 
 const QueueTaxi = () => {
-  const { addTaxiToQue, getLanes } = useLaneActions();
+  const { addTaxiToQue, getLanes,getQuesByTaxiId } = useLaneActions();
   const { Lanes, isError, isSuccess } = useLaneState();
-  //const { Driver } = useDriverState();
+  const { Driver } = useDriverState();
   const { getTaxiByDriverId } = useTaxiActions();
   const { Taxi } = useTaxiState();
 
@@ -21,18 +21,18 @@ const QueueTaxi = () => {
 
   useEffect(() => {
     getLanes();
-    getTaxiByDriverId("019680d0-642d-733b-b5e7-085c417a9ef7");
-    //the current driver id
+    getTaxiByDriverId(Driver?.id);
   }, []);
 
   const handleSubmit = async (values: { queueId: string }) => {
     if (!Taxi) return;
     setLoading(true);
     try {
-      console.log(values.queueId, Taxi.id);
+      console.log("TaxiId", Taxi.id);
       await addTaxiToQue(Taxi.id, values.queueId).then(() => {
         if (isSuccess) {
           Toast("Successfully joined the queue!", "success");
+          getQuesByTaxiId(Taxi.id)
         }
         if (isError) {
           Toast("Failed to join queue.", "error");
