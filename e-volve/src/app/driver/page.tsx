@@ -1,13 +1,11 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import QueueTaxi from "../_components/queue-taxi/queue-taxi";
-import styles from "./styles/globals.module.css";
 import {
   Card,
   Typography,
   Button,
   Space,
-  notification,
   Avatar,
   Badge,
   Statistic,
@@ -17,23 +15,26 @@ import {
   Tag,
   Skeleton,
   Progress,
+  message,
 } from "antd";
-import { useLaneActions, useLaneState } from "@/providers/lane";
 import {
-  Bell,
   User,
   Clock,
   ListOrdered,
   MapPin,
   ChevronRight,
   AlertCircle,
+  RefreshCw,
+  Car,
 } from "lucide-react";
+import { useLaneActions, useLaneState } from "@/providers/lane";
 import { useTaxiActions, useTaxiState } from "@/providers/taxi";
 import { IQue, IRoute } from "@/providers/interfaces";
 import { formatDate, getCurrentTime } from "@/utils/driver-helpers";
 import { useDriverActions, useDriverState } from "@/providers/driver";
 import { useAuthState } from "@/providers/auth";
-
+import { Toast } from "@/providers/toast/toast";
+import homeStyles from "./styles/home.module.css";
 const { Title, Text } = Typography;
 const { TabPane } = Tabs;
 
@@ -44,35 +45,30 @@ interface QueuePositionResult {
 }
 
 const Home = () => {
-  const [userName, setUserName] = useState<string | undefined>("User");
-  const [showNotification, setShowNotification] = useState(false);
-  const [api, contextHolder] = notification.useNotification();
   const [driverStatus] = useState("Offline");
-  const [totalEarnings, setTotalEarnings] = useState(0);
   const [isQueueModalOpen, setIsQueueModalOpen] = useState(false);
   const [activeQueueTab, setActiveQueueTab] = useState("active");
+  const [dispatchingQueue, setDispatchingQueue] = useState<string | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
+  const [dispatchedQueues, setDispatchedQueues] = useState<string[]>([]);
+
   const { Driver } = useDriverState();
   const { currentUser } = useAuthState();
   const { getDriver } = useDriverActions();
 
-  const { getQuesByTaxiId } = useLaneActions();
-  const { TaxiQues,isError, isPending } = useLaneState();
+  const { getQuesByTaxiId, dispatchTaxiFromQue } = useLaneActions();
+  const { TaxiQues, isError, isPending } = useLaneState();
 
   const { getTaxiByDriverId } = useTaxiActions();
   const { Taxi } = useTaxiState();
 
   useEffect(() => {
-    setTimeout(() => {
-      setUserName(Driver?.firstName);
-      setShowNotification(true);
-      setTotalEarnings(142.5);
-    }, 1000);
 
     getTaxiByDriverId(Driver?.id);
   }, [Driver?.id]);
 
   useEffect(() => {
-    if (currentUser?.id != undefined) {
+    if (currentUser?.id) {
       getDriver(currentUser?.id);
     }
   }, []);
@@ -82,18 +78,6 @@ const Home = () => {
       getQuesByTaxiId(Taxi.id);
     }
   }, [Taxi]);
-
-  useEffect(() => {
-    if (showNotification) {
-      api.open({
-        message: "Welcome Back, Driver!",
-        description: `New ride requests in your area. Go online to start accepting rides.`,
-        icon: <Bell color="#000000" />,
-        placement: "topRight",
-        duration: 4,
-      });
-    }
-  }, [showNotification, userName, api]);
 
   const showQueueModal = () => {
     setIsQueueModalOpen(true);
@@ -108,17 +92,14 @@ const Home = () => {
   ): Array<IQue & { routeInfo?: IRoute; totalCapacity: number }> => {
     if (!TaxiQues || !Array.isArray(TaxiQues)) return [];
 
-    console.log("TaxiQue:", TaxiQues);
-    // Flatten all queues from all routes
-    const allQueues = TaxiQues.flatMap((route) => {
-      return (route.queus || []).map((queue) => ({
+    const allQueues = TaxiQues.flatMap((route) =>
+      (route.queus || []).map((queue) => ({
         ...queue,
         routeInfo: route.designatedRoute,
         totalCapacity: route.capacity,
-      }));
-    });
+      }))
+    );
 
-    // Filter by open/closed status
     return allQueues.filter((queue) => queue.isOpen === isOpen);
   };
 
@@ -132,7 +113,6 @@ const Home = () => {
     const myTaxiPosition = queue.quedTaxis.findIndex(
       (taxi) => taxi.registrationNumber === Taxi?.registrationNumber
     );
-
     const total = queue.quedTaxis.length;
 
     return {
@@ -143,6 +123,49 @@ const Home = () => {
     };
   };
 
+  const handleDispatchTaxi = async (queueId: string) => {
+    try {
+      setDispatchingQueue(queueId);
+      message.loading({ content: "Dispatching taxi...", key: "dispatch" });
+      dispatchTaxiFromQue(queueId, Taxi?.id);
+      message.success({
+        content: "Taxi dispatched successfully",
+        key: "dispatch",
+      });
+      setDispatchedQueues([...dispatchedQueues, queueId]);
+      if(!Taxi) return;
+      getQuesByTaxiId(Taxi.id); 
+    } catch (err) {
+      console.error(err);
+      message.error({ content: "Failed to dispatch taxi", key: "dispatch" });
+      Toast("Failed to dispatch taxi", "error");
+    } finally {
+      setDispatchingQueue(null);
+    }
+  };
+
+  const handleRefreshQueues = async () => {
+    try {
+      setRefreshing(true);
+      if (Taxi?.id) {
+        await getQuesByTaxiId(Taxi.id);
+        message.success("Queues refreshed successfully");
+      }
+    } catch (error) {
+      console.error(error);
+      message.error("Failed to refresh queues");
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
+  const handleDrive = (queueId: string) => {
+    // Placeholder for drive functionality
+    message.info("Starting your journey...");
+    console.log(queueId)
+    // Implementation will be added later
+  };
+
   const renderQueueCard = (
     queue: IQue & { routeInfo?: IRoute; totalCapacity: number }
   ) => {
@@ -150,26 +173,13 @@ const Home = () => {
 
     const { position, total, percentage } = getQueuePosition(queue);
     const amIInQueue = position > 0;
+    const canDispatch = position === 1;
+    const isDispatched = dispatchedQueues.includes(queue.id!);
+    const isDispatching = dispatchingQueue === queue.id;
 
     return (
-      <Card
-        key={queue.id}
-        style={{
-          marginBottom: 16,
-          borderRadius: 10,
-          background: "#FAFAFA",
-          boxShadow: "0 2px 8px rgba(0,0,0,0.09)",
-        }}
-        bodyStyle={{ padding: "16px" }}
-      >
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "flex-start",
-            marginBottom: 12,
-          }}
-        >
+      <Card key={queue.id} className={homeStyles.queueCard}>
+        <div className={homeStyles.queueCardHeader}>
           <Space direction="vertical" size={2}>
             <Text strong style={{ fontSize: 16 }}>
               <Space>
@@ -188,14 +198,7 @@ const Home = () => {
           </Tag>
         </div>
 
-        <div
-          style={{
-            display: "flex",
-            gap: 12,
-            flexWrap: "wrap",
-            marginBottom: 16,
-          }}
-        >
+        <div className={homeStyles.queueStats}>
           <Statistic
             title="Fare Amount"
             value={`ZAR ${queue.routeInfo?.fareAmount || 0}`}
@@ -214,70 +217,56 @@ const Home = () => {
           />
         </div>
 
-        {amIInQueue ? (
-          <div style={{ marginBottom: 8 }}>
-            <Space direction="vertical" style={{ width: "100%" }}>
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                }}
-              >
-                <Text>
-                  Your Position: {position} of {total}
-                </Text>
-                <Text strong>{Math.round(percentage)}%</Text>
-              </div>
-              <Progress
-                percent={percentage}
-                showInfo={false}
-                strokeColor={{
-                  from: "#108ee9",
-                  to: "#87d068",
-                }}
-                style={{ marginBottom: 8 }}
-              />
-              <div style={{ display: "flex", justifyContent: "space-between" }}>
-                <Text type="secondary">Waiting</Text>
-                <Text type="secondary">Ready to Depart</Text>
-              </div>
-            </Space>
-          </div>
-        ) : null}
+        {amIInQueue && (
+          <Space direction="vertical" style={{ width: "100%" }}>
+            <div className={homeStyles.queuePosition}>
+              <Text>
+                Your Position: {position} of {total}
+              </Text>
+              <Text strong>{Math.round(percentage)}%</Text>
+            </div>
+            <Progress
+              percent={percentage}
+              showInfo={false}
+              strokeColor={{ from: "#108ee9", to: "#87d068" }}
+            />
+            <div className={homeStyles.queueStatus}>
+              <Text type="secondary">Waiting</Text>
+              <Text type="secondary">Ready to Depart</Text>
+            </div>
+            <div className={homeStyles.queueActions}>
+              {!isDispatched ? (
+                <Button
+                  type="primary"
+                  disabled={!canDispatch || isDispatching}
+                  loading={isDispatching}
+                  onClick={() => handleDispatchTaxi(queue.id!)}
+                  icon={<ListOrdered size={16} />}
+                  className={homeStyles.actionButton}
+                >
+                  {canDispatch ? "Dispatch Now" : "Wait for Your Turn"}
+                </Button>
+              ) : (
+                <Button
+                  type="primary"
+                  icon={<Car size={16} />}
+                  onClick={() => handleDrive(queue.id!)}
+                  className={homeStyles.driveButton}
+                >
+                  Start Drive
+                </Button>
+              )}
+            </div>
+          </Space>
+        )}
       </Card>
     );
   };
 
   return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        width: "100%",
-        overflowY: "scroll",
-        height: "80vh",
-      }}
-    >
-      {contextHolder}
-
-      <Card
-        className={styles.welcomeCard}
-        style={{
-          marginBottom: "24px",
-          borderRadius: "12px",
-          background: "linear-gradient(135deg, #333333 0%, #000000 100%)",
-          color: "white",
-          boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
-        }}
-      >
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-          }}
-        >
+    <div className={homeStyles.container}>
+      <Card className={homeStyles.welcomeCard}>
+        <div className={homeStyles.welcomeHeader}>
           <Space direction="vertical" size={4}>
             <Title level={3} style={{ color: "white", margin: 0 }}>
               {getCurrentTime()}, {Driver?.firstName}!
@@ -298,42 +287,21 @@ const Home = () => {
           </Badge>
         </div>
 
-        <div
-          style={{
-            display: "flex",
-            marginTop: "16px",
-            gap: "16px",
-            flexWrap: "wrap",
-          }}
-        >
-          <Card
-            style={{
-              background: "rgba(255,255,255,0.2)",
-              borderRadius: "8px",
-              flex: "1",
-              minWidth: "140px",
-            }}
-          >
+        <div className={homeStyles.statCards}>
+          <Card className={homeStyles.statCard}>
             <Statistic
               title={
                 <Text style={{ color: "rgba(255,255,255,0.85)" }}>
-                  Today &apos;s Earnings
+                  Today`&apos;`s Earnings
                 </Text>
               }
-              value={totalEarnings}
+              value={5000}
               precision={2}
               prefix={"ZAR"}
               valueStyle={{ color: "white" }}
             />
           </Card>
-          <Card
-            style={{
-              background: "rgba(255,255,255,0.2)",
-              borderRadius: "8px",
-              flex: "1",
-              minWidth: "140px",
-            }}
-          >
+          <Card className={homeStyles.statCard}>
             <Statistic
               title={
                 <Text style={{ color: "rgba(255,255,255,0.85)" }}>
@@ -348,10 +316,10 @@ const Home = () => {
           </Card>
         </div>
 
-        <div style={{ display: "flex", marginTop: "16px", gap: "12px" }}>
+        <div className={homeStyles.actionButtons}>
           <Button
             icon={<ListOrdered size={16} />}
-            style={{ background: "white", color: "#000000" }}
+            className={homeStyles.joinQueueButton}
             onClick={showQueueModal}
           >
             Join Taxi Queue
@@ -361,17 +329,27 @@ const Home = () => {
 
       <Card
         title={
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <ListOrdered size={20} />
-            <span>Your Current Queues</span>
+          <div className={homeStyles.cardTitle}>
+            <div className={homeStyles.titleWithIcon}>
+              <ListOrdered size={20} />
+              <span>Your Current Queues</span>
+            </div>
+            <Button
+              icon={<RefreshCw size={16} />}
+              onClick={handleRefreshQueues}
+              loading={refreshing}
+              className={homeStyles.refreshButton}
+            >
+              Refresh
+            </Button>
           </div>
         }
-        style={{ marginBottom: 24, borderRadius: 12 }}
+        className={homeStyles.queuesCard}
       >
         <Tabs
           activeKey={activeQueueTab}
           onChange={setActiveQueueTab}
-          style={{ marginBottom: 16 }}
+          className={homeStyles.queueTabs}
         >
           <TabPane
             tab={
@@ -436,7 +414,7 @@ const Home = () => {
 
       <Modal
         title={
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <div className={homeStyles.modalTitle}>
             <ListOrdered size={20} />
             <span>Join Taxi Queue</span>
           </div>

@@ -150,7 +150,7 @@ export const LaneProvider = ({ children }: { children: React.ReactNode }) => {
         dispatch(markTaxiAsArrivedError());
       });
   };
-  const dispatchTaxiFromQue = async (queid: string, taxiId: string) => {
+  const dispatchTaxiFromQue = async (queid:string|undefined,taxiId:string|undefined) => {
     dispatch(dispatchTaxiPending());
     const endpoint = `/api/services/app/Que/DispatchTaxiFromQue?queId=${queid}&taxiId=${taxiId}`;
     await instance

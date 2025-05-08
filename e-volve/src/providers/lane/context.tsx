@@ -17,7 +17,7 @@ export interface ILaneActionContext {
   updateLane: (Lane: ILane) => Promise<void>;
   deleteLane: (id: string) => void;
   addTaxiToQue:(taxiId:string,queId:string)=>Promise<void>
-  dispatchTaxiFromQue:(queid:string,taxiId:string)=>void;
+  dispatchTaxiFromQue:(queid:string|undefined,taxiId:string|undefined)=>void;
   markTaxiAsArrived:(taxiId:string)=>void;
   getQuesByTaxiId:(taxiId:string)=>Promise<void>
 }
