@@ -145,3 +145,13 @@ export interface IYocoCheckoutResponse{
   checkoutId:string,
   checkoutUrl:string
 }
+
+export interface IDriverAccountDetail{
+  driverId:string,
+  bankName:string,
+  branchName:string,
+  branchCode:string,
+  accountNumber:string,
+  acccountHolderName:string,
+  accountType:string
+}
