@@ -1,0 +1,258 @@
+.walletContainer {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 16px;
+    height: 85vh;
+    overflow-y: scroll;
+}
+
+.loadingContainer {
+  width: 100%;
+  padding: 40px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+/* Wallet Header */
+.walletHeader {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+.balanceCard {
+  flex: 1;
+  min-width: 280px;
+  background: linear-gradient(135deg, #000000, #333333);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.balanceHeader {
+  margin-bottom: 8px;
+}
+
+.walletIcon {
+  font-size: 24px;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.balanceTitle {
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 16px;
+}
+
+.balanceAmount {
+  color: white !important;
+  margin-top: 8px !important;
+  margin-bottom: 8px !important;
+  font-size: 32px !important;
+}
+
+.todayEarning {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.todayAmount {
+  color: #52c41a !important;
+}
+
+.riseIcon {
+  color: #52c41a;
+  font-size: 16px;
+}
+
+.fallIcon {
+  color: #f5222d;
+  font-size: 16px;
+}
+
+.filterCard {
+  flex: 1;
+  min-width: 280px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.datePicker {
+  width: 100%;
+}
+
+.filterActions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.downloadButton {
+  background-color: #000;
+  color: white;
+  border: none;
+}
+
+.downloadButton:hover {
+  background-color: #333;
+  color: white;
+}
+
+/* Main Content */
+.mainContent {
+  margin-bottom: 24px;
+}
+
+.transactionsCard {
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  margin-bottom: 24px;
+}
+
+.transactionsHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.paymentsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+}
+
+/* Payment Card */
+.paymentCard {
+  border-radius: 8px;
+  transition: all 0.3s;
+  background-color: #fafafa;
+}
+
+.paymentCard:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.paymentHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.paymentAvatar {
+  background-color: #000;
+  color: white;
+}
+
+.paymentInfo {
+  flex: 1;
+  margin-left: 12px;
+  display: flex;
+  flex-direction: column;
+}
+
+.paymentAmount {
+  font-size: 16px;
+}
+
+.paymentDate {
+  font-size: 12px;
+}
+
+.paymentStatus {
+  margin-left: auto;
+}
+
+.paymentDivider {
+  margin: 12px 0;
+}
+
+.paymentDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.paymentDetail {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+}
+
+/* List View */
+.listItemAmount {
+  font-weight: bold;
+}
+
+/* Monthly Summary */
+.monthlySummaryCard {
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  margin-bottom: 24px;
+}
+
+.monthlySummaryHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.monthTitle {
+  margin: 0 !important;
+}
+
+.monthlySummaryStats {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.monthlyChartContainer {
+  margin-top: 24px;
+  text-align: center;
+}
+
+.monthlyChart {
+  margin-bottom: 8px;
+}
+
+/* Stats Card */
+.statsCard {
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.statItem {
+  margin-top: 24px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .walletHeader {
+    flex-direction: column;
+  }
+
+  .balanceCard,
+  .filterCard {
+    width: 100%;
+  }
+
+  .paymentsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .monthlySummaryStats {
+    flex-direction: column;
+  }
+}
+
+/* Fix for Ant Design Icons */
+.BarsOutlined:after,
+.AppstoreOutlined:after {
+  display: inline-block;
+  content: "";
+}
