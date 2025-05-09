@@ -13,6 +13,7 @@ using evolve.Services.DriverManagement.DriverService.Helpers;
 using evolve.Services.EmailService.DTO;
 using evolve.Services.EmailService;
 using Microsoft.EntityFrameworkCore;
+using evolve.Services.PaymentManagement.PaymentAppService.DTO;
 
 namespace evolve.Services.DriverManagement.DriverService
 {
@@ -67,52 +68,10 @@ namespace evolve.Services.DriverManagement.DriverService
                 throw new UserFriendlyException("Error creating driver", ex);
             }
         }
-
-        public override async Task<DriverDto> GetAsync(EntityDto<Guid> input)
-        {
-            var driver = await Repository
-                .FirstOrDefaultAsync(e => e.Id == input.Id);
-
-            var user = await _userManager.GetUserByIdAsync(driver.UserId);
-
-            if (driver == null && user == null)
-            {
-                throw new UserFriendlyException("Employee not found");
-            }
-
-            var employeeDto = new DriverDto
-            {
-                Id = driver.Id,
-                IdentificationNumber = driver.IdentificationNumber,
-                FirstName = driver.FirstName,
-                SecondName = driver.SecondName,
-                Surname = driver.Surname,
-                FullName = driver.FullName,
-                DateOfBirth = driver.DateOfBirth,
-                Gender = driver.Gender,
-                Email = driver.Email,
-                CellPhoneNo = driver.CellPhoneNo,
-                AddressLine1 = driver.AddressLine1,
-                AddressLine2 = driver.AddressLine2,
-                City = driver.City,
-                Province = driver.Province,
-                PostalCode = driver.PostalCode,
-                Country = driver.Country,
-                LicenseNumber = driver.LicenseNumber,
-                LicenseExpiryDate = driver.LicenseExpiryDate,
-                LicenseType = driver.LicenseType,
-                IsActive = driver.IsActive,
-                AssociationName = driver.Association?.Name,
-                TaxiAssociationId = driver.TaxiAssociationId,
-                Payments = driver.Payments
-            };
-
-            return employeeDto;
-        }
         public async Task<List<DriverDto>> GetAllInclude()
         {
             var query = await Repository.GetAllAsync();
-            var driverWithAssociation = await query.Include(p => p.Association).ToListAsync();
+            var driverWithAssociation = await query.Include(p => p.Association).Include(p => p.Payments).ToListAsync();
 
             var results = driverWithAssociation.Select(driver => new DriverDto
             {
@@ -138,21 +97,36 @@ namespace evolve.Services.DriverManagement.DriverService
                 IsActive = driver.IsActive,
                 AssociationName = driver.Association?.Name,
                 TaxiAssociationId = driver.TaxiAssociationId,
-                Payments = driver.Payments
+                Payments = driver.Payments?.Select(p => new PaymentDto
+                {
+                    Amount = p.Amount,
+                    PaymentDate = p.PaymentDate,
+                    TransactionReference = p.TransactionReference,
+                    GatewayResponseCode = p.GatewayResponseCode,
+                    GatewayTransactionId = p.GatewayTransactionId,
+                    Status = p.Status,
+                    PayoutId = p.PayoutId
+                }).ToList()
             }).ToList();
 
             return results;
         }
+
+
         public async Task<DriverDto> GetDriverByUserIdAsync(long userId)
         {
             var driver = await Repository.GetAll()
                 .Include(e => e.User)
+                .Include(e => e.Payments)
                 .FirstOrDefaultAsync(e => e.UserId == userId);
+
             if (driver == null)
             {
                 throw new UserFriendlyException("Driver not found");
             }
+
             var user = await _userManager.GetUserByIdAsync(driver.UserId);
+
             var driverDto = new DriverDto
             {
                 Id = driver.Id,
@@ -177,8 +151,72 @@ namespace evolve.Services.DriverManagement.DriverService
                 IsActive = driver.IsActive,
                 AssociationName = driver.Association?.Name,
                 TaxiAssociationId = driver.TaxiAssociationId,
-                Payments = driver.Payments
+                Payments = driver.Payments?.Select(p => new PaymentDto
+                {   Id=p.Id,
+                    DriverId=p.DriverId,
+                    Amount = p.Amount,
+                    PaymentDate = p.PaymentDate,
+                    TransactionReference = p.TransactionReference,
+                    GatewayResponseCode = p.GatewayResponseCode,
+                    GatewayTransactionId = p.GatewayTransactionId,
+                    Status = p.Status,
+                    PayoutId = p.PayoutId
+                }).ToList()
             };
+
+            return driverDto;
+        }
+
+        public override async Task<DriverDto> GetAsync(EntityDto<Guid> input)
+        {
+            var driver = await Repository.GetAll()
+                .Include(e => e.Association)
+                .Include(e => e.Payments)
+                .FirstOrDefaultAsync(e => e.Id == input.Id);
+
+            if (driver == null)
+            {
+                throw new UserFriendlyException("Driver not found");
+            }
+
+            var user = await _userManager.GetUserByIdAsync(driver.UserId);
+
+            var driverDto = new DriverDto
+            {
+                Id = driver.Id,
+                IdentificationNumber = driver.IdentificationNumber,
+                FirstName = driver.FirstName,
+                SecondName = driver.SecondName,
+                Surname = driver.Surname,
+                FullName = driver.FullName,
+                DateOfBirth = driver.DateOfBirth,
+                Gender = driver.Gender,
+                Email = driver.Email,
+                CellPhoneNo = driver.CellPhoneNo,
+                AddressLine1 = driver.AddressLine1,
+                AddressLine2 = driver.AddressLine2,
+                City = driver.City,
+                Province = driver.Province,
+                PostalCode = driver.PostalCode,
+                Country = driver.Country,
+                LicenseNumber = driver.LicenseNumber,
+                LicenseExpiryDate = driver.LicenseExpiryDate,
+                LicenseType = driver.LicenseType,
+                IsActive = driver.IsActive,
+                AssociationName = driver.Association?.Name,
+                TaxiAssociationId = driver.TaxiAssociationId,
+                Payments = driver.Payments?.Select(p => new PaymentDto
+                {
+                    Amount = p.Amount,
+                    PaymentDate = p.PaymentDate,
+                    TransactionReference = p.TransactionReference,
+                    GatewayResponseCode = p.GatewayResponseCode,
+                    GatewayTransactionId = p.GatewayTransactionId,
+                    Status = p.Status,
+                    PayoutId = p.PayoutId
+                }).ToList()
+            };
+
             return driverDto;
         }
 

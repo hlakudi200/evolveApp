@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 using Abp.Domain.Entities.Auditing;
 using evolve.Domain.DriverManagement;
 using evolve.Domain.PaymentManagement;
@@ -11,6 +12,7 @@ namespace evolve.Domain.PassengerManagement
     public class Payment : FullAuditedEntity<Guid>
     {
         public Guid DriverId { get; set; }
+
         public Driver Driver { get; set; }
         [Required]
         public decimal Amount { get; set; }
