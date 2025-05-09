@@ -66,32 +66,19 @@ export const DriverAccountDetailReducer = handleActions<
     [DriverAccountDetailActionEnums.deleteDriverAccountDetailError]: (state, action) => ({
       ...state,
       ...action.payload,
-    }), 
-    [DriverAccountDetailActionEnums.addTaxiToQuePending]: (state, action) => ({
-      ...state,
-      ...action.payload,
     }),
-    [DriverAccountDetailActionEnums.addTaxiToQueSuccess]: (state, action) => ({
-      ...state,
-      ...action.payload,
-    }),
-    [DriverAccountDetailActionEnums.addTaxiToQueError]: (state, action) => ({
-      ...state,
-      ...action.payload,
-    }),
-    [DriverAccountDetailActionEnums.getQuesByTaxiIdPending]: (state, action) => ({
-      ...state,
-      ...action.payload,
-    }),
-    [DriverAccountDetailActionEnums.getQuesByTaxiIdSuccess]: (state, action) => ({
-      ...state,
-      ...action.payload,
-    }),
-    [DriverAccountDetailActionEnums.getQuesByTaxiIdError]: (state, action) => ({
-      ...state,
-      ...action.payload,
-    }),
-
+    [DriverAccountDetailActionEnums.getAccDetailByDriverIdPending]: (state, action) => ({
+        ...state,
+        ...action.payload,
+      }),
+    [DriverAccountDetailActionEnums.getAccDetailByDriverIdSuccess]: (state, action) => ({
+        ...state,
+        ...action.payload,
+      }),
+    [DriverAccountDetailActionEnums.getAccDetailByDriverIdError]: (state, action) => ({
+        ...state,
+        ...action.payload,
+      }),
   },
   INITIAL_STATE
 );

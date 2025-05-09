@@ -13,6 +13,7 @@ export interface IDriverAccountDetailStateContext {
 export interface IDriverAccountDetailActionContext {
   getDriverAccountDetails: () => void;
   getDriverAccountDetail: (id: string) => void;
+  getAccDetailByDriverId: (driverId: string) => void;
   createDriverAccountDetail: (DriverAccountDetail: IDriverAccountDetail) => void;
   updateDriverAccountDetail: (DriverAccountDetail: IDriverAccountDetail) => Promise<void>;
   deleteDriverAccountDetail: (id: string) => void;
