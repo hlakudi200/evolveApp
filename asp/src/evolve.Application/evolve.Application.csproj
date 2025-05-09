@@ -21,6 +21,6 @@
     <ProjectReference Include="..\evolve.Core\evolve.Core.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Services\EcryptService\DTO\" />
+    <Folder Include="EcryptService\DTO\" />
   </ItemGroup>
 </Project>

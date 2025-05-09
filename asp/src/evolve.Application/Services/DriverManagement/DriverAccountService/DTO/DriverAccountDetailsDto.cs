@@ -1,22 +1,16 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
-using Abp.Domain.Entities.Auditing;
+using Abp.Application.Services.Dto;
+using Abp.AutoMapper;
 using evolve.Domain.DriverManagement;
+using evolve.Domain.PaymentMangement;
 
-namespace evolve.Domain.PaymentMangement
+namespace evolve.Services.DriverManagement.DriverAccountService.DTO
 {
-    public class DriverAccountDetails : FullAuditedEntity<Guid>
+    [AutoMap(typeof(DriverAccountDetails))]
+    public class DriverAccountDetailsDto : EntityDto<Guid>
     {
-
         public Guid DriverId { get; set; }
-
-        [JsonIgnore]
-        public Driver Driver { get; set; }
 
         [Required]
         [StringLength(100)]
@@ -35,7 +29,5 @@ namespace evolve.Domain.PaymentMangement
 
         [Required]
         public string AccountType { get; set; }
-
-
     }
 }
