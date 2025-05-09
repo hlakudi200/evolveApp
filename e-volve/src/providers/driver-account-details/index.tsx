@@ -83,7 +83,6 @@ export const DriverAccountDetailProvider = ({
         dispatch(createDriverAccountDetailError());
       });
   };
-
   const updateDriverAccountDetail = async (
     DriverAccountDetail: IDriverAccountDetail
   ) => {
@@ -99,7 +98,6 @@ export const DriverAccountDetailProvider = ({
         dispatch(updateDriverAccountDetailError());
       });
   };
-
   const deleteDriverAccountDetail = async (id: string) => {
     dispatch(deleteDriverAccountDetailPending());
     const endpoint = `/api/services/app/DriverAccountDetails/Delete?Id=${id}`;
