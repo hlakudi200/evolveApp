@@ -30,14 +30,6 @@ export enum DriverAccountDetailActionEnums {
   deleteDriverAccountDetailPending = "DELETE_DRIVER_ACCOUNT_DETAIL_PENDING",
   deleteDriverAccountDetailSuccess = "DELETE_DRIVER_ACCOUNT_DETAIL_SUCCESS",
   deleteDriverAccountDetailError = "DELETE_DRIVER_ACCOUNT_DETAIL_ERROR",
-
-  dispatchTaxiPending = "DISPATCH_TAXI_PENDING",
-  dispatchTaxiSuccess = "DISPATCH_TAXI_SUCCESS",
-  dispatchTaxiError = "DISPATCH_TAXI_ERROR",
-
-  markTaxiAsArrivedPending = "MARK_TAXI_PENDING",
-  markTaxiAsArrivedSuccess = "MARK_TAXI_SUCCESS",
-  markTaxiAsArrivedError = "MARK_TAXI_ERROR",
 }
 
 // Get All DriverAccountDetails Actions
@@ -186,45 +178,6 @@ export const getQuesByTaxiIdSuccess = createAction<
 
 export const getQuesByTaxiIdError = createAction<IDriverAccountDetailStateContext>(
   DriverAccountDetailActionEnums.getQuesByTaxiIdError,
-
-  () => ({ isPending: false, isSuccess: false, isError: true })
-);
-
-//ADD TAXI TO QUE
-export const dispatchTaxiPending = createAction<IDriverAccountDetailStateContext>(
-  DriverAccountDetailActionEnums.dispatchTaxiPending,
-
-  () => ({ isPending: true, isSuccess: false, isError: false })
-);
-
-export const dispatchTaxiSuccess = createAction<IDriverAccountDetailStateContext>(
-  DriverAccountDetailActionEnums.dispatchTaxiSuccess,
-  () => ({isPending: false,isSuccess: true,isError: false,
-  })
-);
-
-export const dispatchTaxiError = createAction<IDriverAccountDetailStateContext>(
-  DriverAccountDetailActionEnums.dispatchTaxiError,
-
-  () => ({ isPending: false, isSuccess: false, isError: true })
-);
-
-//MARK AS ARRIVED 
-
-export const markTaxiAsArrivedPending = createAction<IDriverAccountDetailStateContext>(
-  DriverAccountDetailActionEnums.markTaxiAsArrivedPending,
-
-  () => ({ isPending: true, isSuccess: false, isError: false })
-);
-
-export const markTaxiAsArrivedSuccess = createAction<IDriverAccountDetailStateContext>(
-  DriverAccountDetailActionEnums.markTaxiAsArrivedSuccess,
-  () => ({isPending: false,isSuccess: true,isError: false,
-  })
-);
-
-export const markTaxiAsArrivedError = createAction<IDriverAccountDetailStateContext>(
-  DriverAccountDetailActionEnums.markTaxiAsArrivedError,
 
   () => ({ isPending: false, isSuccess: false, isError: true })
 );

@@ -16,10 +16,7 @@ export interface IDriverAccountDetailActionContext {
   createDriverAccountDetail: (DriverAccountDetail: IDriverAccountDetail) => void;
   updateDriverAccountDetail: (DriverAccountDetail: IDriverAccountDetail) => Promise<void>;
   deleteDriverAccountDetail: (id: string) => void;
-  addTaxiToQue:(taxiId:string,queId:string)=>Promise<void>
-  dispatchTaxiFromQue:(queid:string|undefined,taxiId:string|undefined)=>void;
-  markTaxiAsArrived:(taxiId:string)=>void;
-  getQuesByTaxiId:(taxiId:string)=>Promise<void>
+
 }
 
 export const INITIAL_STATE: IDriverAccountDetailStateContext = {

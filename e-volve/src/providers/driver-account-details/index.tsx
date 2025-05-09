@@ -25,12 +25,6 @@ import {
   getQuesByTaxiIdPending,
   getQuesByTaxiIdSuccess,
   getQuesByTaxiIdError,
-  markTaxiAsArrivedPending,
-  markTaxiAsArrivedSuccess,
-  markTaxiAsArrivedError,
-  dispatchTaxiPending,
-  dispatchTaxiSuccess,
-  dispatchTaxiError,
 } from "./actions";
 
 export const DriverAccountDetailProvider = ({ children }: { children: React.ReactNode }) => {
@@ -137,46 +131,16 @@ export const DriverAccountDetailProvider = ({ children }: { children: React.Reac
       });
   };
 
-  const markTaxiAsArrived = async (taxiId: string) => {
-    dispatch(markTaxiAsArrivedPending());
-    const endpoint = `/api/services/app/Que/MarkTaxiAsArrived?taxiId=${taxiId}`;
-    await instance
-      .post(endpoint)
-      .then(() => {
-        dispatch(markTaxiAsArrivedSuccess());
-      })
-      .catch((error) => {
-        console.error(error);
-        dispatch(markTaxiAsArrivedError());
-      });
-  };
-  const dispatchTaxiFromQue = async (queid:string|undefined,taxiId:string|undefined) => {
-    dispatch(dispatchTaxiPending());
-    const endpoint = `/api/services/app/Que/DispatchTaxiFromQue?queId=${queid}&taxiId=${taxiId}`;
-    await instance
-      .post(endpoint)
-      .then(() => {
-        dispatch(dispatchTaxiSuccess());
-      })
-      .catch((error) => {
-        console.error(error);
-        dispatch(dispatchTaxiError());
-      });
-  };
 
   return (
     <DriverAccountDetailStateContext.Provider value={state}>
       <DriverAccountDetailActionContext.Provider
         value={{
-          markTaxiAsArrived,
-          dispatchTaxiFromQue,
-          getQuesByTaxiId,
           getDriverAccountDetails,
           getDriverAccountDetail,
           createDriverAccountDetail,
           updateDriverAccountDetail,
           deleteDriverAccountDetail,
-          addTaxiToQue,
         }}
       >
         {children}

@@ -91,30 +91,6 @@ export const DriverAccountDetailReducer = handleActions<
       ...state,
       ...action.payload,
     }),
-    [DriverAccountDetailActionEnums.markTaxiAsArrivedPending]: (state, action) => ({
-      ...state,
-      ...action.payload,
-    }),
-    [DriverAccountDetailActionEnums.markTaxiAsArrivedSuccess]: (state, action) => ({
-      ...state,
-      ...action.payload,
-    }),
-    [DriverAccountDetailActionEnums.markTaxiAsArrivedError]: (state, action) => ({
-      ...state,
-      ...action.payload,
-    }),
-    [DriverAccountDetailActionEnums.dispatchTaxiPending]: (state, action) => ({
-      ...state,
-      ...action.payload,
-    }),
-    [DriverAccountDetailActionEnums.dispatchTaxiSuccess]: (state, action) => ({
-      ...state,
-      ...action.payload,
-    }),
-    [DriverAccountDetailActionEnums.dispatchTaxiError]: (state, action) => ({
-      ...state,
-      ...action.payload,
-    }),
 
   },
   INITIAL_STATE
