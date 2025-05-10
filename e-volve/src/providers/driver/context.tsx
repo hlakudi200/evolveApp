@@ -14,7 +14,7 @@ export interface IDriverActionContext {
   getDrivers: () => void;
   getDriver: (id: number|undefined) => void;
   createDriver: (Driver: IDriver) => void;
-  updateDriver: (Driver: IDriver) => void;
+  updateDriver: (Driver: IDriver) => Promise<void>;
   deleteDriver: (id: string) => void;
 }
 

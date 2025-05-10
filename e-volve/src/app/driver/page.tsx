@@ -63,15 +63,18 @@ const Home = () => {
   const { Taxi } = useTaxiState();
 
   useEffect(() => {
-
-    getTaxiByDriverId(Driver?.id);
+    if (Driver) {
+      console.log("DriverId",Driver.id)
+      getTaxiByDriverId(Driver?.id);
+    }
   }, [Driver?.id]);
 
   useEffect(() => {
     if (currentUser?.id) {
+      console.log("current:",currentUser)
       getDriver(currentUser?.id);
     }
-  }, []);
+  }, [currentUser]);
 
   useEffect(() => {
     if (Taxi?.id) {
@@ -133,8 +136,8 @@ const Home = () => {
         key: "dispatch",
       });
       setDispatchedQueues([...dispatchedQueues, queueId]);
-      if(!Taxi) return;
-      getQuesByTaxiId(Taxi.id); 
+      if (!Taxi) return;
+      getQuesByTaxiId(Taxi.id);
     } catch (err) {
       console.error(err);
       message.error({ content: "Failed to dispatch taxi", key: "dispatch" });
@@ -162,7 +165,7 @@ const Home = () => {
   const handleDrive = (queueId: string) => {
     // Placeholder for drive functionality
     message.info("Starting your journey...");
-    console.log(queueId)
+    console.log(queueId);
     // Implementation will be added later
   };
 

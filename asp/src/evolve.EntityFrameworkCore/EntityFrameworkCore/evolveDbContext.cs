@@ -7,6 +7,7 @@ using evolve.Domain.Adminstration;
 using evolve.Domain.CargoManagement;
 using evolve.Domain.DriverManagement;
 using evolve.Domain.PassengerManagement;
+using evolve.Domain.PaymentMangement;
 using evolve.Domain.TaxiManagement;
 using evolve.MultiTenancy;
 using Microsoft.EntityFrameworkCore;
@@ -32,7 +33,7 @@ public class evolveDbContext : AbpZeroDbContext<Tenant, Role, User, evolveDbCont
     public DbSet<TaxiAssociation> TaxiAssociations { get; set; }
     public DbSet<TaxiRank> TaxiRanks { get; set; }
     public DbSet<Que> Ques { get; set; }
-
+    public DbSet<DriverAccountDetails> DriverAccountDetails { get; set; }
 
 
     public evolveDbContext(DbContextOptions<evolveDbContext> options)

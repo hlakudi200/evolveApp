@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using evolve.Configurations;
 using Microsoft.Extensions.Options;
 
-namespace evolve.Services.EcryptService
+namespace evolve.EcryptService
 {
     public class EncryptionService : IEncryptionService
     {
@@ -20,9 +20,7 @@ namespace evolve.Services.EcryptService
 
         public string Encrypt(string plainText)
         {
-            // Implementation of AES encryption
-            // This is a simplified example - in production use a more robust implementation
-            // This is a simplified example - in production use a more robust implementation
+
             try
             {
                 using var aes = Aes.Create();
@@ -51,8 +49,7 @@ namespace evolve.Services.EcryptService
 
         public string Decrypt(string encryptedText)
         {
-            // Implementation of AES decryption
-            // This is a simplified example - in production use a more robust implementation
+
             try
             {
                 var cipherBytes = Convert.FromBase64String(encryptedText);

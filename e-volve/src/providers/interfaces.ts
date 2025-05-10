@@ -34,9 +34,9 @@ export interface IDriver {
   licenseType: string;
   isActive: boolean;
   taxiAssociationId: string;
-  AssociationName: string;
+  AssociationName?: string;
   association?: IAssociation;
-  payments: IPayment[];
+  payments?: IPayment[];
 }
 
 export interface ILane {
@@ -144,4 +144,14 @@ export interface ICreateYocoCheckout {
 export interface IYocoCheckoutResponse{
   checkoutId:string,
   checkoutUrl:string
+}
+
+export interface IDriverAccountDetail{
+  id?:string,
+  driverId:string,
+  bankName:string,
+  branchCode:string,
+  accountNumber:string,
+  accountHolderName:string,
+  accountType:string
 }
