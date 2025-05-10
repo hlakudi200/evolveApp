@@ -41,7 +41,7 @@ export const DriverAccountDetailProvider = ({
 
   const getDriverAccountDetails = async () => {
     dispatch(getDriverAccountDetailsPending());
-    const endpoint = `/api/services/app/DriverAccountDetails/GetAllInclude`;
+    const endpoint = `/api/services/app/DriverAaccount/GetAllInclude`;
     await instance
       .get(endpoint)
       .then((response) => {
@@ -55,7 +55,7 @@ export const DriverAccountDetailProvider = ({
 
   const getDriverAccountDetail = async (id: string) => {
     dispatch(getDriverAccountDetailPending());
-    const endpoint = `/DriverAccountDetails/${id}`;
+    const endpoint = `/DriverAaccount/${id}`;
     await instance
       .get(endpoint)
       .then((response) => {
@@ -71,7 +71,7 @@ export const DriverAccountDetailProvider = ({
     DriverAccountDetail: IDriverAccountDetail
   ) => {
     dispatch(createDriverAccountDetailPending());
-    const endpoint = `/api/services/app/DriverAccountDetails/Create`;
+    const endpoint = `/api/services/app/DriverAaccount/Create`;
     console.log("DriverAccountDetail:", DriverAccountDetail);
     await instance
       .post(endpoint, DriverAccountDetail)
@@ -87,11 +87,12 @@ export const DriverAccountDetailProvider = ({
     DriverAccountDetail: IDriverAccountDetail
   ) => {
     dispatch(updateDriverAccountDetailPending());
-    const endpoint = `/api/services/app/DriverAccountDetails/Update`;
+    const endpoint = `/api/services/app/DriverAaccount/Update`;
+    console.log("AccDetails:",DriverAccountDetail)
     await instance
       .put(endpoint, DriverAccountDetail)
       .then((response) => {
-        dispatch(updateDriverAccountDetailSuccess(response.data));
+        dispatch(updateDriverAccountDetailSuccess(response.data.result));
       })
       .catch((error) => {
         console.error(error);
@@ -100,7 +101,7 @@ export const DriverAccountDetailProvider = ({
   };
   const deleteDriverAccountDetail = async (id: string) => {
     dispatch(deleteDriverAccountDetailPending());
-    const endpoint = `/api/services/app/DriverAccountDetails/Delete?Id=${id}`;
+    const endpoint = `/api/services/app/DriverAaccount/Delete?Id=${id}`;
     await instance
       .delete(endpoint)
       .then((response) => {
