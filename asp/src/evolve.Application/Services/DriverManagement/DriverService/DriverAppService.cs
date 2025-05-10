@@ -68,6 +68,7 @@ namespace evolve.Services.DriverManagement.DriverService
                 throw new UserFriendlyException("Error creating driver", ex);
             }
         }
+
         public async Task<List<DriverDto>> GetAllInclude()
         {
             var query = await Repository.GetAllAsync();
@@ -152,8 +153,9 @@ namespace evolve.Services.DriverManagement.DriverService
                 AssociationName = driver.Association?.Name,
                 TaxiAssociationId = driver.TaxiAssociationId,
                 Payments = driver.Payments?.Select(p => new PaymentDto
-                {   Id=p.Id,
-                    DriverId=p.DriverId,
+                {
+                    Id = p.Id,
+                    DriverId = p.DriverId,
                     Amount = p.Amount,
                     PaymentDate = p.PaymentDate,
                     TransactionReference = p.TransactionReference,

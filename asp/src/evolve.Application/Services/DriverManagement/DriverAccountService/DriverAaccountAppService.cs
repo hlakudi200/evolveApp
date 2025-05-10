@@ -18,8 +18,8 @@ namespace evolve.Services.DriverManagement.DriverAccountService
         public async Task<DriverAccountDetailsDto> GetDriverAccountByID(Guid driverId)
         {
             var account = await Repository
-                .GetAll()
-                .FirstOrDefaultAsync(d => d.DriverId == driverId);
+                 .GetAll()
+                 .FirstOrDefaultAsync(d => d.DriverId == driverId);
 
             if (account == null)
             {
