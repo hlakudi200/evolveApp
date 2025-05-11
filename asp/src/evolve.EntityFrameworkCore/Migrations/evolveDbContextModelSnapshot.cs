@@ -2333,15 +2333,12 @@ namespace evolve.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
-                    b.Property<string>("AccountNumberEncrypted")
+                    b.Property<string>("AccountNumber")
                         .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("AccountType")
                         .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("BankGroupId")
                         .HasColumnType("text");
 
                     b.Property<string>("BankName")
@@ -2510,6 +2507,12 @@ namespace evolve.Migrations
                     b.Property<long?>("LastModifierUserId")
                         .HasColumnType("bigint");
 
+                    b.Property<double>("Latitude")
+                        .HasColumnType("double precision");
+
+                    b.Property<double>("Longitude")
+                        .HasColumnType("double precision");
+
                     b.Property<Guid?>("MarshalId")
                         .HasColumnType("uuid");
 
@@ -2534,6 +2537,9 @@ namespace evolve.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<DateTime?>("ArrivalTime")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<DateTime>("CreationTime")
                         .HasColumnType("timestamp with time zone");
 
@@ -2546,10 +2552,16 @@ namespace evolve.Migrations
                     b.Property<DateTime?>("DeletionTime")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<DateTime?>("DispatchTime")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<Guid>("DriverId")
                         .HasColumnType("uuid");
 
                     b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDispatched")
                         .HasColumnType("boolean");
 
                     b.Property<bool>("IsFull")
@@ -2572,6 +2584,9 @@ namespace evolve.Migrations
 
                     b.Property<Guid>("RouteId")
                         .HasColumnType("uuid");
+
+                    b.Property<string>("Status")
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 

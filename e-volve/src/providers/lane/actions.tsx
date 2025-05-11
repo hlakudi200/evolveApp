@@ -30,6 +30,14 @@ export enum LaneActionEnums {
   deleteLanePending = "DELETE_LANE_PENDING",
   deleteLaneSuccess = "DELETE_LANE_SUCCESS",
   deleteLaneError = "DELETE_LANE_ERROR",
+
+  dispatchTaxiPending = "DISPATCH_TAXI_PENDING",
+  dispatchTaxiSuccess = "DISPATCH_TAXI_SUCCESS",
+  dispatchTaxiError = "DISPATCH_TAXI_ERROR",
+
+  markTaxiAsArrivedPending = "MARK_TAXI_PENDING",
+  markTaxiAsArrivedSuccess = "MARK_TAXI_SUCCESS",
+  markTaxiAsArrivedError = "MARK_TAXI_ERROR",
 }
 
 // Get All Lanes Actions
@@ -178,6 +186,45 @@ export const getQuesByTaxiIdSuccess = createAction<
 
 export const getQuesByTaxiIdError = createAction<ILaneStateContext>(
   LaneActionEnums.getQuesByTaxiIdError,
+
+  () => ({ isPending: false, isSuccess: false, isError: true })
+);
+
+//ADD TAXI TO QUE
+export const dispatchTaxiPending = createAction<ILaneStateContext>(
+  LaneActionEnums.dispatchTaxiPending,
+
+  () => ({ isPending: true, isSuccess: false, isError: false })
+);
+
+export const dispatchTaxiSuccess = createAction<ILaneStateContext>(
+  LaneActionEnums.dispatchTaxiSuccess,
+  () => ({isPending: false,isSuccess: true,isError: false,
+  })
+);
+
+export const dispatchTaxiError = createAction<ILaneStateContext>(
+  LaneActionEnums.dispatchTaxiError,
+
+  () => ({ isPending: false, isSuccess: false, isError: true })
+);
+
+//MARK AS ARRIVED 
+
+export const markTaxiAsArrivedPending = createAction<ILaneStateContext>(
+  LaneActionEnums.markTaxiAsArrivedPending,
+
+  () => ({ isPending: true, isSuccess: false, isError: false })
+);
+
+export const markTaxiAsArrivedSuccess = createAction<ILaneStateContext>(
+  LaneActionEnums.markTaxiAsArrivedSuccess,
+  () => ({isPending: false,isSuccess: true,isError: false,
+  })
+);
+
+export const markTaxiAsArrivedError = createAction<ILaneStateContext>(
+  LaneActionEnums.markTaxiAsArrivedError,
 
   () => ({ isPending: false, isSuccess: false, isError: true })
 );

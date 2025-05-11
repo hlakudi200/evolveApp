@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Abp.Dependency;
 
-namespace evolve.Services.EcryptService
+namespace evolve.EcryptService
 {
     public interface IEncryptionService : ITransientDependency
     {

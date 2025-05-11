@@ -4,6 +4,7 @@ using Abp.Application.Services.Dto;
 using Abp.AutoMapper;
 using evolve.Domain.DriverManagement;
 using evolve.Domain.PassengerManagement;
+using evolve.Services.PaymentManagement.PaymentAppService.DTO;
 
 namespace evolve.Services.DriverManagement.DriverService.DTO
 {
@@ -33,6 +34,6 @@ namespace evolve.Services.DriverManagement.DriverService.DTO
         public bool IsActive { get; set; } = true;
         public string AssociationName { get; set; }
         public Guid TaxiAssociationId { get; set; }
-        public List<Payment> Payments { get; set; }
+        public List<PaymentDto> Payments { get; set; }
     }
 }

@@ -64,7 +64,7 @@ namespace evolve.Services.PaymentManagement.PaymentAppService
                 TransactionReference = referenceId.ToString(),
                 GatewayResponseCode = "200",
                 GatewayTransactionId = response.CheckoutId,
-                Status = "Initiated"
+                Status = "success"
             };
 
             await Repository.InsertAsync(payment);
@@ -72,9 +72,5 @@ namespace evolve.Services.PaymentManagement.PaymentAppService
             return response;
         }
 
-        public string TestConnection()
-        {
-            return "Service is up";
-        }
     }
 }

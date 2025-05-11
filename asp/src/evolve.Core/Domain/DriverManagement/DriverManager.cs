@@ -96,5 +96,40 @@ namespace evolve.Domain.DriverManagement
             return driver;
 
         }
+
+
+        public async Task<Driver> UpdateDriverAsync(Guid driverId, Driver updatedData)
+        {
+            var existingDriver = await _driverRepository.FirstOrDefaultAsync(driverId);
+            if (existingDriver == null)
+            {
+                throw new UserFriendlyException("Driver not found");
+            }
+
+            existingDriver.IdentificationNumber = updatedData.IdentificationNumber;
+            existingDriver.FirstName = updatedData.FirstName;
+            existingDriver.SecondName = updatedData.SecondName;
+            existingDriver.Surname = updatedData.Surname;
+            existingDriver.FullName = updatedData.FirstName + " " + updatedData.SecondName + " " + updatedData.Surname;
+            existingDriver.DateOfBirth = updatedData.DateOfBirth;
+            existingDriver.Gender = updatedData.Gender;
+            existingDriver.Email = updatedData.Email;
+            existingDriver.CellPhoneNo = updatedData.CellPhoneNo;
+            existingDriver.AddressLine1 = updatedData.AddressLine1;
+            existingDriver.AddressLine2 = updatedData.AddressLine2;
+            existingDriver.City = updatedData.City;
+            existingDriver.Province = updatedData.Province;
+            existingDriver.PostalCode = updatedData.PostalCode;
+            existingDriver.Country = updatedData.Country;
+            existingDriver.LicenseNumber = updatedData.LicenseNumber;
+            existingDriver.LicenseExpiryDate = updatedData.LicenseExpiryDate;
+            existingDriver.LicenseType = updatedData.LicenseType;
+            existingDriver.IsActive = updatedData.IsActive;
+            existingDriver.TaxiAssociationId = updatedData.TaxiAssociationId;
+
+            await _driverRepository.UpdateAsync(existingDriver);
+            return existingDriver;
+        }
+
     }
 }

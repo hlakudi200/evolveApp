@@ -1,7 +1,6 @@
 import { createContext } from "react";
 import { ITaxi } from "../interfaces";
 
-
 export interface ITaxiStateContext {
   isPending: boolean;
   isSuccess: boolean;
@@ -15,8 +14,8 @@ export interface ITaxiActionContext {
   getTaxi: (id: string) => void;
   createTaxi: (Taxi: ITaxi) => void;
   updateTaxi: (Taxi: ITaxi) => void;
-  getTaxiByDriverId:(driverId:string|undefined)=>void
-  deleteTaxi: (id: string) =>Promise<void>;
+  getTaxiByDriverId: (driverId: string | undefined) => void;
+  deleteTaxi: (id: string) => Promise<void>;
 }
 
 export const INITIAL_STATE: ITaxiStateContext = {
@@ -25,9 +24,8 @@ export const INITIAL_STATE: ITaxiStateContext = {
   isError: false,
 };
 
-export const TaxiStateContext =
-  createContext<ITaxiStateContext>(INITIAL_STATE);
+export const TaxiStateContext = createContext<ITaxiStateContext>(INITIAL_STATE);
 
-export const TaxiActionContext = createContext<
-  ITaxiActionContext | undefined
->(undefined);
+export const TaxiActionContext = createContext<ITaxiActionContext | undefined>(
+  undefined
+);

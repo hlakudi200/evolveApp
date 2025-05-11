@@ -1,0 +1,8 @@
+
+
+@media (max-width: 768px){
+    .container{
+        height: 90vh;
+        overflow-y: scroll;
+    }
+}

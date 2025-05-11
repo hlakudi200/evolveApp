@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Abp.Domain.Entities.Auditing;
 using evolve.Domain.DriverManagement;
@@ -13,6 +14,8 @@ namespace evolve.Domain.PaymentMangement
     {
 
         public Guid DriverId { get; set; }
+
+        [JsonIgnore]
         public Driver Driver { get; set; }
 
         [Required]
@@ -24,9 +27,7 @@ namespace evolve.Domain.PaymentMangement
         public string BranchCode { get; set; }
 
         [Required]
-        public string AccountNumberEncrypted { get; set; }
-
-        public string BankGroupId { get; set; }
+        public string AccountNumber { get; set; }
 
         [Required]
         [StringLength(100)]

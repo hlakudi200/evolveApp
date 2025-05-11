@@ -1,22 +1,21 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Text.Json.Serialization;
 using Abp.Application.Services.Dto;
 using Abp.AutoMapper;
 using evolve.Domain.DriverManagement;
 using evolve.Domain.PassengerManagement;
-using evolve.Domain.PaymentManagement;
+
 
 namespace evolve.Services.PaymentManagement.PaymentAppService.DTO
 {
-    [AutoMap(typeof(Payment))]   
-    
+    [AutoMap(typeof(Payment))]
+
     public class PaymentDto : EntityDto<Guid>
     {
         public Guid DriverId { get; set; }
+
+        [JsonIgnore]
         public Driver Driver { get; set; }
         [Required]
         public decimal Amount { get; set; }
