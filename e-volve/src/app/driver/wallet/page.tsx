@@ -136,12 +136,11 @@ const Wallet: React.FC = () => {
     setFilteredPayments(filtered);
   }, [Driver?.payments, dateRange]);
 
-  // Format currency
+  
   const formatCurrency = (amount: number): string => {
     return `R ${amount.toFixed(2)}`;
   };
 
-  // Format date
   const formatDate = (dateString: string): string => {
     return dayjs(dateString).format("DD MMM YYYY, HH:mm");
   };

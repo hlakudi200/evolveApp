@@ -67,6 +67,18 @@ export const PaymentReducer = handleActions<
       ...state,
       ...action.payload,
     }),
+    [PaymentActionEnums.yocoCheckOutPending]: (state, action) => ({
+      ...state,
+      ...action.payload,
+    }),
+    [PaymentActionEnums.yocoCheckOutSuccess]: (state, action) => ({
+      ...state,
+      ...action.payload,
+    }),
+    [PaymentActionEnums.yocoCheckOutError]: (state, action) => ({
+      ...state,
+      ...action.payload,
+    }),
   },
   INITIAL_STATE
 );
