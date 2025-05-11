@@ -28,6 +28,10 @@ import {
   RefreshCw,
   Car,
   Navigation,
+  Users,
+  Activity,
+  CreditCard,
+  Award,
 } from "lucide-react";
 import { useLaneActions, useLaneState } from "@/providers/lane";
 import { useTaxiActions, useTaxiState } from "@/providers/taxi";
@@ -38,6 +42,7 @@ import { useAuthState } from "@/providers/auth";
 import { Toast } from "@/providers/toast/toast";
 import NavigationComponent from "../_components/driver/drive/drive";
 import homeStyles from "./styles/home.module.css";
+import { calculateTodaysEarnings,getDriverStats } from "@/utils/driver-home-helpers";
 
 const { Title, Text } = Typography;
 const { TabPane } = Tabs;
@@ -48,7 +53,6 @@ interface QueuePositionResult {
   percentage: number;
 }
 
-// Interface for trip information
 interface TripInfo {
   queueId: string;
   routeInfo: IRoute;
@@ -63,7 +67,6 @@ const Home = () => {
   const [dispatchedQueues, setDispatchedQueues] = useState<string[]>([]);
   const [drivingQueueId, setDrivingQueueId] = useState<string | null>(null);
   const [isNavigationModalOpen, setIsNavigationModalOpen] = useState(false);
-  // New state for trip summary
   const [tripInfo, setTripInfo] = useState<TripInfo | null>(null);
   const [isTripModalOpen, setIsTripModalOpen] = useState(false);
 
@@ -76,6 +79,10 @@ const Home = () => {
 
   const { getTaxiByDriverId } = useTaxiActions();
   const { Taxi } = useTaxiState();
+
+  
+  const todaysEarnings = calculateTodaysEarnings(Driver);
+  const driverStats = getDriverStats(Driver);
 
   useEffect(() => {
     if (Driver?.id) {
@@ -94,6 +101,24 @@ const Home = () => {
       getQuesByTaxiId(Taxi.id);
     }
   }, [Taxi]);
+
+  // Function to get the appropriate icon for stats display
+  const getStatsIcon = (iconName: string) => {
+    switch (iconName) {
+      case 'car':
+        return <Car size={16} />;
+      case 'users':
+        return <Users size={16} />;
+      case 'activity':
+        return <Activity size={16} />;
+      case 'id-card':
+        return <CreditCard size={16} />;
+      case 'award':
+        return <Award size={16} />;
+      default:
+        return <Clock size={16} />;
+    }
+  };
 
   const showQueueModal = () => setIsQueueModalOpen(true);
   const handleQueueModalCancel = () => setIsQueueModalOpen(false);
@@ -332,10 +357,10 @@ const Home = () => {
             <Statistic
               title={
                 <Text style={{ color: "rgba(255,255,255,0.85)" }}>
-                  Todays&apos;Earnings
+                  Today&apos;s Earnings
                 </Text>
               }
-              value={5000}
+              value={todaysEarnings}
               precision={2}
               prefix={"ZAR"}
               valueStyle={{ color: "white" }}
@@ -345,12 +370,11 @@ const Home = () => {
             <Statistic
               title={
                 <Text style={{ color: "rgba(255,255,255,0.85)" }}>
-                  Hours Active
+                  {driverStats.label}
                 </Text>
               }
-              value="4.5"
-              suffix="hrs"
-              prefix={<Clock size={16} />}
+              value={driverStats.value}
+              prefix={getStatsIcon(driverStats.icon)}
               valueStyle={{ color: "white" }}
             />
           </Card>

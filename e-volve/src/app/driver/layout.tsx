@@ -23,6 +23,7 @@ import { FacilityProvider } from "@/providers/facilities";
 import { EmailProvider } from "@/providers/email";
 import { useAuthActions, useAuthState } from "@/providers/auth";
 import { DriverAccountDetailProvider } from "@/providers/driver-account-details";
+import { PaymentProvider } from "@/providers/payment";
 
 // import withAuth from "../hoc/withAuth";
 
@@ -85,6 +86,7 @@ const TaxiRankManager = ({ children }: { children: React.ReactNode }) => {
             <TaxiProvider>
               <LaneProvider>
                 <DriverAccountDetailProvider>
+                  <PaymentProvider>
                   <RouteProvider>
                     <Layout className={styles.layout}>
                       <Sider trigger={null} collapsible collapsed={collapsed}>
@@ -134,6 +136,8 @@ const TaxiRankManager = ({ children }: { children: React.ReactNode }) => {
                       </Layout>
                     </Layout>
                   </RouteProvider>
+                  </PaymentProvider>
+              
                 </DriverAccountDetailProvider>
               </LaneProvider>
             </TaxiProvider>

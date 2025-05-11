@@ -119,6 +119,7 @@ export const PaymentProvider = ({
       .post(endpoint, request)
       .then((response) => {
         dispatch(yocoCheckOutSuccess(response.data.result));
+        console.log((response.data.result))
       })
       .catch((err) => {
         console.error(err);
