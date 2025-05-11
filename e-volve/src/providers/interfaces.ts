@@ -87,6 +87,8 @@ export interface IRoute {
   id?: string;
   origin: string;
   destination: string;
+  latitude :number
+  longitude:number
   fareAmount: number;
   estimatedTravelTime: number;
 }
