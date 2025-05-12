@@ -57,7 +57,7 @@ const SignIn = () => {
             router.push("/taxirankmanager");
             break;
           case "passenger":
-            router.push("/passanger");
+            router.push("/passenger");
             break;
           default :
             router.push("/auth/login");

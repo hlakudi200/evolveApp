@@ -24,7 +24,7 @@ namespace evolve.Services.PassengerManagement.PassengarServices
                 EmailAddress = input.EmailAddress,
                 Name = input.Name,
                 Surname = input.Surname,
-                IsEmailConfirmed = false,
+                IsEmailConfirmed = true,
                 TenantId = AbpSession.TenantId
             };
             var result = await _userManager.CreateAsync(user, input.Password);
