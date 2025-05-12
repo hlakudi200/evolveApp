@@ -72,7 +72,7 @@ namespace evolve.Web.Host.Startup
                 builder => builder.WithOrigins(
                     _appConfiguration["App:CorsOrigins"]
                         .Split(",", StringSplitOptions.RemoveEmptyEntries)
-                        .Select(o => o.RemovePostFix("/"))
+                        .Select(o => o.Trim().TrimEnd('/')) // safer for deployment
                         .ToArray())
                     .AllowAnyHeader()
                     .AllowAnyMethod()
