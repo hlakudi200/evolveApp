@@ -24,7 +24,8 @@
 
 .balanceCard {
   flex: 1;
-  min-width: 280px;
+  flex-direction: column;
+  min-width: 280px; 
   background: linear-gradient(135deg, #000000, #333333);
   color: white;
   border: none;

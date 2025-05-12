@@ -7,7 +7,6 @@ import {
   MenuUnfoldOutlined,
   LogoutOutlined,
   WalletOutlined,
-  BookOutlined,
   UserOutlined,
   CreditCardOutlined,
 } from "@ant-design/icons";
@@ -60,11 +59,6 @@ const TaxiRankManager = ({ children }: { children: React.ReactNode }) => {
       label: "Wallet",
       key: "/driver/wallet",
       icon: <WalletOutlined />,
-    },
-    {
-      label: "Trip History",
-      key: "/driver/trip-history",
-      icon: <BookOutlined />,
     },
     {
       label: "Receive Fair",

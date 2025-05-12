@@ -15,7 +15,7 @@ export interface IPaymentActionContext {
   getPayments: () => void;
   getPayment: (id: number | undefined) => void;
   createPayment: (Payment: IPayment) => void;
-  createYocoCheckout:(driverId:string,request:ICreateYocoCheckout)=>void
+  createYocoCheckout:(driverId:string,request:ICreateYocoCheckout)=>Promise<void>;
   updatePayment: (Payment: IPayment) => void;
   deletePayment: (id: string) => void;
 }

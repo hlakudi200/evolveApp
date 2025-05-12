@@ -42,7 +42,7 @@ import { useAuthState } from "@/providers/auth";
 import { Toast } from "@/providers/toast/toast";
 import NavigationComponent from "../_components/driver/drive/drive";
 import homeStyles from "./styles/home.module.css";
-import { calculateTodaysEarnings,getDriverStats } from "@/utils/driver-home-helpers";
+import {getDriverStats,GetTodayEarnings } from "@/utils/driver-home-helpers";
 
 const { Title, Text } = Typography;
 const { TabPane } = Tabs;
@@ -69,7 +69,7 @@ const Home = () => {
   const [isNavigationModalOpen, setIsNavigationModalOpen] = useState(false);
   const [tripInfo, setTripInfo] = useState<TripInfo | null>(null);
   const [isTripModalOpen, setIsTripModalOpen] = useState(false);
-
+  const [earning,setEarning]=useState<number|undefined>(0)
   const { Driver } = useDriverState();
   const { currentUser } = useAuthState();
   const { getDriver } = useDriverActions();
@@ -81,12 +81,14 @@ const Home = () => {
   const { Taxi } = useTaxiState();
 
   
-  const todaysEarnings = calculateTodaysEarnings(Driver);
   const driverStats = getDriverStats(Driver);
 
   useEffect(() => {
     if (Driver?.id) {
       getTaxiByDriverId(Driver.id);
+     // const todaysEarnings = calculateTodaysEarnings(Driver);
+      setEarning(GetTodayEarnings(Driver))
+      
     }
   }, [Driver?.id]);
 
@@ -360,7 +362,7 @@ const Home = () => {
                   Today&apos;s Earnings
                 </Text>
               }
-              value={todaysEarnings}
+              value={earning}
               precision={2}
               prefix={"ZAR"}
               valueStyle={{ color: "white" }}
