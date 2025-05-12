@@ -32,9 +32,11 @@ import {
   AppstoreOutlined,
   BarsOutlined,
   SafetyOutlined,
+  ReloadOutlined,
 } from "@ant-design/icons";
 import dayjs, { Dayjs } from "dayjs";
-import { useDriverState } from "@/providers/driver";
+import { useDriverState, useDriverActions } from "@/providers/driver";
+import { useAuthState } from "@/providers/auth";
 import styles from "./styles/styles.module.css";
 import { IDriver, IPayment } from "@/providers/interfaces";
 
@@ -71,6 +73,8 @@ const Wallet: React.FC = () => {
   const [viewMode, setViewMode] = useState<ViewModeType>("card");
   const [selectedMonth, setSelectedMonth] = useState<number>(dayjs().month());
   const [monthlyData, setMonthlyData] = useState<MonthlyDataMap>({});
+  const { currentUser } = useAuthState();
+  const { getDriver } = useDriverActions();
 
   // Process and filter payments
   useEffect(() => {
@@ -136,7 +140,6 @@ const Wallet: React.FC = () => {
     setFilteredPayments(filtered);
   }, [Driver?.payments, dateRange]);
 
-  
   const formatCurrency = (amount: number): string => {
     return `R ${amount.toFixed(2)}`;
   };
@@ -157,6 +160,12 @@ const Wallet: React.FC = () => {
         return "error";
       default:
         return "default";
+    }
+  };
+
+  const handleRefresh = () => {
+    if (currentUser?.id) {
+      getDriver(currentUser.id);
     }
   };
 
@@ -233,7 +242,14 @@ const Wallet: React.FC = () => {
           </Text>
         </div>
         <Badge
-          status={getStatusColor(payment.status) as  "success" | "warning" | "error" | "default" | "processing"}
+          status={
+            getStatusColor(payment.status) as
+              | "success"
+              | "warning"
+              | "error"
+              | "default"
+              | "processing"
+          }
           text={
             <Space>
               {getStatusIcon(payment.status)}
@@ -251,14 +267,6 @@ const Wallet: React.FC = () => {
           <Text type="secondary">Transaction Ref:</Text>
           <Space>
             <Text>{maskString(payment.transactionReference)}</Text>
-            <SafetyOutlined title="This information is masked for security" />
-          </Space>
-        </div>
-
-        <div className={styles.paymentDetail}>
-          <Text type="secondary">Gateway ID:</Text>
-          <Space>
-            <Text>{maskString(payment.gatewayTransactionId)}</Text>
             <SafetyOutlined title="This information is masked for security" />
           </Space>
         </div>
@@ -347,15 +355,17 @@ const Wallet: React.FC = () => {
         <>
           <div className={styles.walletHeader}>
             <Card className={styles.balanceCard}>
-              <Space className={styles.balanceHeader}>
-                <WalletOutlined className={styles.walletIcon} />
-                <Text className={styles.balanceTitle}>Wallet Balance</Text>
-              </Space>
+              <div className={styles.balanceHeader}>
+                <Space>
+                  <WalletOutlined className={styles.walletIcon} />
+                  <Text className={styles.balanceTitle}>Wallet Balance</Text>
+                </Space>
+              </div>
               <Title level={2} className={styles.balanceAmount}>
                 {formatCurrency(totalAmount)}
               </Title>
               <Space className={styles.todayEarning}>
-                <Text>Today`&apos;`s Earnings: </Text>
+                <Text style={{ color: "white" }}>Today&apos;s Earnings: </Text>
                 <Text strong className={styles.todayAmount}>
                   {formatCurrency(todayAmount)}
                 </Text>
@@ -365,6 +375,16 @@ const Wallet: React.FC = () => {
                   <FallOutlined className={styles.fallIcon} />
                 )}
               </Space>
+              <div>
+                <Button
+                  type="default"
+                  icon={<ReloadOutlined spin={isPending} />}
+                  onClick={handleRefresh}
+                  className={styles.refreshButton}
+                >
+                  Refresh
+                </Button>
+              </div>
             </Card>
 
             <Card className={styles.filterCard}>
@@ -427,12 +447,15 @@ const Wallet: React.FC = () => {
                     dataSource={filteredPayments}
                     renderItem={(payment: IPayment) => (
                       <List.Item
-                      key={payment.id}
-                      actions={[
-                        <Tag key={`tag-${payment.id}`} color={getStatusColor(payment.status)}>
-                          {payment.status || 'Unknown'}
-                        </Tag>
-                      ]}
+                        key={payment.id}
+                        actions={[
+                          <Tag
+                            key={`tag-${payment.id}`}
+                            color={getStatusColor(payment.status)}
+                          >
+                            {payment.status || "Unknown"}
+                          </Tag>,
+                        ]}
                       >
                         <List.Item.Meta
                           avatar={<Avatar icon={<BankOutlined />} />}

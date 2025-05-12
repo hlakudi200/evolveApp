@@ -48,20 +48,20 @@ const ReceiveFair = () => {
     console.log("Request to create checkout", values); // Debug log for form submission
 
     const request: ICreateYocoCheckout = {
-      amount: Math.round(values.amount * 100), // Convert to cents
+      amount: values.amount,// Convert to cents
       currency: "ZAR",
-      successUrl: `${window.location.origin}/payment/success`, // Success route
-      cancelUrl: `${window.location.origin}/payment/cancel`, // Cancel route
-      failureUrl: `${window.location.origin}/payment/failed`, // Failure route
+      successUrl: `${window.location.origin}/success`, // Success route
+      cancelUrl: `${window.location.origin}/cancel`, // Cancel route
+      failureUrl: `${window.location.origin}/failed`, // Failure route
     };
 
     try {
-      await createYocoCheckout(Driver.id, request);  // Wait for the checkout creation
+      await createYocoCheckout(Driver.id, request);  
     } catch (err) {
       console.error(err);
       setError("Failed to create checkout.");
     } finally {
-      setLoading(false);  // Stop loading once API call is done
+      setLoading(false);  
     }
   };
 
@@ -93,7 +93,7 @@ const ReceiveFair = () => {
               name="amount"
               rules={[
                 { required: true, message: "Please enter an amount" },
-                { type: "number", min: 1, message: "Minimum amount is R1" },
+                { type: "number", min: 2, message: "Minimum amount is R2" },
               ]}
             >
               <InputNumber<number>
