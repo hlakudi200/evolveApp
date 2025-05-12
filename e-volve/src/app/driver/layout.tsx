@@ -24,8 +24,6 @@ import { useAuthActions, useAuthState } from "@/providers/auth";
 import { DriverAccountDetailProvider } from "@/providers/driver-account-details";
 import { PaymentProvider } from "@/providers/payment";
 
-// import withAuth from "../hoc/withAuth";
-
 const { Header, Sider, Content } = Layout;
 
 const TaxiRankManager = ({ children }: { children: React.ReactNode }) => {
@@ -66,7 +64,7 @@ const TaxiRankManager = ({ children }: { children: React.ReactNode }) => {
       icon: <CreditCardOutlined />,
     },
     {
-      label: "Account",
+      label: "Profile",
       key: "/driver/account",
       icon: <UserOutlined />,
     },
@@ -81,57 +79,118 @@ const TaxiRankManager = ({ children }: { children: React.ReactNode }) => {
               <LaneProvider>
                 <DriverAccountDetailProvider>
                   <PaymentProvider>
-                  <RouteProvider>
-                    <Layout className={styles.layout}>
-                      <Sider trigger={null} collapsible collapsed={collapsed}>
-                        <div className="demo-logo-vertical" />
-                        <Menu
-                          onClick={({ key }) => router.push(key)}
-                          theme="dark"
-                          mode="inline"
-                          defaultSelectedKeys={["/driver"]}
-                          items={siderItems}
-                        />
-                      </Sider>
-                      <Layout>
-                        <Header
+                    <RouteProvider>
+                      <Layout className={styles.layout}>
+                        <Sider
+                          trigger={null}
+                          collapsible
+                          collapsed={collapsed}
                           style={{
-                            padding: 0,
-                            backgroundColor: "white",
-                            display: "flex",
-                            alignItems: "center",
+                            backgroundColor: "black",
+                            color: "white",
                           }}
                         >
-                          <Button
-                            type="text"
-                            icon={
-                              collapsed ? (
-                                <MenuUnfoldOutlined />
-                              ) : (
-                                <MenuFoldOutlined />
-                              )
-                            }
-                            onClick={() => setCollapsed(!collapsed)}
+                          {!collapsed && (
+                            <div
+                              style={{
+                                display: "flex",
+                                flexDirection: "column",
+                                alignItems: "center",
+                                padding: "20px 0",
+                                borderBottom: "1px solid rgba(255,255,255,0.2)",
+                              }}
+                            >
+                              <div
+                                style={{
+                                  width: "120px",
+                                  height: "120px",
+                                  borderRadius: "50%",
+                                  backgroundColor: "white",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  justifyContent: "center",
+                                  marginBottom: "15px",
+                                }}
+                              >
+                                <UserOutlined
+                                  style={{
+                                    fontSize: "80px",
+                                    color: "black",
+                                    opacity: 0.7,
+                                  }}
+                                />
+                              </div>
+                              <div
+                                style={{
+                                  textAlign: "center",
+                                  color: "white",
+                                }}
+                              >
+                                <h3
+                                  style={{
+                                    margin: 0,
+                                    fontSize: "18px",
+                                    fontWeight: "bold",
+                                  }}
+                                >
+                                  {currentUser?.name ?? "User"}
+                                </h3>
+                              </div>
+                            </div>
+                          )}
+                          <Menu
+                            onClick={({ key }) => router.push(key)}
+                            mode="inline"
+                            defaultSelectedKeys={["/driver"]}
+                            items={siderItems}
                             style={{
-                              fontSize: "16px",
-                              width: 64,
-                              height: 64,
+                              backgroundColor: "black",
+                              color: "white",
                             }}
+                            theme="dark"
                           />
-                          <div className={styles.profileMenu}>
-                            <Dropdown menu={userMenu} trigger={["click"]}>
-                              <Button type="text" icon={<UserOutlined />}>
-                                {currentUser?.emailAddress ?? "User"}
-                              </Button>
-                            </Dropdown>
-                          </div>
-                        </Header>
-                        <Content className={styles.content}>{children}</Content>
+                        </Sider>
+                        <Layout>
+                          <Header
+                            style={{
+                              padding: 0,
+                              backgroundColor: "white",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "space-between",
+                            }}
+                          >
+                            <Button
+                              type="text"
+                              icon={
+                                collapsed ? (
+                                  <MenuUnfoldOutlined />
+                                ) : (
+                                  <MenuFoldOutlined />
+                                )
+                              }
+                              onClick={() => setCollapsed(!collapsed)}
+                              style={{
+                                fontSize: "16px",
+                                width: 64,
+                                height: 64,
+                              }}
+                            />
+                            <div className={styles.profileMenu}>
+                              <Dropdown menu={userMenu} trigger={["click"]}>
+                                <Button type="text" icon={<UserOutlined />}>
+                                  {currentUser?.emailAddress ?? "User"}
+                                </Button>
+                              </Dropdown>
+                            </div>
+                          </Header>
+                          <Content className={styles.content}>
+                            {children}
+                          </Content>
+                        </Layout>
                       </Layout>
-                    </Layout>
-                  </RouteProvider>
+                    </RouteProvider>
                   </PaymentProvider>
-              
                 </DriverAccountDetailProvider>
               </LaneProvider>
             </TaxiProvider>
@@ -142,5 +201,4 @@ const TaxiRankManager = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
-//export default withAuth(HrManager);
 export default TaxiRankManager;
