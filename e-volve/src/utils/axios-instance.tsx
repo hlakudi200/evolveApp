@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const baseURL = "https://localhost:44311";
+const baseURL = process.env.NEXT_PUBLIC_BASE_URL
 
 export const getAxiosInstace = () => {
   const instance = axios.create({
