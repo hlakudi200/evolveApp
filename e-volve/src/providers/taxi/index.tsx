@@ -46,11 +46,11 @@ export const TaxiProvider = ({ children }: { children: React.ReactNode }) => {
 
   const getTaxi = async (id: string) => {
     dispatch(getTaxiPending());
-    const endpoint = `/Taxis/${id}`;
+    const endpoint = `/api/services/app/Taxi/Get?Id=${id}`;
     await instance
       .get(endpoint)
       .then((response) => {
-        dispatch(getTaxiSuccess(response.data));
+        dispatch(getTaxiSuccess(response.data.result));
       })
       .catch((error) => {
         console.error(error);
