@@ -61,7 +61,7 @@ export const DriverProvider = ({ children }: { children: React.ReactNode }) => {
 
   const createDriver = async (Driver: IDriver) => {
     dispatch(createDriverPending());
-    const endpoint = `/api/services/app/Driver/Create`;
+    const endpoint = `/api/services/app/Driver/CreateDriver`;
     console.log("Driver:",Driver)
     await instance
       .post(endpoint, Driver)

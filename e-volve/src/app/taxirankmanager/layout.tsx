@@ -5,7 +5,6 @@ import {
   HomeOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
-  TeamOutlined,
   PushpinFilled,
   UsergroupAddOutlined,
   FileTextOutlined,
@@ -23,17 +22,16 @@ import { RouteProvider } from "@/providers/route";
 import { AssociationProvider } from "@/providers/association";
 import { LaneProvider } from "@/providers/lane";
 import { FacilityProvider } from "@/providers/facilities";
-// import { EmployeeProvider } from "@/providers/employee";
 // import { EmailProvider } from "@/providers/email";
-// import { useAuthActions, useAuthState } from "@/providers/auth";
+import { useAuthActions, useAuthState } from "@/providers/auth";
 // import withAuth from "../hoc/withAuth";
 
 const { Header, Sider, Content } = Layout;
 
 const TaxiRankManager = ({ children }: { children: React.ReactNode }) => {
   const [collapsed, setCollapsed] = useState(false);
-  //   const { currentUser } = useAuthState();
-  //   const { signOut } = useAuthActions();
+  const { currentUser } = useAuthState();
+  const { signOut } = useAuthActions();
   const router = useRouter();
   const userMenu = {
     items: [
@@ -43,7 +41,7 @@ const TaxiRankManager = ({ children }: { children: React.ReactNode }) => {
         icon: <LogoutOutlined />,
         onClick: () => {
           router.replace("/");
-          //   signOut();
+          signOut();
         },
       },
     ],
@@ -76,11 +74,6 @@ const TaxiRankManager = ({ children }: { children: React.ReactNode }) => {
       label: "Routes",
     },
     {
-      key: "/taxirankmanager/associations",
-      icon: <TeamOutlined />,
-      label: "Associations",
-    },
-    {
       key: "/taxirankmanager/facilities",
       icon: <FileTextOutlined />,
       label: "Facilities",
@@ -99,9 +92,8 @@ const TaxiRankManager = ({ children }: { children: React.ReactNode }) => {
                     <div className="demo-logo-vertical" />
                     <Menu
                       onClick={({ key }) => router.push(key)}
-                      theme="dark"
                       mode="inline"
-                      defaultSelectedKeys={["/hrManager"]}
+                      defaultSelectedKeys={["/taxirankmanager"]}
                       items={siderItems}
                     />
                   </Sider>
@@ -133,7 +125,7 @@ const TaxiRankManager = ({ children }: { children: React.ReactNode }) => {
                       <div className={styles.profileMenu}>
                         <Dropdown menu={userMenu} trigger={["click"]}>
                           <Button type="text" icon={<UserOutlined />}>
-                            {/* {currentUser?.emailAddress ?? "User"} */}
+                            {currentUser?.emailAddress ?? "User"}
                           </Button>
                         </Dropdown>
                       </div>

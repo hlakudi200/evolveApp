@@ -184,7 +184,7 @@ const Routes: React.FC = () => {
         rowKey="id"
         loading={isPending}
         pagination={{
-          pageSize: 10,
+          pageSize: 5,
           responsive: true,
           showSizeChanger: true,
           showTotal: (total, range) =>

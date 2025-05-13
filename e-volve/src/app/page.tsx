@@ -3,7 +3,6 @@
 import {
   ScheduleOutlined,
   SafetyOutlined,
-  RadarChartOutlined,
   LineChartOutlined,
   CreditCardOutlined,
   WalletOutlined,
@@ -27,11 +26,6 @@ export default function Home() {
       icon: <SafetyOutlined style={{ fontSize: 28, color: "#52c41a" }} />,
       title: "Lost & Found",
       desc: "Item tracking for passengers & drivers",
-    },
-    {
-      icon: <RadarChartOutlined style={{ fontSize: 28, color: "#722ed1" }} />,
-      title: "Cargo Monitor",
-      desc: "Track packages in real-time",
     },
     {
       icon: <LineChartOutlined style={{ fontSize: 28, color: "#fa8c16" }} />,
@@ -69,8 +63,8 @@ export default function Home() {
             <a href="#features" className={styles.navLink}>
               Features
             </a>
-            <Button type="default" onClick={()=>{router.push("/auth/signup" )}}>
-              Join
+            <Button type="default" onClick={()=>{router.push("/auth/login" )}}>
+              Sign In
             </Button>
           </Space>
         </div>
@@ -85,7 +79,9 @@ export default function Home() {
           <Paragraph style={{ color: "#ccc", fontSize: "1.2rem" }}>
             A digital ecosystem for mobility, money & management
           </Paragraph>
-          <Button type="primary" size="large" href="#features">
+          <Button type="primary" size="large" href="#features" onClick={()=>{
+            router.push("/auth/signup")
+          }}>
             Get Started
           </Button>
         </div>
@@ -161,7 +157,7 @@ export default function Home() {
           type="primary"
           size="large"
           onClick={() => {
-            router.push("/auth/signup");
+            router.push("/auth/login");
           }}
         >
           Join Now
