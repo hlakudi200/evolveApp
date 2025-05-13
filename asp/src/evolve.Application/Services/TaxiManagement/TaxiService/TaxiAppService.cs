@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Abp.Application.Services;
+using Abp.Application.Services.Dto;
+using Abp.Domain.Entities;
 using Abp.Domain.Repositories;
 using evolve.Domain.TaxiManagement;
 using evolve.Services.TaxiManagement.TaxiService.DTO;
@@ -64,9 +66,40 @@ namespace evolve.Services.TaxiManagement.TaxiService
                 IsFull = taxi.IsFull,
                 DriverFullName = taxi.Driver?.FullName ?? string.Empty,
                 DriverLicenseNumber = taxi.Driver?.LicenseNumber ?? string.Empty,
+                AssignedRoute = taxi.AssignedRoute,
+                Latitude = taxi.Latitude,
+                Longitude = taxi.Longitude,
+
+            };
+        }
+
+        public override async Task<TaxiDto> GetAsync(EntityDto<Guid> input)
+        {
+            var taxi = await Repository
+                .GetAll()
+                .Include(t => t.Driver)
+                .Include(t => t.AssignedRoute)
+                .FirstOrDefaultAsync(t => t.Id == input.Id);
+
+            if (taxi == null)
+            {
+                throw new EntityNotFoundException(typeof(Taxi), input.Id);
+            }
+
+            return new TaxiDto
+            {
+                Id = taxi.Id,
+                RegistrationNumber = taxi.RegistrationNumber,
+                DriverId = taxi.DriverId,
+                RouteId = taxi.RouteId,
+                PassengerCapacity = taxi.PassengerCapacity,
+                IsFull = taxi.IsFull,
+                DriverFullName = taxi.Driver?.FullName ?? string.Empty,
+                DriverLicenseNumber = taxi.Driver?.LicenseNumber ?? string.Empty,
                 AssignedRoute = taxi.AssignedRoute
             };
         }
+
 
     }
 }
