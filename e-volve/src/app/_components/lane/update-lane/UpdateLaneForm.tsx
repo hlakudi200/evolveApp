@@ -23,10 +23,8 @@ const UpdateLaneForm: React.FC<UpdateLaneFormProps> = ({
   const { isPending, isError, isSuccess } = useLaneState();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Set initial form values
   useEffect(() => {
     if (lane) {
-      // Parse capacity as a number if it's a string
       const capacity =
         typeof lane.capacity === "string"
           ? parseInt(lane.capacity, 10)
@@ -45,7 +43,7 @@ const UpdateLaneForm: React.FC<UpdateLaneFormProps> = ({
   // Watch for changes in the state from the provider
   useEffect(() => {
     if (isSuccess && isSubmitting) {
-      Toast("Lane updated successfully", "error");
+      Toast("Lane updated successfully", "success");
       onSuccess();
       setIsSubmitting(false);
     } else if (isError && isSubmitting) {

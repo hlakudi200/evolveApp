@@ -35,7 +35,7 @@ const DriverTable = () => {
     if (typeof window !== "undefined") {
       setIsMobile(window.innerWidth < 768);
     }
-  }, []); 
+  }, []);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
@@ -44,11 +44,11 @@ const DriverTable = () => {
   const handleDelete = async (id: string) => {
     try {
       await deleteDriver(id);
-      Toast("Driver deleted successfully","success")
+      Toast("Driver deleted successfully", "success");
       getDrivers();
     } catch (error) {
       console.error(error);
-      Toast("Failed to delete driver","error")
+      Toast("Failed to delete driver", "error");
     }
   };
 
@@ -63,17 +63,20 @@ const DriverTable = () => {
   const columns = [
     { title: "Full Name", dataIndex: "fullName", key: "fullName" },
     { title: "Email", dataIndex: "email", key: "email" },
-    { title: "License Number", dataIndex: "licenseNumber", key: "licenseNumber" },
+    {
+      title: "License Number",
+      dataIndex: "licenseNumber",
+      key: "licenseNumber",
+    },
     {
       title: "Status",
       key: "status",
-      render: (_: unknown, record: IDriver) => (
+      render: (_: unknown, record: IDriver) =>
         record.isActive ? (
           <Tag color="green">Active</Tag>
         ) : (
           <Tag color="red">Inactive</Tag>
-        )
-      ),
+        ),
     },
     {
       title: "Actions",
@@ -88,7 +91,10 @@ const DriverTable = () => {
           >
             Edit
           </Button>
-          <Popconfirm title="Are you sure?" onConfirm={() => handleDelete(record.id)}>
+          <Popconfirm
+            title="Are you sure?"
+            onConfirm={() => handleDelete(record.id)}
+          >
             <Button type="primary" danger>
               Delete
             </Button>
@@ -104,7 +110,12 @@ const DriverTable = () => {
 
   return (
     <div>
-      <Row gutter={[16, 16]} justify="space-between" align="middle" className="mb-4">
+      <Row
+        gutter={[16, 16]}
+        justify="space-between"
+        align="middle"
+        className="mb-4"
+      >
         <Col xs={24} sm={24} md={18} lg={18}>
           <Space wrap>
             <Input.Search
@@ -136,16 +147,16 @@ const DriverTable = () => {
 
       {/* Table Content */}
       {isPending ? (
-         <div
-                 style={{
-                   display: "flex",
-                   justifyContent: "center",
-                   alignItems: "center",
-                   minHeight: "80vh",
-                 }}
-               >
-                 <Spin size="large" tip="Loading job posts..." />
-               </div>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            minHeight: "80vh",
+          }}
+        >
+          <Spin size="large" tip="Loading job posts..." />
+        </div>
       ) : isError ? (
         <Alert
           message="Error fetching drivers"
