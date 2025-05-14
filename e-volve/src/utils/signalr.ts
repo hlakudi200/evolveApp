@@ -1,10 +1,11 @@
 
+import { ITaxi } from "@/providers/interfaces";
 import * as signalR from "@microsoft/signalr";
 
 let connection: signalR.HubConnection | null = null;
 
 export const startTaxiHubConnection = async (
-  onTaxiUpdated: (taxi: any) => void
+  onTaxiUpdated: (taxi: ITaxi) => void
 ) => {
   connection = new signalR.HubConnectionBuilder()
     .withUrl("https://localhost:44311/taxihub") 
