@@ -1,4 +1,3 @@
-
 import type { Metadata } from "next";
 import "./globals.css";
 import ConfigProvider from "antd/es/config-provider";
@@ -7,6 +6,8 @@ import { AuthProvider } from "@/providers/auth";
 import { DriverProvider } from "@/providers/driver";
 import { EmailProvider } from "@/providers/email";
 import ToastProvider from "@/providers/toast/toast";
+import { GeolocationProvider } from "@/providers/geolocation/Context";
+
 export const metadata: Metadata = {
   title: "Evolve",
   description: "degitizing south african taxi rank",
@@ -20,18 +21,20 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <ConfigProvider
-        theme={{ token: themeSettings, components: componetsSettings }}
-      >
-        <EmailProvider>
-          <AuthProvider>
-            <DriverProvider>
-              <ToastProvider />
-              <body>{children}</body>
-            </DriverProvider>
-          </AuthProvider>
-        </EmailProvider>
-      </ConfigProvider>
+      <GeolocationProvider>
+        <ConfigProvider
+          theme={{ token: themeSettings, components: componetsSettings }}
+        >
+          <EmailProvider>
+            <AuthProvider>
+              <DriverProvider>
+                <ToastProvider />
+                <body>{children}</body>
+              </DriverProvider>
+            </AuthProvider>
+          </EmailProvider>
+        </ConfigProvider>
+      </GeolocationProvider>
     </html>
   );
 }
