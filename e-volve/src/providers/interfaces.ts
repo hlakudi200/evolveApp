@@ -9,8 +9,8 @@ export interface ITaxi {
   isFull: boolean;
   driverFullName: string;
   driverLicenseNumber: string;
-  latitude:string;
-  longtiute:string;
+  latitude:number;
+  longitude:number;
   assignedRoute: IRoute;
 }
 

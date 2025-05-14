@@ -36,7 +36,9 @@ namespace evolve.Services.TaxiManagement.TaxiService
                 IsFull = taxi.IsFull,
                 DriverFullName = taxi.Driver?.FullName ?? string.Empty,
                 DriverLicenseNumber = taxi.Driver?.LicenseNumber ?? string.Empty,
-                AssignedRoute = taxi.AssignedRoute
+                AssignedRoute = taxi.AssignedRoute,
+                Latitude = taxi.Latitude,
+                Longitude = taxi.Longitude,
             }).ToList();
 
             return results;
@@ -96,7 +98,9 @@ namespace evolve.Services.TaxiManagement.TaxiService
                 IsFull = taxi.IsFull,
                 DriverFullName = taxi.Driver?.FullName ?? string.Empty,
                 DriverLicenseNumber = taxi.Driver?.LicenseNumber ?? string.Empty,
-                AssignedRoute = taxi.AssignedRoute
+                AssignedRoute = taxi.AssignedRoute,
+                Latitude = taxi.Latitude,
+                Longitude = taxi.Longitude,
             };
         }
 
