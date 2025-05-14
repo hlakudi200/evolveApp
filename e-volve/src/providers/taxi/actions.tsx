@@ -23,6 +23,10 @@ export enum TaxiActionEnums {
   updateTaxiSuccess = "UPDATE_TAXI_SUCCESS",
   updateTaxiError = "UPDATE_TAXI_ERROR",
 
+  updateTaxiRealtimePending = "UPDATE_TAXI_REAL_TIME_PENDING",
+  updateTaxiRealtimeSuccess = "UPDATE_TAXI_REAL_TIME_SUCCESS",
+  updateTaxiRealtimeError = "UPDATE_TAXI_REAL_TIME_ERROR",
+
   deleteTaxiPending = "DELETE_TAXI_PENDING",
   deleteTaxiSuccess = "DELETE_TAXI_SUCCESS",
   deleteTaxiError = "DELETE_TAXI_ERROR",
@@ -114,6 +118,28 @@ export const updateTaxiError = createAction<ITaxiStateContext>(
   TaxiActionEnums.updateTaxiError,
   () => ({ isPending: false, isSuccess: false, isError: true })
 );
+
+//UPDATE TAXI 
+export const updateTaxiRealtimePending = createAction<ITaxiStateContext>(
+  TaxiActionEnums.updateTaxiRealtimePending,
+  () => ({ isPending: true, isSuccess: false, isError: false })
+);
+
+export const updateTaxiRealtimeSuccess = createAction<
+  ITaxiStateContext,
+  ITaxi
+>(TaxiActionEnums.updateTaxiRealtimeSuccess, (Taxi: ITaxi) => ({
+  isPending: false,
+  isSuccess: true,
+  isError: false,
+  Taxi,
+}));
+
+export const updateTaxiRealtimeError = createAction<ITaxiStateContext>(
+  TaxiActionEnums.updateTaxiRealtimeError,
+  () => ({ isPending: false, isSuccess: false, isError: true })
+);
+//
 
 export const deleteTaxiPending = createAction<ITaxiStateContext>(
   TaxiActionEnums.deleteTaxiPending,

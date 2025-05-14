@@ -6,16 +6,21 @@ using Abp.Application.Services;
 using Abp.Application.Services.Dto;
 using Abp.Domain.Entities;
 using Abp.Domain.Repositories;
+using Abp.Events.Bus;
 using evolve.Domain.TaxiManagement;
+using evolve.Domain.TaxiManagement.Events;
 using evolve.Services.TaxiManagement.TaxiService.DTO;
 using Microsoft.EntityFrameworkCore;
+
 
 namespace evolve.Services.TaxiManagement.TaxiService
 {
     public class TaxiAppService : AsyncCrudAppService<Taxi, TaxiDto, Guid>, ITaxiAppService
     {
-        public TaxiAppService(IRepository<Taxi, Guid> repository) : base(repository)
+        public IEventBus _eventBus { get; set; }
+        public TaxiAppService(IRepository<Taxi, Guid> repository, IEventBus eventBus) : base(repository)
         {
+            _eventBus = eventBus;
         }
         public async Task<List<TaxiDto>> GetAllInclude()
         {
@@ -104,6 +109,16 @@ namespace evolve.Services.TaxiManagement.TaxiService
             };
         }
 
+        public async Task<TaxiDto> UpdateTaxiRealtime(TaxiDto input)
+        {
+            var taxi = await Repository.GetAsync(input.Id);
+            ObjectMapper.Map(input, taxi);
+            var updatedTaxi = await Repository.UpdateAsync(taxi);
 
+            // Trigger SignalR event through event bus
+            _eventBus.Trigger(new TaxiUpdatedEvent(updatedTaxi));
+
+            return ObjectMapper.Map<TaxiDto>(updatedTaxi);
+        }
     }
 }

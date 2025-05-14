@@ -42,7 +42,8 @@ import { useAuthState } from "@/providers/auth";
 import { Toast } from "@/providers/toast/toast";
 import NavigationComponent from "../_components/driver/drive/drive";
 import homeStyles from "./styles/home.module.css";
-import {getDriverStats,GetTodayEarnings } from "@/utils/driver-home-helpers";
+import { getDriverStats, GetTodayEarnings } from "@/utils/driver-home-helpers";
+import { useGeolocation } from "@/providers/geolocation/Context";
 
 const { Title, Text } = Typography;
 const { TabPane } = Tabs;
@@ -69,26 +70,24 @@ const Home = () => {
   const [isNavigationModalOpen, setIsNavigationModalOpen] = useState(false);
   const [tripInfo, setTripInfo] = useState<TripInfo | null>(null);
   const [isTripModalOpen, setIsTripModalOpen] = useState(false);
-  const [earning,setEarning]=useState<number|undefined>(0)
+  const [earning, setEarning] = useState<number | undefined>(0);
   const { Driver } = useDriverState();
   const { currentUser } = useAuthState();
   const { getDriver } = useDriverActions();
 
   const { getQuesByTaxiId, dispatchTaxiFromQue } = useLaneActions();
   const { TaxiQues, isError, isPending } = useLaneState();
-
-  const { getTaxiByDriverId } = useTaxiActions();
+  const { position, isWatching, startWatching } = useGeolocation();
+  const { getTaxiByDriverId, updateTaxiRealtime } = useTaxiActions();
   const { Taxi } = useTaxiState();
 
-  
   const driverStats = getDriverStats(Driver);
 
   useEffect(() => {
     if (Driver?.id) {
       getTaxiByDriverId(Driver.id);
-     // const todaysEarnings = calculateTodaysEarnings(Driver);
-      setEarning(GetTodayEarnings(Driver))
-      
+      // const todaysEarnings = calculateTodaysEarnings(Driver);
+      setEarning(GetTodayEarnings(Driver));
     }
   }, [Driver?.id]);
 
@@ -102,20 +101,38 @@ const Home = () => {
     if (Taxi?.id) {
       getQuesByTaxiId(Taxi.id);
     }
-  }, [Taxi]);
+  }, [Taxi?.id]);
+  
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (position && Taxi?.id && drivingQueueId) {
+        const updatedTaxi = {
+          ...Taxi,
+          latitude: position.latitude,
+          longitude: position.longitude,
+        };
+  
+        updateTaxiRealtime(updatedTaxi).catch((err) => {
+          console.error("Failed to update taxi location in real-time", err);
+        });
+      }
+    }, 5000); // every 5 seconds
+  
+    return () => clearInterval(interval);
+  }, [position, Taxi?.id, drivingQueueId]);
+  
 
-  // Function to get the appropriate icon for stats display
   const getStatsIcon = (iconName: string) => {
     switch (iconName) {
-      case 'car':
+      case "car":
         return <Car size={16} />;
-      case 'users':
+      case "users":
         return <Users size={16} />;
-      case 'activity':
+      case "activity":
         return <Activity size={16} />;
-      case 'id-card':
+      case "id-card":
         return <CreditCard size={16} />;
-      case 'award':
+      case "award":
         return <Award size={16} />;
       default:
         return <Clock size={16} />;
@@ -178,6 +195,7 @@ const Home = () => {
     };
   };
 
+
   const handleDispatchTaxi = async (queueId: string) => {
     try {
       setDispatchingQueue(queueId);
@@ -221,12 +239,15 @@ const Home = () => {
     }
   };
 
-  // Updated handler to start driving
   const handleDrive = (queueId: string) => {
     setDrivingQueueId(queueId);
     setIsTripModalOpen(false);
     setIsNavigationModalOpen(true);
-    message.success("Navigation started");
+    Toast("Navigation started", "success");
+
+    if (!isWatching) {
+      startWatching();
+    }
   };
 
   const renderQueueCard = (
@@ -321,8 +342,8 @@ const Home = () => {
         ) : (
           <NavigationComponent
             destination={{
-              lat: queue.routeInfo?.latitude??0,
-              lng: queue.routeInfo?.longitude??0,
+              lat: queue.routeInfo?.latitude ?? 0,
+              lng: queue.routeInfo?.longitude ?? 0,
             }}
           />
         )}

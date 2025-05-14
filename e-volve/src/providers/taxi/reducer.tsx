@@ -79,6 +79,18 @@ export const TaxiReducer = handleActions<
       ...state,
       ...action.payload,
     }),
+    [TaxiActionEnums.updateTaxiRealtimePending]: (state, action) => ({
+      ...state,
+      ...action.payload,
+    }),
+    [TaxiActionEnums.updateTaxiRealtimeSuccess]: (state, action) => ({
+      ...state,
+      ...action.payload,
+    }),
+    [TaxiActionEnums.updateTaxiRealtimeError]: (state, action) => ({
+      ...state,
+      ...action.payload,
+    }),
   },
   INITIAL_STATE
 );
