@@ -22,6 +22,9 @@ import {
   getTaxiByDriverIdPending,
   getTaxiByDriverIdSuccess,
   getTaxiByDriverIdError,
+  updateTaxiRealtimePending,
+  updateTaxiRealtimeSuccess,
+  updateTaxiRealtimeError,
 } from "./actions";
 
 
@@ -46,11 +49,11 @@ export const TaxiProvider = ({ children }: { children: React.ReactNode }) => {
 
   const getTaxi = async (id: string) => {
     dispatch(getTaxiPending());
-    const endpoint = `/Taxis/${id}`;
+    const endpoint = `/api/services/app/Taxi/Get?Id=${id}`;
     await instance
       .get(endpoint)
       .then((response) => {
-        dispatch(getTaxiSuccess(response.data));
+        dispatch(getTaxiSuccess(response.data.result));
       })
       .catch((error) => {
         console.error(error);
@@ -78,11 +81,25 @@ export const TaxiProvider = ({ children }: { children: React.ReactNode }) => {
     await instance
       .put(endpoint, Taxi)
       .then((response) => {
-        dispatch(updateTaxiSuccess(response.data));
+        dispatch(updateTaxiSuccess(response.data.result));
       })
       .catch((error) => {
         console.error(error);
         dispatch(updateTaxiError());
+      });
+  };
+
+  const updateTaxiRealtime = async (Taxi: ITaxi) => {
+    dispatch(updateTaxiRealtimePending());
+    const endpoint = `/api/services/app/Taxi/UpdateTaxiRealtime`;
+    await instance
+      .put(endpoint, Taxi)
+      .then((response) => {
+        dispatch(updateTaxiRealtimeSuccess(response.data.result));
+      })
+      .catch((error) => {
+        console.error(error);
+        dispatch(updateTaxiRealtimeError());
       });
   };
 
@@ -119,6 +136,7 @@ export const TaxiProvider = ({ children }: { children: React.ReactNode }) => {
     <TaxiStateContext.Provider value={state}>
       <TaxiActionContext.Provider
         value={{
+          updateTaxiRealtime,
           getTaxis,
           getTaxi,
           createTaxi,

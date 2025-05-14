@@ -12,6 +12,7 @@ using evolve.Configuration;
 using evolve.Configurations;
 using evolve.Identity;
 using evolve.Services.EmailService;
+using evolve.Web.Host.Hubs;
 using Hangfire;
 using Hangfire.Dashboard;
 using Hangfire.PostgreSql;
@@ -128,7 +129,11 @@ namespace evolve.Web.Host.Startup
                 Authorization = new[] { new HangfireAuthorizationFilter() }
             });
 
-            ;
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllers();
+                endpoints.MapHub<TaxiHub>("/taxiHub"); // map the SignalR endpoint
+            });
         }
 
 

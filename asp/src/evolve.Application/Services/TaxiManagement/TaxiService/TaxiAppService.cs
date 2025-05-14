@@ -3,17 +3,24 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Abp.Application.Services;
+using Abp.Application.Services.Dto;
+using Abp.Domain.Entities;
 using Abp.Domain.Repositories;
+using Abp.Events.Bus;
 using evolve.Domain.TaxiManagement;
+using evolve.Domain.TaxiManagement.Events;
 using evolve.Services.TaxiManagement.TaxiService.DTO;
 using Microsoft.EntityFrameworkCore;
+
 
 namespace evolve.Services.TaxiManagement.TaxiService
 {
     public class TaxiAppService : AsyncCrudAppService<Taxi, TaxiDto, Guid>, ITaxiAppService
     {
-        public TaxiAppService(IRepository<Taxi, Guid> repository) : base(repository)
+        public IEventBus _eventBus { get; set; }
+        public TaxiAppService(IRepository<Taxi, Guid> repository, IEventBus eventBus) : base(repository)
         {
+            _eventBus = eventBus;
         }
         public async Task<List<TaxiDto>> GetAllInclude()
         {
@@ -34,7 +41,9 @@ namespace evolve.Services.TaxiManagement.TaxiService
                 IsFull = taxi.IsFull,
                 DriverFullName = taxi.Driver?.FullName ?? string.Empty,
                 DriverLicenseNumber = taxi.Driver?.LicenseNumber ?? string.Empty,
-                AssignedRoute = taxi.AssignedRoute
+                AssignedRoute = taxi.AssignedRoute,
+                Latitude = taxi.Latitude,
+                Longitude = taxi.Longitude,
             }).ToList();
 
             return results;
@@ -64,9 +73,52 @@ namespace evolve.Services.TaxiManagement.TaxiService
                 IsFull = taxi.IsFull,
                 DriverFullName = taxi.Driver?.FullName ?? string.Empty,
                 DriverLicenseNumber = taxi.Driver?.LicenseNumber ?? string.Empty,
-                AssignedRoute = taxi.AssignedRoute
+                AssignedRoute = taxi.AssignedRoute,
+                Latitude = taxi.Latitude,
+                Longitude = taxi.Longitude,
+
             };
         }
 
+        public override async Task<TaxiDto> GetAsync(EntityDto<Guid> input)
+        {
+            var taxi = await Repository
+                .GetAll()
+                .Include(t => t.Driver)
+                .Include(t => t.AssignedRoute)
+                .FirstOrDefaultAsync(t => t.Id == input.Id);
+
+            if (taxi == null)
+            {
+                throw new EntityNotFoundException(typeof(Taxi), input.Id);
+            }
+
+            return new TaxiDto
+            {
+                Id = taxi.Id,
+                RegistrationNumber = taxi.RegistrationNumber,
+                DriverId = taxi.DriverId,
+                RouteId = taxi.RouteId,
+                PassengerCapacity = taxi.PassengerCapacity,
+                IsFull = taxi.IsFull,
+                DriverFullName = taxi.Driver?.FullName ?? string.Empty,
+                DriverLicenseNumber = taxi.Driver?.LicenseNumber ?? string.Empty,
+                AssignedRoute = taxi.AssignedRoute,
+                Latitude = taxi.Latitude,
+                Longitude = taxi.Longitude,
+            };
+        }
+
+        public async Task<TaxiDto> UpdateTaxiRealtime(TaxiDto input)
+        {
+            var taxi = await Repository.GetAsync(input.Id);
+            ObjectMapper.Map(input, taxi);
+            var updatedTaxi = await Repository.UpdateAsync(taxi);
+
+            // Trigger SignalR event through event bus
+            _eventBus.Trigger(new TaxiUpdatedEvent(updatedTaxi));
+
+            return ObjectMapper.Map<TaxiDto>(updatedTaxi);
+        }
     }
 }

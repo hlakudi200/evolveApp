@@ -8,6 +8,7 @@ import {
   LogoutOutlined,
   UserOutlined,
   CreditCardFilled,
+  CarFilled,
 } from "@ant-design/icons";
 import { Button, Dropdown, Layout, Menu } from "antd";
 import { ItemType, MenuItemType } from "antd/es/menu/interface";
@@ -22,7 +23,6 @@ import { EmailProvider } from "@/providers/email";
 import { useAuthActions, useAuthState } from "@/providers/auth";
 import { DriverAccountDetailProvider } from "@/providers/driver-account-details";
 import { PaymentProvider } from "@/providers/payment";
-import { LucideBus } from "lucide-react";
 
 const { Header, Sider, Content } = Layout;
 
@@ -61,7 +61,7 @@ const Passenger = ({ children }: { children: React.ReactNode }) => {
     {
       label: "Track Taxi",
       key: "/passenger/track-taxi",
-      icon: <LucideBus size={41} />,
+      icon: <CarFilled />,
     },
     {
       label: "Profile",
