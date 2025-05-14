@@ -13,15 +13,15 @@ import {
   Input,
   Row,
   Select,
-  Spin,
   Switch,
   Tag,
-  Typography
+  Typography,
+  Spin,
 } from "antd";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import styles from "./styles/styles";
 
-const {Text } = Typography;
+const { Text } = Typography;
 const { Panel } = Collapse;
 const { Option } = Select;
 
@@ -36,7 +36,7 @@ const defaultCenter = { lat: -1.2921, lng: 36.8219 };
 
 const TrackingPage = () => {
   const { getTaxis } = useTaxiActions();
-  const { Taxis, isPending } = useTaxiState();
+  const { Taxis } = useTaxiState();
   const [selectedTaxi, setSelectedTaxi] = useState<ITaxi | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [sortKey, setSortKey] = useState("route");
@@ -45,7 +45,22 @@ const TrackingPage = () => {
   const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY!,
   });
+  const mapRef = useRef<google.maps.Map | null>(null);
 
+  const onMapLoad = (map: google.maps.Map) => {
+    mapRef.current = map;
+    const bounds = new window.google.maps.LatLngBounds();
+    filteredTaxis.forEach((taxi) => {
+      const lat = Number(taxi.latitude);
+      const lng = Number(taxi.longitude);
+      if (!isNaN(lat) && !isNaN(lng)) {
+        bounds.extend({ lat, lng });
+      }
+    });
+    if (!bounds.isEmpty()) {
+      map.fitBounds(bounds);
+    }
+  };
   useEffect(() => {
     getTaxis();
   }, []);
@@ -53,47 +68,39 @@ const TrackingPage = () => {
   const filteredTaxis = (Taxis || [])
     .filter(
       (taxi) =>
-        taxi.registrationNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        taxi.registrationNumber
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase()) ||
         taxi.driverFullName.toLowerCase().includes(searchTerm.toLowerCase())
     )
     .sort((a, b) => {
-      if (sortKey === "availability") return Number(a.isFull) - Number(b.isFull);
+      if (sortKey === "availability")
+        return Number(a.isFull) - Number(b.isFull);
       const routeA = a.assignedRoute?.destination || "";
       const routeB = b.assignedRoute?.destination || "";
       return routeA.localeCompare(routeB);
     });
 
-  const taxisGroupedByRoute = filteredTaxis.reduce((acc: Record<string, ITaxi[]>, taxi) => {
-    const routeName = taxi.assignedRoute?.destination ?? "Unknown Route";
-    if (!acc[routeName]) acc[routeName] = [];
-    acc[routeName].push(taxi);
-    return acc;
-  }, {});
- 
+  const taxisGroupedByRoute = filteredTaxis.reduce(
+    (acc: Record<string, ITaxi[]>, taxi) => {
+      const routeName = taxi.assignedRoute?.destination ?? "Unknown Route";
+      if (!acc[routeName]) acc[routeName] = [];
+      acc[routeName].push(taxi);
+      return acc;
+    },
+    {}
+  );
 
-  if(isPending){
-    return(
-      <div
-      style={{
-        position: "absolute",
-        top: 0,
-        left: 0,
-        width: "100%",
-        height: "100%",
-        backgroundColor: "rgba(255,255,255,0.8)",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        zIndex: 999,
-      }}
-    >
-      <Spin size="large" tip="Loading..." />
-    </div>
-    )
+  if (!isLoaded) {
+    return (
+      <div style={{ padding: "4rem", textAlign: "center" }}>
+        <Spin tip="Loading Maps..." size="large" />
+      </div>
+    );
   }
+
   return (
     <div style={styles.pageContainer}>
-
       <Row gutter={[16, 16]} style={{ marginBottom: "1rem" }}>
         <Col xs={24} md={10}>
           <Input.Search
@@ -113,7 +120,15 @@ const TrackingPage = () => {
             <Option value="availability">Sort by Availability</Option>
           </Select>
         </Col>
-        <Col xs={12} md={8} style={{ display: "flex", alignItems: "center", justifyContent: "end" }}>
+        <Col
+          xs={12}
+          md={8}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "end",
+          }}
+        >
           <Switch
             checked={showAllMap}
             onChange={setShowAllMap}
@@ -125,28 +140,39 @@ const TrackingPage = () => {
         </Col>
       </Row>
 
-      {showAllMap && isLoaded && (
-        <div style={{ marginBottom: "2rem", overflow: "hidden", borderRadius: 12 }}>
-          <GoogleMap mapContainerStyle={containerStyle} center={defaultCenter} zoom={13}>
-            {filteredTaxis.map((taxi) => (
-              taxi.latitude &&
-              taxi.longtiute && (
-                <Marker
-                  key={taxi.id}
-                  position={{ lat: parseFloat(taxi.latitude), lng: parseFloat(taxi.longtiute) }}
-                  label={{
-                    text: taxi.registrationNumber,
-                    color: "#000",
-                    fontSize: "12px",
-                    fontWeight: "bold",
-                  }}
-                  icon={{
-                    url: "images/bus.png",
-                    scaledSize: new window.google.maps.Size(35, 35),
-                  }}
-                />
-              )
-            ))}
+      {showAllMap && (
+        <div
+          style={{ marginBottom: "2rem", overflow: "hidden", borderRadius: 12 }}
+        >
+          <GoogleMap
+            mapContainerStyle={containerStyle}
+            center={defaultCenter}
+            zoom={13}
+            onLoad={onMapLoad}
+            options={{
+              fullscreenControl: false,
+              streetViewControl: false,
+              mapTypeControl: false,
+            }}
+          >
+            {filteredTaxis.map((taxi) => {
+              const lat = Number(taxi.latitude);
+              const lng = Number(taxi.longitude);
+              const isValid = !isNaN(lat) && !isNaN(lng);
+
+              return (
+                isValid && (
+                  <Marker
+                    key={taxi.id}
+                    position={{ lat, lng }}
+                    icon={{
+                      url: "/images/bus.png", // fallback to default if needed
+                      scaledSize: new window.google.maps.Size(35, 35),
+                    }}
+                  />
+                )
+              );
+            })}
           </GoogleMap>
         </div>
       )}
@@ -154,7 +180,7 @@ const TrackingPage = () => {
       <Row gutter={[24, 24]}>
         <Col xs={24} md={selectedTaxi && !showAllMap ? 12 : 24}>
           {filteredTaxis.length > 0 ? (
-            <Collapse accordion >
+            <Collapse accordion>
               {Object.entries(taxisGroupedByRoute).map(([route, taxis]) => (
                 <Panel
                   header={
@@ -172,22 +198,40 @@ const TrackingPage = () => {
                           hoverable
                           onClick={() => setSelectedTaxi(taxi)}
                           style={styles.taxiCard}
-                          
                         >
-                          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                            <CarOutlined style={{ fontSize: 24, color: "#000" }} />
+                          <div
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: "10px",
+                            }}
+                          >
+                            <CarOutlined
+                              style={{ fontSize: 24, color: "#000" }}
+                            />
                             <Text strong>{taxi.registrationNumber}</Text>
                           </div>
-                          <Text type="secondary">Driver: {taxi.driverFullName}</Text>
-                          <Text type="secondary">Capacity: {taxi.passengerCapacity}</Text>
-                          <Tag color={taxi.isFull ? "red" : "green"} style={{ marginTop: "8px" }}>
+                          <Text type="secondary">
+                            Driver: {taxi.driverFullName}
+                          </Text>
+                          <Text type="secondary">
+                            Capacity: {taxi.passengerCapacity}
+                          </Text>
+                          <Tag
+                            color={taxi.isFull ? "red" : "green"}
+                            style={{ marginTop: "8px" }}
+                          >
                             {taxi.isFull ? "Full" : "Available"}
                           </Tag>
                           <Button
                             type="primary"
                             block
                             icon={<AimOutlined />}
-                            style={{ marginTop: 10, background: "#000", color: "#fff" }}
+                            style={{
+                              marginTop: 10,
+                              background: "#000",
+                              color: "#fff",
+                            }}
                           >
                             Track
                           </Button>

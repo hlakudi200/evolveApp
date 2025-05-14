@@ -28,7 +28,7 @@ interface TrackTaxiProps {
 
 const TrackTaxi: React.FC<TrackTaxiProps> = ({ taxiId }) => {
   const { getTaxi } = useTaxiActions();
-  const { Taxi, isPending } = useTaxiState();
+  const { Taxi } = useTaxiState();
 
   const [center, setCenter] = useState({ lat: -1.2921, lng: 36.8219 });
 
@@ -43,15 +43,21 @@ const TrackTaxi: React.FC<TrackTaxiProps> = ({ taxiId }) => {
   }, [taxiId]);
 
   useEffect(() => {
-    if (Taxi?.latitude && Taxi?.longtiute) {
+    if (
+      Taxi &&
+      !isNaN(Number(Taxi.latitude)) &&
+      !isNaN(Number(Taxi.longitude))
+    ) {
       setCenter({
-        lat: parseFloat(Taxi.latitude),
-        lng: parseFloat(Taxi.longtiute),
+        lat: Number(Taxi.latitude),
+        lng: Number(Taxi.longitude),
       });
+    } else {
+      console.warn("Invalid or missing coordinates", Taxi?.latitude, Taxi?.longitude);
     }
   }, [Taxi]);
 
-  if (isPending || !isLoaded) {
+  if (!isLoaded) {
     return (
       <div style={{ padding: "3rem", textAlign: "center" }}>
         <Spin tip="Loading taxi location..." size="large" />
@@ -135,12 +141,6 @@ const TrackTaxi: React.FC<TrackTaxiProps> = ({ taxiId }) => {
             >
               <Marker
                 position={center}
-                label={{
-                  text: Taxi.registrationNumber,
-                  color: "#000",
-                  fontSize: "14px",
-                  fontWeight: "bold",
-                }}
                 icon={{
                   url: "/images/bus.png", 
                   scaledSize: new window.google.maps.Size(40, 40),
