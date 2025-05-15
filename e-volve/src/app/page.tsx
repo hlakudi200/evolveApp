@@ -2,10 +2,10 @@
 
 import {
   ScheduleOutlined,
-  SafetyOutlined,
   LineChartOutlined,
   CreditCardOutlined,
   WalletOutlined,
+  RobotFilled
 } from "@ant-design/icons";
 import { Button, Layout, Typography, Row, Col, Card, Space } from "antd";
 import styles from "./page.module.css";
@@ -23,9 +23,9 @@ export default function Home() {
       desc: "Efficient, location-based taxi queues",
     },
     {
-      icon: <SafetyOutlined style={{ fontSize: 28, color: "#52c41a" }} />,
-      title: "Lost & Found",
-      desc: "Item tracking for passengers & drivers",
+      icon: <RobotFilled style={{ fontSize: 28, color: "#52c41a" }} />,
+      title: "Digital Human",
+      desc: "A chat with digital hum",
     },
     {
       icon: <LineChartOutlined style={{ fontSize: 28, color: "#fa8c16" }} />,
@@ -40,7 +40,7 @@ export default function Home() {
     {
       icon: <WalletOutlined style={{ fontSize: 28, color: "#13c2c2" }} />,
       title: "e-Wallet",
-      desc: "Store, transfer, withdraw funds securely",
+      desc: "View and track your payments ",
     },
   ];
 
