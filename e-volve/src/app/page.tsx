@@ -20,12 +20,12 @@ export default function Home() {
     {
       icon: <ScheduleOutlined style={{ fontSize: 28, color: "#1890ff" }} />,
       title: "Smart Queues",
-      desc: "Efficient, location-based taxi queues",
+      desc: "Efficient taxi queues management",
     },
     {
       icon: <RobotFilled style={{ fontSize: 28, color: "#52c41a" }} />,
       title: "Digital Human",
-      desc: "A chat with digital hum",
+      desc: "A chat with digital human",
     },
     {
       icon: <LineChartOutlined style={{ fontSize: 28, color: "#fa8c16" }} />,
@@ -35,7 +35,7 @@ export default function Home() {
     {
       icon: <CreditCardOutlined style={{ fontSize: 28, color: "#eb2f96" }} />,
       title: "Yoco Payments",
-      desc: "Tap-to-pay & card support",
+      desc: "Scan-to-pay & card support",
     },
     {
       icon: <WalletOutlined style={{ fontSize: 28, color: "#13c2c2" }} />,
