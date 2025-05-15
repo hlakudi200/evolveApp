@@ -1,21 +1,30 @@
-
 import { ITaxi } from "@/providers/interfaces";
 import * as signalR from "@microsoft/signalr";
 
 let connection: signalR.HubConnection | null = null;
 
 export const startTaxiHubConnection = async (
-  onTaxiUpdated: (taxi: ITaxi) => void
+  onTaxiUpdated: (taxi: ITaxi) => void,
+  onTaxiListUpdated?: (taxis: ITaxi[]) => void
 ) => {
   connection = new signalR.HubConnectionBuilder()
     .withUrl("https://localhost:44311/taxihub") 
     .withAutomaticReconnect()
     .build();
 
+  // Handle individual taxi updates
   connection.on("ReceiveTaxiUpdate", (taxi) => {
-    console.log("Taxi updated:", taxi);
+    console.log("Single taxi updated:", taxi);
     onTaxiUpdated(taxi);
   });
+
+  // Handle list of taxis updates (for "Show All" mode)
+  if (onTaxiListUpdated) {
+    connection.on("ReceiveTaxiListUpdate", (taxis) => {
+      console.log("All taxis updated:", taxis);
+      onTaxiListUpdated(taxis as ITaxi[]);
+    });
+  }
 
   try {
     await connection.start();
@@ -27,6 +36,11 @@ export const startTaxiHubConnection = async (
 
 export const stopTaxiHubConnection = async () => {
   if (connection) {
-    await connection.stop();
+    try {
+      await connection.stop();
+      console.log("SignalR connection stopped");
+    } catch (err) {
+      console.error("Error stopping SignalR connection:", err);
+    }
   }
 };

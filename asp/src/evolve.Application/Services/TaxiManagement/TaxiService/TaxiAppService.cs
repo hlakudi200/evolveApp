@@ -116,7 +116,7 @@ namespace evolve.Services.TaxiManagement.TaxiService
             var updatedTaxi = await Repository.UpdateAsync(taxi);
 
             // Trigger SignalR event through event bus
-            _eventBus.Trigger(new TaxiUpdatedEvent(updatedTaxi));
+            await _eventBus.TriggerAsync(new TaxiUpdatedEvent(updatedTaxi));
 
             return ObjectMapper.Map<TaxiDto>(updatedTaxi);
         }
