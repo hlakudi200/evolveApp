@@ -86,7 +86,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     await instance
       .post(endpoint, user)
       .then((response) => {
-        console.log(response);
+     
         if (response.status === 200) {
           dispatch(signUpSuccess());
         }

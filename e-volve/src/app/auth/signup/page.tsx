@@ -70,7 +70,6 @@ const SignUp = () => {
         password: values.password,
       };
 
-      console.log("PayLoad:", userPayload);
       await signUp(userPayload);
 
       Toast("Account created succesfully", "success");

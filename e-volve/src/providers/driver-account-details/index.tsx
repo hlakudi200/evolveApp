@@ -72,7 +72,7 @@ export const DriverAccountDetailProvider = ({
   ) => {
     dispatch(createDriverAccountDetailPending());
     const endpoint = `/api/services/app/DriverAaccount/Create`;
-    console.log("DriverAccountDetail:", DriverAccountDetail);
+
     await instance
       .post(endpoint, DriverAccountDetail)
       .then((response) => {
@@ -88,7 +88,7 @@ export const DriverAccountDetailProvider = ({
   ) => {
     dispatch(updateDriverAccountDetailPending());
     const endpoint = `/api/services/app/DriverAaccount/Update`;
-    console.log("AccDetails:",DriverAccountDetail)
+
     await instance
       .put(endpoint, DriverAccountDetail)
       .then((response) => {
