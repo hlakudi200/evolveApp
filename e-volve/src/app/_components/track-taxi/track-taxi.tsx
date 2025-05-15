@@ -1,17 +1,11 @@
+
 "use client";
-import { useTaxiActions, useTaxiState } from "@/providers/taxi";
 import { GoogleMap, Marker, useJsApiLoader } from "@react-google-maps/api";
-import {
-    Card,
-    Col,
-    Descriptions,
-    Row,
-    Spin,
-    Tag,
-    Typography,
-    message
-} from "antd";
+import { Card, Col, Descriptions, Row, Spin, Tag, Typography } from "antd";
 import React, { useEffect, useState } from "react";
+import { ITaxi } from "@/providers/interfaces";
+import { useTaxiState } from "@/providers/taxi";
+import { startTaxiHubConnection, stopTaxiHubConnection } from "@/utils/signalr";
 
 const { Title, Text } = Typography;
 
@@ -27,47 +21,119 @@ interface TrackTaxiProps {
 }
 
 const TrackTaxi: React.FC<TrackTaxiProps> = ({ taxiId }) => {
-  const { getTaxi } = useTaxiActions();
-  const { Taxi } = useTaxiState();
-
+  const { Taxis } = useTaxiState();
+  const [taxi, setTaxi] = useState<ITaxi | null>(null);
+  const [liveTaxis, setLiveTaxis] = useState<ITaxi[]>([]);
   const [center, setCenter] = useState({ lat: -1.2921, lng: 36.8219 });
 
-  const { isLoaded } = useJsApiLoader({
-    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY!,
+  const { isLoaded, loadError } = useJsApiLoader({
+    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "",
   });
 
+  console.log("Map loader status:", { isLoaded, loadError });
+
+  // Initialize from the existing Taxis state
   useEffect(() => {
-    getTaxi(taxiId);
-    const interval = setInterval(() => getTaxi(taxiId), 120000);
-    return () => clearInterval(interval);
+    if (Taxis && Taxis.length > 0) {
+      const currentTaxi = Taxis.find(t => t.id === taxiId);
+      if (currentTaxi) {
+        setTaxi(currentTaxi);
+        if (
+          !isNaN(Number(currentTaxi.latitude)) &&
+          !isNaN(Number(currentTaxi.longitude))
+        ) {
+          setCenter({
+            lat: Number(currentTaxi.latitude),
+            lng: Number(currentTaxi.longitude),
+          });
+        }
+      }
+      setLiveTaxis(Taxis);
+    }
+  }, [Taxis, taxiId]);
+
+  useEffect(() => {
+    // Handle individual taxi updates
+    const handleTaxiUpdate = (updatedTaxi: ITaxi) => {
+      console.log("Received taxi update:", updatedTaxi);
+      
+      // Update liveTaxis array
+      setLiveTaxis(prev => {
+        const index = prev.findIndex(t => t.id === updatedTaxi.id);
+        if (index >= 0) {
+          const newTaxis = [...prev];
+          newTaxis[index] = updatedTaxi;
+          return newTaxis;
+        } else {
+          return [...prev, updatedTaxi];
+        }
+      });
+      
+      // If this is the taxi we're tracking, update it specifically
+      if (updatedTaxi.id === taxiId) {
+        console.log("✅ Tracked taxi updated:", updatedTaxi);
+        setTaxi(updatedTaxi);
+        
+        if (
+          !isNaN(Number(updatedTaxi.latitude)) &&
+          !isNaN(Number(updatedTaxi.longitude))
+        ) {
+          setCenter({
+            lat: Number(updatedTaxi.latitude),
+            lng: Number(updatedTaxi.longitude),
+          });
+        }
+      }
+    };
+
+    // Handle bulk taxi updates
+    const handleTaxiListUpdate = (updatedTaxis: ITaxi[]) => {
+      console.log("All taxis updated:", updatedTaxis);
+      setLiveTaxis(updatedTaxis);
+      
+      // Find and update the taxi we're tracking
+      const updatedTrackedTaxi = updatedTaxis.find(t => t.id === taxiId);
+      if (updatedTrackedTaxi) {
+        setTaxi(updatedTrackedTaxi);
+        
+        if (
+          !isNaN(Number(updatedTrackedTaxi.latitude)) &&
+          !isNaN(Number(updatedTrackedTaxi.longitude))
+        ) {
+          setCenter({
+            lat: Number(updatedTrackedTaxi.latitude),
+            lng: Number(updatedTrackedTaxi.longitude),
+          });
+        }
+      }
+    };
+
+    startTaxiHubConnection(handleTaxiUpdate, handleTaxiListUpdate);
+
+    return () => {
+      stopTaxiHubConnection();
+    };
   }, [taxiId]);
 
-  useEffect(() => {
-    if (
-      Taxi &&
-      !isNaN(Number(Taxi.latitude)) &&
-      !isNaN(Number(Taxi.longitude))
-    ) {
-      setCenter({
-        lat: Number(Taxi.latitude),
-        lng: Number(Taxi.longitude),
-      });
-    } else {
-      console.warn("Invalid or missing coordinates", Taxi?.latitude, Taxi?.longitude);
-    }
-  }, [Taxi]);
-
+  // If Google Maps is not loaded yet, show loading spinner
   if (!isLoaded) {
     return (
       <div style={{ padding: "3rem", textAlign: "center" }}>
-        <Spin tip="Loading taxi location..." size="large" />
+        <Spin tip="Loading maps..." size="large" />
       </div>
     );
   }
 
-  if (!Taxi) {
-    message.error("Taxi not found");
-    return null;
+  // Check if taxi exists in liveTaxis array (real-time data)
+  const currentTaxi = taxi || liveTaxis.find(t => t.id === taxiId);
+
+  // If taxi data is not loaded yet, show loading spinner
+  if (!currentTaxi) {
+    return (
+      <div style={{ padding: "3rem", textAlign: "center" }}>
+        <Spin tip="Waiting for taxi update..." size="large" />
+      </div>
+    );
   }
 
   return (
@@ -98,7 +164,11 @@ const TrackTaxi: React.FC<TrackTaxiProps> = ({ taxiId }) => {
       <Row gutter={[24, 24]} justify="center">
         <Col xs={24} md={12}>
           <Descriptions
-            title={<Text strong style={{ fontSize: "16px" }}>Taxi Details</Text>}
+            title={
+              <Text strong style={{ fontSize: "16px" }}>
+                Taxi Details
+              </Text>
+            }
             column={1}
             bordered
             size="middle"
@@ -106,18 +176,21 @@ const TrackTaxi: React.FC<TrackTaxiProps> = ({ taxiId }) => {
             contentStyle={{ fontSize: "14px" }}
           >
             <Descriptions.Item label="Registration">
-              {Taxi.registrationNumber}
+              {currentTaxi?.registrationNumber || "N/A"}
             </Descriptions.Item>
             <Descriptions.Item label="Driver Name">
-              {Taxi.driverFullName}
+              {currentTaxi?.driverFullName || "N/A"}
             </Descriptions.Item>
             <Descriptions.Item label="Passenger Capacity">
-              {Taxi.passengerCapacity}
+              {currentTaxi?.passengerCapacity || "N/A"}
             </Descriptions.Item>
             <Descriptions.Item label="Status">
-              <Tag color={Taxi.isFull ? "red" : "green"}>
-                {Taxi.isFull ? "Full" : "Available"}
+              <Tag color={currentTaxi?.isFull ? "red" : "green"}>
+                {currentTaxi?.isFull ? "Full" : "Available"}
               </Tag>
+            </Descriptions.Item>
+            <Descriptions.Item label="Route">
+              {currentTaxi?.assignedRoute?.destination || "N/A"}
             </Descriptions.Item>
           </Descriptions>
         </Col>
@@ -129,24 +202,37 @@ const TrackTaxi: React.FC<TrackTaxiProps> = ({ taxiId }) => {
               height: "100%",
             }}
           >
-            <GoogleMap
-              mapContainerStyle={containerStyle}
-              center={center}
-              zoom={16}
-              options={{
-                mapTypeControl: false,
-                fullscreenControl: false,
-                streetViewControl: false,
-              }}
-            >
-              <Marker
-                position={center}
-                icon={{
-                  url: "/images/bus.png", 
-                  scaledSize: new window.google.maps.Size(40, 40),
+            {isLoaded ? (
+              <GoogleMap
+                mapContainerStyle={containerStyle}
+                center={center}
+                zoom={16}
+                options={{
+                  mapTypeControl: false,
+                  fullscreenControl: false,
+                  streetViewControl: false,
                 }}
-              />
-            </GoogleMap>
+              >
+                <Marker
+                  position={center}
+                  icon={{
+                    url: "/images/bus.png",
+                    scaledSize: new window.google.maps.Size(40, 40),
+                  }}
+                />
+              </GoogleMap>
+            ) : (
+              <div style={{ 
+                height: "400px", 
+                display: "flex", 
+                justifyContent: "center", 
+                alignItems: "center",
+                backgroundColor: "#f5f5f5",
+                borderRadius: "16px"
+              }}>
+                <Spin tip="Loading map..." />
+              </div>
+            )}
           </div>
         </Col>
       </Row>

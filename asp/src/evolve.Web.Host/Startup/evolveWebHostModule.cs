@@ -3,7 +3,9 @@ using Abp.Hangfire.Configuration;
 using Abp.Modules;
 using Abp.Reflection.Extensions;
 using evolve.Configuration;
+using evolve.Domain.TaxiManagement.Events;
 using evolve.Web.Host.BackgroundJobs;
+using evolve.Web.Host.EventHandlers;
 using Hangfire;
 using Hangfire.PostgreSql;
 using Microsoft.AspNetCore.Hosting;
@@ -30,8 +32,7 @@ namespace evolve.Web.Host.Startup
         {
 
             Configuration.BackgroundJobs.IsJobExecutionEnabled = true;
-
-
+           
             Configuration.Modules.AbpHangfire().GlobalConfiguration.UsePostgreSqlStorage(
                 _appConfiguration.GetConnectionString("Default")
             );
@@ -41,6 +42,7 @@ namespace evolve.Web.Host.Startup
         public override void Initialize()
         {
             IocManager.RegisterAssemblyByConvention(typeof(evolveWebHostModule).GetAssembly());
+            IocManager.Register<TaxiUpdatedEventHandler>();
         }
 
 

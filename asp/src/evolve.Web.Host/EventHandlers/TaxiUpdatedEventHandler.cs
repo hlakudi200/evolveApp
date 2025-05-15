@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Diagnostics;
+using System.Threading.Tasks;
 using Abp.Events.Bus.Handlers;
 using Abp.ObjectMapping;
 using evolve.Domain.TaxiManagement.Events;
@@ -17,11 +19,14 @@ namespace evolve.Web.Host.EventHandlers
         {
             _hubContext = hubContext;
             _objectMapper = objectMapper;
+
+            Debug.WriteLine("ConstructedEvent");
         }
 
 
         public async Task HandleEventAsync(TaxiUpdatedEvent eventData)
         {
+            Debug.WriteLine("TaxiUpdatedEventHandler triggered");
             var taxiDto = _objectMapper.Map<TaxiDto>(eventData.Entity);
             await _hubContext.Clients.All.SendAsync("ReceiveTaxiUpdate", taxiDto);
         }

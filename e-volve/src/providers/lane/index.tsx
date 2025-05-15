@@ -141,7 +141,7 @@ export const LaneProvider = ({ children }: { children: React.ReactNode }) => {
       });
   };
 
-  const markTaxiAsArrived = async (taxiId: string) => {
+  const markTaxiAsArrived = async (taxiId: string|undefined) => {
     dispatch(markTaxiAsArrivedPending());
     const endpoint = `/api/services/app/Que/MarkTaxiAsArrived?taxiId=${taxiId}`;
     await instance

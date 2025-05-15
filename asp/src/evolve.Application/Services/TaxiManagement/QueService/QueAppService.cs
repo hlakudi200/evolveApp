@@ -89,9 +89,7 @@ namespace evolve.Services.TaxiManagement.QueService
             if (taxi == null)
                 throw new Exception("Taxi not found.");
 
-            if (!taxi.IsDispatched)
-                throw new Exception("Taxi has not been dispatched.");
-
+        
             if (taxi.Status == "Arrived")
                 throw new Exception("Taxi has already arrived.");
 
