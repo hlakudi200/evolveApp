@@ -48,6 +48,9 @@ import { useGeolocation } from "@/providers/geolocation/Context";
 const { Title, Text } = Typography;
 const { TabPane } = Tabs;
 
+// Key for dispatched queues in localStorage
+const DISPATCHED_QUEUES_STORAGE_KEY = "driverDispatchedQueues";
+
 interface QueuePositionResult {
   position: number;
   total: number;
@@ -75,7 +78,7 @@ const Home = () => {
   const { currentUser } = useAuthState();
   const { getDriver } = useDriverActions();
 
-  const { getQuesByTaxiId, dispatchTaxiFromQue } = useLaneActions();
+  const { getQuesByTaxiId, dispatchTaxiFromQue, markTaxiAsArrived } = useLaneActions();
   const { TaxiQues, isError, isPending } = useLaneState();
   const { position, isWatching, startWatching } = useGeolocation();
   const { getTaxiByDriverId, updateTaxiRealtime } = useTaxiActions();
@@ -83,10 +86,37 @@ const Home = () => {
 
   const driverStats = getDriverStats(Driver);
 
+  // Load dispatched queues from localStorage on component mount
+  useEffect(() => {
+    if (Driver?.id) {
+      // Use driver ID to create a unique key for each driver
+      const storageKey = `${DISPATCHED_QUEUES_STORAGE_KEY}_${Driver.id}`;
+      const savedDispatchedQueues = localStorage.getItem(storageKey);
+      
+      if (savedDispatchedQueues) {
+        try {
+          const parsedQueues = JSON.parse(savedDispatchedQueues);
+          setDispatchedQueues(parsedQueues);
+        } catch (error) {
+          console.error("Failed to parse saved dispatched queues", error);
+          // Reset if parsing fails
+          localStorage.removeItem(storageKey);
+        }
+      }
+    }
+  }, [Driver?.id]);
+
+  // Save dispatched queues to localStorage whenever they change
+  useEffect(() => {
+    if (Driver?.id && dispatchedQueues.length > 0) {
+      const storageKey = `${DISPATCHED_QUEUES_STORAGE_KEY}_${Driver.id}`;
+      localStorage.setItem(storageKey, JSON.stringify(dispatchedQueues));
+    }
+  }, [dispatchedQueues, Driver?.id]);
+
   useEffect(() => {
     if (Driver?.id) {
       getTaxiByDriverId(Driver.id);
-      // const todaysEarnings = calculateTodaysEarnings(Driver);
       setEarning(GetTodayEarnings(Driver));
     }
   }, [Driver?.id]);
@@ -161,9 +191,8 @@ const Home = () => {
     setIsTripModalOpen(false);
   };
 
-  const getFilteredQueues = (
-    isOpen: boolean
-  ): Array<IQue & { routeInfo?: IRoute; totalCapacity: number }> => {
+  // Get all available queues from TaxiQues
+  const getAllQueues = (): Array<IQue & { routeInfo?: IRoute; totalCapacity: number }> => {
     if (!TaxiQues || !Array.isArray(TaxiQues)) return [];
 
     return TaxiQues.flatMap((route) =>
@@ -172,7 +201,24 @@ const Home = () => {
         routeInfo: route.designatedRoute,
         totalCapacity: route.capacity,
       }))
-    ).filter((queue) => queue.isOpen === isOpen);
+    );
+  };
+
+  // Get active queues (open = true)
+  const getActiveQueues = (): Array<IQue & { routeInfo?: IRoute; totalCapacity: number }> => {
+    return getAllQueues().filter(queue => queue.isOpen === true);
+  };
+
+  // Get closed queues (open = false)
+  const getClosedQueues = (): Array<IQue & { routeInfo?: IRoute; totalCapacity: number }> => {
+    return getAllQueues().filter(queue => queue.isOpen === false);
+  };
+
+  // Get dispatched queues (found in dispatchedQueues array but not being driven)
+  const getDispatchedQueues = (): Array<IQue & { routeInfo?: IRoute; totalCapacity: number }> => {
+    return getAllQueues().filter(queue => 
+      queue.id && dispatchedQueues.includes(queue.id) && queue.id !== drivingQueueId
+    );
   };
 
   const getQueuePosition = (
@@ -187,14 +233,14 @@ const Home = () => {
     );
     const total = queue.quedTaxis.length;
 
+    // Fix: If driver is in first position (myTaxiPosition === 0), show 100%
     return {
       position: myTaxiPosition >= 0 ? myTaxiPosition + 1 : 0,
       total,
-      percentage:
-        myTaxiPosition >= 0 ? ((total - myTaxiPosition - 1) / total) * 100 : 0,
+      percentage: myTaxiPosition === 0 ? 100 : 
+                  myTaxiPosition > 0 ? ((total - myTaxiPosition) / total) * 100 : 0,
     };
   };
-
 
   const handleDispatchTaxi = async (queueId: string) => {
     try {
@@ -202,15 +248,17 @@ const Home = () => {
       message.loading({ content: "Dispatching taxi...", key: "dispatch" });
       await dispatchTaxiFromQue(queueId, Taxi?.id);
       message.success({ content: "Taxi dispatched", key: "dispatch" });
-      setDispatchedQueues([...dispatchedQueues, queueId]);
+      
+      // Add to dispatched queues tracking
+      setDispatchedQueues(prev => [...prev, queueId]);
 
       if (Taxi?.id) {
         await getQuesByTaxiId(Taxi.id);
 
         // Find the queue that was just dispatched to show trip summary
-        const dispatchedQueue = getFilteredQueues(true).find(
-          (q) => q.id === queueId
-        );
+        const allQueues = getAllQueues();
+        const dispatchedQueue = allQueues.find(q => q.id === queueId);
+        
         if (dispatchedQueue && dispatchedQueue.routeInfo) {
           showTripModal(dispatchedQueue);
         }
@@ -250,60 +298,84 @@ const Home = () => {
     }
   };
 
+  const handleCompleteTrip = () => {
+    if (drivingQueueId && Taxi?.id) {
+      // Remove the queue from dispatched queues list
+      setDispatchedQueues(prev => prev.filter(id => id !== drivingQueueId));
+      
+      // Update localStorage
+      if (Driver?.id) {
+        const storageKey = `${DISPATCHED_QUEUES_STORAGE_KEY}_${Driver.id}`;
+        const updatedQueues = dispatchedQueues.filter(id => id !== drivingQueueId);
+        localStorage.setItem(storageKey, JSON.stringify(updatedQueues));
+      }
+      
+      // Mark taxi as arrived
+      markTaxiAsArrived(Taxi.id);
+      
+      // Refresh queues data
+      getQuesByTaxiId(Taxi.id);
+      
+      // Close modal and reset driving state
+      setIsNavigationModalOpen(false);
+      setDrivingQueueId(null);
+      Toast("Trip completed!", "success");
+    }
+  };
+
   const renderQueueCard = (
     queue: IQue & { routeInfo?: IRoute; totalCapacity: number }
   ) => {
     const { position, total, percentage } = getQueuePosition(queue);
     const amIInQueue = position > 0;
     const canDispatch = position === 1;
-    const isDispatched = dispatchedQueues.includes(queue.id!);
+    const isDispatched = queue.id && dispatchedQueues.includes(queue.id);
     const isDispatching = dispatchingQueue === queue.id;
-    const isDriving = drivingQueueId === queue.id;
 
     return (
       <Card key={queue.id} className={homeStyles.queueCard}>
-        {!isDriving ? (
-          <>
-            <div className={homeStyles.queueCardHeader}>
-              <Space direction="vertical" size={2}>
-                <Text strong style={{ fontSize: 16 }}>
-                  <Space>
-                    <MapPin size={16} />
-                    {queue.routeInfo?.origin}
-                    <ChevronRight size={16} />
-                    {queue.routeInfo?.destination}
-                  </Space>
-                </Text>
-                <Text type="secondary" style={{ fontSize: 14 }}>
-                  Created: {formatDate(queue.creationDate)}
-                </Text>
+        <div className={homeStyles.queueCardHeader}>
+          <Space direction="vertical" size={2}>
+            <Text strong style={{ fontSize: 16 }}>
+              <Space>
+                <MapPin size={16} />
+                {queue.routeInfo?.origin}
+                <ChevronRight size={16} />
+                {queue.routeInfo?.destination}
               </Space>
-              <Tag color={queue.isOpen ? "green" : "red"}>
-                {queue.isOpen ? "OPEN" : "CLOSED"}
-              </Tag>
-            </div>
+            </Text>
+            <Text type="secondary" style={{ fontSize: 14 }}>
+              Created: {formatDate(queue.creationDate)}
+            </Text>
+          </Space>
+          <Tag color={isDispatched ? "blue" : queue.isOpen ? "green" : "red"}>
+            {isDispatched ? "DISPATCHED" : queue.isOpen ? "OPEN" : "CLOSED"}
+          </Tag>
+        </div>
 
-            <div className={homeStyles.queueStats}>
-              <Statistic
-                title="Fare"
-                value={`ZAR ${queue.routeInfo?.fareAmount || 0}`}
-                valueStyle={{ fontSize: 16 }}
-              />
-              <Statistic
-                title="ETA"
-                value={queue.routeInfo?.estimatedTravelTime || 0}
-                suffix="hrs"
-                valueStyle={{ fontSize: 16 }}
-              />
-              <Statistic
-                title="In Queue"
-                value={queue.quedTaxis?.length || 0}
-                valueStyle={{ fontSize: 16 }}
-              />
-            </div>
+        <div className={homeStyles.queueStats}>
+          <Statistic
+            title="Fare"
+            value={`ZAR ${queue.routeInfo?.fareAmount || 0}`}
+            valueStyle={{ fontSize: 16 }}
+          />
+          <Statistic
+            title="ETA"
+            value={queue.routeInfo?.estimatedTravelTime || 0}
+            suffix="hrs"
+            valueStyle={{ fontSize: 16 }}
+          />
+          <Statistic
+            title="In Queue"
+            value={queue.quedTaxis?.length || 0}
+            valueStyle={{ fontSize: 16 }}
+          />
+        </div>
 
-            {amIInQueue && (
-              <Space direction="vertical" style={{ width: "100%" }}>
+        {(amIInQueue || isDispatched) && (
+          <Space direction="vertical" style={{ width: "100%" }}>
+            {!isDispatched && (
+              <>
                 <div className={homeStyles.queuePosition}>
                   <Text>
                     Position: {position} of {total}
@@ -315,41 +387,36 @@ const Home = () => {
                   showInfo={false}
                   strokeColor={{ from: "#108ee9", to: "#87d068" }}
                 />
-                <div className={homeStyles.queueActions}>
-                  {!isDispatched ? (
-                    <Button
-                      type="primary"
-                      disabled={!canDispatch || isDispatching}
-                      loading={isDispatching}
-                      onClick={() => handleDispatchTaxi(queue.id!)}
-                      icon={<ListOrdered size={16} />}
-                    >
-                      {canDispatch ? "Dispatch Now" : "Waiting"}
-                    </Button>
-                  ) : (
-                    <Button
-                      type="primary"
-                      icon={<Car size={16} />}
-                      onClick={() => showTripModal(queue)}
-                    >
-                      View Trip Details
-                    </Button>
-                  )}
-                </div>
-              </Space>
+              </>
             )}
-          </>
-        ) : (
-          <NavigationComponent
-            destination={{
-              lat: queue.routeInfo?.latitude ?? 0,
-              lng: queue.routeInfo?.longitude ?? 0,
-            }}
-          />
+            <div className={homeStyles.queueActions}>
+              {!isDispatched ? (
+                <Button
+                  type="primary"
+                  disabled={!canDispatch || isDispatching}
+                  loading={isDispatching}
+                  onClick={() => handleDispatchTaxi(queue.id!)}
+                  icon={<ListOrdered size={16} />}
+                >
+                  {canDispatch ? "Dispatch Now" : "Waiting"}
+                </Button>
+              ) : (
+                <Button
+                  type="primary"
+                  icon={<Car size={16} />}
+                  onClick={() => showTripModal(queue)}
+                >
+                  View Trip Details
+                </Button>
+              )}
+            </div>
+          </Space>
         )}
       </Card>
     );
   };
+
+  // No need for a separate function as we'll use the implementation directly in the JSX
 
   return (
     <div className={homeStyles.container}>
@@ -454,11 +521,33 @@ const Home = () => {
                   </Space>
                 }
               />
-            ) : getFilteredQueues(true).length > 0 ? (
-              getFilteredQueues(true).map(renderQueueCard)
+            ) : getActiveQueues().length > 0 ? (
+              getActiveQueues().map(renderQueueCard)
             ) : (
               <Empty
                 description="No active queues"
+                image={Empty.PRESENTED_IMAGE_SIMPLE}
+              />
+            )}
+          </TabPane>
+          
+          {/* Add the dispatched trips tab */}
+          <TabPane
+            tab={
+              <span>
+                <Badge status="processing" color="blue" />
+                Dispatched Trips {getDispatchedQueues().length > 0 && `(${getDispatchedQueues().length})`}
+              </span>
+            }
+            key="dispatched"
+          >
+            {isPending ? (
+              <Skeleton active />
+            ) : getDispatchedQueues().length > 0 ? (
+              getDispatchedQueues().map(renderQueueCard)
+            ) : (
+              <Empty
+                description="No dispatched trips"
                 image={Empty.PRESENTED_IMAGE_SIMPLE}
               />
             )}
@@ -475,8 +564,8 @@ const Home = () => {
           >
             {isPending ? (
               <Skeleton active />
-            ) : getFilteredQueues(false).length > 0 ? (
-              getFilteredQueues(false).map(renderQueueCard)
+            ) : getClosedQueues().length > 0 ? (
+              getClosedQueues().map(renderQueueCard)
             ) : (
               <Empty
                 description="No closed queues"
@@ -509,7 +598,12 @@ const Home = () => {
 
       {/* Trip Summary Modal */}
       <Modal
-        title="Trip Summary"
+        title={
+          <div className={homeStyles.modalTitle}>
+            <Car size={20} />
+            <span>Trip Details</span>
+          </div>
+        }
         open={isTripModalOpen}
         onCancel={handleTripModalCancel}
         footer={[
@@ -527,36 +621,54 @@ const Home = () => {
         ]}
       >
         {tripInfo && (
-          <Descriptions bordered column={1}>
-            <Descriptions.Item label="Origin">
-              {tripInfo.routeInfo.origin}
-            </Descriptions.Item>
+          <div>
+            <Card className={homeStyles.tripDetailsCard}>
+              <Descriptions bordered column={1}>
+                <Descriptions.Item label="Origin">
+                  {tripInfo.routeInfo.origin}
+                </Descriptions.Item>
 
-            <Descriptions.Item label="Destination">
-              {tripInfo.routeInfo.destination}
-            </Descriptions.Item>
+                <Descriptions.Item label="Destination">
+                  {tripInfo.routeInfo.destination}
+                </Descriptions.Item>
 
-            <Descriptions.Item label="Fare Amount">
-              ZAR {tripInfo.routeInfo.fareAmount.toFixed(2)}
-            </Descriptions.Item>
+                <Descriptions.Item label="Fare Amount">
+                  <Text strong style={{ color: "#52c41a" }}>
+                    ZAR {tripInfo.routeInfo.fareAmount.toFixed(2)}
+                  </Text>
+                </Descriptions.Item>
 
-            <Descriptions.Item label="Estimated Travel Time">
-              {tripInfo.routeInfo.estimatedTravelTime} hours
-            </Descriptions.Item>
+                <Descriptions.Item label="Estimated Travel Time">
+                  {tripInfo.routeInfo.estimatedTravelTime} hours
+                </Descriptions.Item>
 
-            <Descriptions.Item label="Coordinates">
-              Lat: {tripInfo.routeInfo.latitude}, Lng:{" "}
-              {tripInfo.routeInfo.longitude}
-            </Descriptions.Item>
-          </Descriptions>
+                <Descriptions.Item label="Coordinates">
+                  Lat: {tripInfo.routeInfo.latitude}, Lng:{" "}
+                  {tripInfo.routeInfo.longitude}
+                </Descriptions.Item>
+              </Descriptions>
+            </Card>
+          </div>
         )}
       </Modal>
+      
       {/* Navigation Modal */}
       <Modal
         title="Navigation"
         open={isNavigationModalOpen}
-        onCancel={() => setIsNavigationModalOpen(false)}
-        footer={null}
+        onCancel={() => {
+          setIsNavigationModalOpen(false);
+          // Don't reset drivingQueueId here to maintain state
+        }}
+        footer={[
+          <Button 
+            key="finish" 
+            type="primary" 
+            onClick={handleCompleteTrip}
+          >
+            Complete Trip
+          </Button>
+        ]}
         width={800}
       >
         {tripInfo && (

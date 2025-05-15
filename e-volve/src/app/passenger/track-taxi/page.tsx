@@ -17,12 +17,13 @@ import {
   Tag,
   Typography,
   Spin,
+  notification,
 } from "antd";
 import { useEffect, useState, useRef } from "react";
+import { startTaxiHubConnection, stopTaxiHubConnection } from "@/utils/signalr";
 import styles from "./styles/styles";
 
 const { Text } = Typography;
-const { Panel } = Collapse;
 const { Option } = Select;
 
 const containerStyle = {
@@ -34,6 +35,31 @@ const containerStyle = {
 
 const defaultCenter = { lat: -1.2921, lng: 36.8219 };
 
+// Define styles directly in the component for better organization
+// const styles = {
+//   pageContainer: {
+//     padding: "2rem",
+//     maxWidth: "1400px",
+//     margin: "0 auto",
+//     margintop:"-55px"
+//   },
+//   panelStyle: {
+//     marginBottom: "1rem",
+//     borderRadius: "8px",
+//     overflow: "hidden",
+//     background: "#213547",
+//   },
+//   taxiCard: {
+//     display: "flex",
+//     flexDirection: "column" as const,
+//     height: "100%",
+//     borderRadius: "8px",
+//     border: "1px solid #e8e8e8",
+//     transition: "all 0.3s",
+//     background: "#fff",
+//   },
+// };
+
 const TrackingPage = () => {
   const { getTaxis } = useTaxiActions();
   const { Taxis } = useTaxiState();
@@ -41,37 +67,121 @@ const TrackingPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [sortKey, setSortKey] = useState("route");
   const [showAllMap, setShowAllMap] = useState(false);
+  const [liveTaxis, setLiveTaxis] = useState<ITaxi[]>([]);
+  const [isRealTimeActive, setIsRealTimeActive] = useState(false);
 
   const { isLoaded } = useJsApiLoader({
-    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY!,
+    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "",
   });
+  
   const mapRef = useRef<google.maps.Map | null>(null);
 
   const onMapLoad = (map: google.maps.Map) => {
     mapRef.current = map;
-    const bounds = new window.google.maps.LatLngBounds();
-    filteredTaxis.forEach((taxi) => {
-      const lat = Number(taxi.latitude);
-      const lng = Number(taxi.longitude);
-      if (!isNaN(lat) && !isNaN(lng)) {
-        bounds.extend({ lat, lng });
+    
+    // Use liveTaxis if in real-time mode, otherwise use filteredTaxis
+    const taxisToShow = isRealTimeActive && showAllMap ? liveTaxis : filteredTaxis;
+    
+    if (taxisToShow.length > 0) {
+      const bounds = new window.google.maps.LatLngBounds();
+      let hasValidCoordinates = false;
+      
+      taxisToShow.forEach((taxi) => {
+        const lat = Number(taxi.latitude);
+        const lng = Number(taxi.longitude);
+        if (!isNaN(lat) && !isNaN(lng)) {
+          bounds.extend({ lat, lng });
+          hasValidCoordinates = true;
+        }
+      });
+      
+      if (hasValidCoordinates) {
+        map.fitBounds(bounds);
       }
-    });
-    if (!bounds.isEmpty()) {
-      map.fitBounds(bounds);
     }
   };
+
   useEffect(() => {
     getTaxis();
-  }, []);
+    
+    // Handle single taxi updates (for individual tracking)
+    const handleTaxiUpdate = (updatedTaxi: ITaxi) => {
+      console.log("Individual taxi updated:", updatedTaxi);
+      
+      // If we're tracking a specific taxi and it matches, update selected taxi
+      if (selectedTaxi && updatedTaxi.id === selectedTaxi.id) {
+        setSelectedTaxi(updatedTaxi);
+      }
+      
+      // Update the taxi in our liveTaxis array too
+      setLiveTaxis(prev => {
+        const index = prev.findIndex(t => t.id === updatedTaxi.id);
+        if (index >= 0) {
+          const newTaxis = [...prev];
+          newTaxis[index] = updatedTaxi;
+          return newTaxis;
+        } else {
+          return [...prev, updatedTaxi];
+        }
+      });
+    };
+    
+    // Handle bulk taxi updates (for "Show All" mode)
+    const handleTaxiListUpdate = (updatedTaxis: ITaxi[]) => {
+      console.log("All taxis updated:", updatedTaxis);
+      setLiveTaxis(updatedTaxis);
+      
+      // If we're tracking a specific taxi, update its data too
+      if (selectedTaxi) {
+        const updatedSelectedTaxi = updatedTaxis.find(t => t.id === selectedTaxi.id);
+        if (updatedSelectedTaxi) {
+          setSelectedTaxi(updatedSelectedTaxi);
+        }
+      }
+      
+      if (isRealTimeActive && showAllMap) {
+        notification.success({
+          message: "Live Taxi Data Updated",
+          description: `Updated positions for ${updatedTaxis.length} taxis`,
+          placement: "bottomRight",
+          duration: 3,
+        });
+      }
+    };
+    
+    // Start SignalR connection with both handlers
+    startTaxiHubConnection(handleTaxiUpdate, handleTaxiListUpdate);
+    
+    return () => {
+      stopTaxiHubConnection();
+    };
+  }, [selectedTaxi, isRealTimeActive, showAllMap]);
 
-  const filteredTaxis = (Taxis || [])
+  // Initialize liveTaxis with the fetched Taxis data
+  useEffect(() => {
+    if (Taxis && Taxis.length > 0) {
+      setLiveTaxis(Taxis);
+    }
+  }, [Taxis]);
+
+  // Handle toggling real-time updates
+  const toggleRealTimeUpdates = (checked: boolean) => {
+    setIsRealTimeActive(checked);
+    if (checked) {
+      notification.info({
+        message: "Real-time Updates Activated",
+        description: "You will now see live updates for taxi positions.",
+        placement: "topRight",
+      });
+    }
+  };
+
+  const filteredTaxis = (isRealTimeActive && showAllMap ? liveTaxis : Taxis || [])
     .filter(
       (taxi) =>
-        taxi.registrationNumber
-          .toLowerCase()
+        taxi.registrationNumber?.toLowerCase()
           .includes(searchTerm.toLowerCase()) ||
-        taxi.driverFullName.toLowerCase().includes(searchTerm.toLowerCase())
+        taxi.driverFullName?.toLowerCase().includes(searchTerm.toLowerCase())
     )
     .sort((a, b) => {
       if (sortKey === "availability")
@@ -91,18 +201,10 @@ const TrackingPage = () => {
     {}
   );
 
-  if (!isLoaded) {
-    return (
-      <div style={{ padding: "4rem", textAlign: "center" }}>
-        <Spin tip="Loading Maps..." size="large" />
-      </div>
-    );
-  }
-
   return (
     <div style={styles.pageContainer}>
       <Row gutter={[16, 16]} style={{ marginBottom: "1rem" }}>
-        <Col xs={24} md={10}>
+        <Col xs={24} md={8}>
           <Input.Search
             placeholder="Search taxi or driver..."
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -110,7 +212,7 @@ const TrackingPage = () => {
             style={{ width: "100%" }}
           />
         </Col>
-        <Col xs={12} md={6}>
+        <Col xs={12} md={4}>
           <Select
             value={sortKey}
             onChange={(value) => setSortKey(value)}
@@ -122,11 +224,10 @@ const TrackingPage = () => {
         </Col>
         <Col
           xs={12}
-          md={8}
+          md={6}
           style={{
             display: "flex",
             alignItems: "center",
-            justifyContent: "end",
           }}
         >
           <Switch
@@ -134,8 +235,26 @@ const TrackingPage = () => {
             onChange={setShowAllMap}
             style={{ marginRight: 8 }}
           />
-          <Text>
+          <Text style={{ marginRight: 16 }}>
             <GlobalOutlined /> Show All on Map
+          </Text>
+        </Col>
+        <Col
+          xs={12}
+          md={6}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "end",
+          }}
+        >
+          <Switch
+            checked={isRealTimeActive}
+            onChange={toggleRealTimeUpdates}
+            style={{ marginRight: 8 }}
+          />
+          <Text>
+            <span style={{ color: isRealTimeActive ? "#52c41a" : "#999" }}>●</span> Real-time Updates
           </Text>
         </Col>
       </Row>
@@ -144,53 +263,63 @@ const TrackingPage = () => {
         <div
           style={{ marginBottom: "2rem", overflow: "hidden", borderRadius: 12 }}
         >
-          <GoogleMap
-            mapContainerStyle={containerStyle}
-            center={defaultCenter}
-            zoom={13}
-            onLoad={onMapLoad}
-            options={{
-              fullscreenControl: false,
-              streetViewControl: false,
-              mapTypeControl: false,
-            }}
-          >
-            {filteredTaxis.map((taxi) => {
-              const lat = Number(taxi.latitude);
-              const lng = Number(taxi.longitude);
-              const isValid = !isNaN(lat) && !isNaN(lng);
+          {isLoaded ? (
+            <GoogleMap
+              mapContainerStyle={containerStyle}
+              center={defaultCenter}
+              zoom={13}
+              onLoad={onMapLoad}
+              options={{
+                fullscreenControl: false,
+                streetViewControl: false,
+                mapTypeControl: false,
+              }}
+            >
+              {filteredTaxis.map((taxi) => {
+                const lat = Number(taxi.latitude);
+                const lng = Number(taxi.longitude);
+                const isValid = !isNaN(lat) && !isNaN(lng);
 
-              return (
-                isValid && (
-                  <Marker
-                    key={taxi.id}
-                    position={{ lat, lng }}
-                    icon={{
-                      url: "/images/bus.png", // fallback to default if needed
-                      scaledSize: new window.google.maps.Size(35, 35),
-                    }}
-                  />
-                )
-              );
-            })}
-          </GoogleMap>
+                return (
+                  isValid && (
+                    <Marker
+                      key={taxi.id}
+                      position={{ lat, lng }}
+                      icon={{
+                        url: "/images/bus.png",
+                        scaledSize: new window.google.maps.Size(35, 35),
+                      }}
+                      onClick={() => setSelectedTaxi(taxi)}
+                    />
+                  )
+                );
+              })}
+            </GoogleMap>
+          ) : (
+            <div style={{ 
+              height: "500px", 
+              display: "flex", 
+              justifyContent: "center", 
+              alignItems: "center",
+              backgroundColor: "#f5f5f5",
+              borderRadius: "12px"
+            }}>
+              <Spin tip="Loading map..." />
+            </div>
+          )}
         </div>
       )}
 
       <Row gutter={[24, 24]}>
         <Col xs={24} md={selectedTaxi && !showAllMap ? 12 : 24}>
           {filteredTaxis.length > 0 ? (
-            <Collapse accordion>
-              {Object.entries(taxisGroupedByRoute).map(([route, taxis]) => (
-                <Panel
-                  header={
-                    <Text strong style={{ color: "#fff" }}>
-                      Route: {route}
-                    </Text>
-                  }
-                  key={route}
-                  style={styles.panelStyle}
-                >
+            <Collapse
+              accordion
+              items={Object.entries(taxisGroupedByRoute).map(([route, taxis]) => ({
+                key: route,
+                label: <Text strong style={{ color: "#fff" }}>Route: {route}</Text>,
+                style: styles.panelStyle,
+                children: (
                   <Row gutter={[16, 16]}>
                     {taxis.map((taxi) => (
                       <Col xs={24} sm={12} key={taxi.id}>
@@ -239,9 +368,9 @@ const TrackingPage = () => {
                       </Col>
                     ))}
                   </Row>
-                </Panel>
-              ))}
-            </Collapse>
+                ),
+              }))}
+            />
           ) : (
             <Empty description="No taxis found" />
           )}
