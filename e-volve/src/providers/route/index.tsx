@@ -1,5 +1,9 @@
 import { getAxiosInstace } from "@/utils/axios-instance";
-import { INITIAL_STATE, RouteActionContext, RouteStateContext } from "./context";
+import {
+  INITIAL_STATE,
+  RouteActionContext,
+  RouteStateContext,
+} from "./context";
 import { IRoute } from "../interfaces";
 import { RouteReducer } from "./reducer";
 import { useContext, useReducer } from "react";
@@ -21,7 +25,6 @@ import {
   deleteRouteError,
 } from "./actions";
 
-
 export const RouteProvider = ({ children }: { children: React.ReactNode }) => {
   const [state, dispatch] = useReducer(RouteReducer, INITIAL_STATE);
   const instance = getAxiosInstace();
@@ -34,7 +37,6 @@ export const RouteProvider = ({ children }: { children: React.ReactNode }) => {
       .get(endpoint)
       .then((response) => {
         dispatch(getRoutesSuccess(response.data.result.items));
-        console.log("routes",response.data.result.items)
       })
       .catch((error) => {
         console.error(error);

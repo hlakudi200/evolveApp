@@ -73,19 +73,20 @@ const TrackingPage = () => {
   const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "",
   });
-  
+
   const mapRef = useRef<google.maps.Map | null>(null);
 
   const onMapLoad = (map: google.maps.Map) => {
     mapRef.current = map;
-    
+
     // Use liveTaxis if in real-time mode, otherwise use filteredTaxis
-    const taxisToShow = isRealTimeActive && showAllMap ? liveTaxis : filteredTaxis;
-    
+    const taxisToShow =
+      isRealTimeActive && showAllMap ? liveTaxis : filteredTaxis;
+
     if (taxisToShow.length > 0) {
       const bounds = new window.google.maps.LatLngBounds();
       let hasValidCoordinates = false;
-      
+
       taxisToShow.forEach((taxi) => {
         const lat = Number(taxi.latitude);
         const lng = Number(taxi.longitude);
@@ -94,7 +95,7 @@ const TrackingPage = () => {
           hasValidCoordinates = true;
         }
       });
-      
+
       if (hasValidCoordinates) {
         map.fitBounds(bounds);
       }
@@ -103,19 +104,17 @@ const TrackingPage = () => {
 
   useEffect(() => {
     getTaxis();
-    
+
     // Handle single taxi updates (for individual tracking)
     const handleTaxiUpdate = (updatedTaxi: ITaxi) => {
-      console.log("Individual taxi updated:", updatedTaxi);
-      
       // If we're tracking a specific taxi and it matches, update selected taxi
       if (selectedTaxi && updatedTaxi.id === selectedTaxi.id) {
         setSelectedTaxi(updatedTaxi);
       }
-      
+
       // Update the taxi in our liveTaxis array too
-      setLiveTaxis(prev => {
-        const index = prev.findIndex(t => t.id === updatedTaxi.id);
+      setLiveTaxis((prev) => {
+        const index = prev.findIndex((t) => t.id === updatedTaxi.id);
         if (index >= 0) {
           const newTaxis = [...prev];
           newTaxis[index] = updatedTaxi;
@@ -125,20 +124,21 @@ const TrackingPage = () => {
         }
       });
     };
-    
+
     // Handle bulk taxi updates (for "Show All" mode)
     const handleTaxiListUpdate = (updatedTaxis: ITaxi[]) => {
-      console.log("All taxis updated:", updatedTaxis);
       setLiveTaxis(updatedTaxis);
-      
+
       // If we're tracking a specific taxi, update its data too
       if (selectedTaxi) {
-        const updatedSelectedTaxi = updatedTaxis.find(t => t.id === selectedTaxi.id);
+        const updatedSelectedTaxi = updatedTaxis.find(
+          (t) => t.id === selectedTaxi.id
+        );
         if (updatedSelectedTaxi) {
           setSelectedTaxi(updatedSelectedTaxi);
         }
       }
-      
+
       if (isRealTimeActive && showAllMap) {
         notification.success({
           message: "Live Taxi Data Updated",
@@ -148,10 +148,10 @@ const TrackingPage = () => {
         });
       }
     };
-    
+
     // Start SignalR connection with both handlers
     startTaxiHubConnection(handleTaxiUpdate, handleTaxiListUpdate);
-    
+
     return () => {
       stopTaxiHubConnection();
     };
@@ -176,10 +176,13 @@ const TrackingPage = () => {
     }
   };
 
-  const filteredTaxis = (isRealTimeActive && showAllMap ? liveTaxis : Taxis || [])
+  const filteredTaxis = (
+    isRealTimeActive && showAllMap ? liveTaxis : Taxis || []
+  )
     .filter(
       (taxi) =>
-        taxi.registrationNumber?.toLowerCase()
+        taxi.registrationNumber
+          ?.toLowerCase()
           .includes(searchTerm.toLowerCase()) ||
         taxi.driverFullName?.toLowerCase().includes(searchTerm.toLowerCase())
     )
@@ -254,7 +257,10 @@ const TrackingPage = () => {
             style={{ marginRight: 8 }}
           />
           <Text>
-            <span style={{ color: isRealTimeActive ? "#52c41a" : "#999" }}>●</span> Real-time Updates
+            <span style={{ color: isRealTimeActive ? "#52c41a" : "#999" }}>
+              ●
+            </span>{" "}
+            Real-time Updates
           </Text>
         </Col>
       </Row>
@@ -296,14 +302,16 @@ const TrackingPage = () => {
               })}
             </GoogleMap>
           ) : (
-            <div style={{ 
-              height: "500px", 
-              display: "flex", 
-              justifyContent: "center", 
-              alignItems: "center",
-              backgroundColor: "#f5f5f5",
-              borderRadius: "12px"
-            }}>
+            <div
+              style={{
+                height: "500px",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                backgroundColor: "#f5f5f5",
+                borderRadius: "12px",
+              }}
+            >
               <Spin tip="Loading map..." />
             </div>
           )}
@@ -315,61 +323,67 @@ const TrackingPage = () => {
           {filteredTaxis.length > 0 ? (
             <Collapse
               accordion
-              items={Object.entries(taxisGroupedByRoute).map(([route, taxis]) => ({
-                key: route,
-                label: <Text strong style={{ color: "#fff" }}>Route: {route}</Text>,
-                style: styles.panelStyle,
-                children: (
-                  <Row gutter={[16, 16]}>
-                    {taxis.map((taxi) => (
-                      <Col xs={24} sm={12} key={taxi.id}>
-                        <Card
-                          hoverable
-                          onClick={() => setSelectedTaxi(taxi)}
-                          style={styles.taxiCard}
-                        >
-                          <div
-                            style={{
-                              display: "flex",
-                              alignItems: "center",
-                              gap: "10px",
-                            }}
+              items={Object.entries(taxisGroupedByRoute).map(
+                ([route, taxis]) => ({
+                  key: route,
+                  label: (
+                    <Text strong style={{ color: "#fff" }}>
+                      Route: {route}
+                    </Text>
+                  ),
+                  style: styles.panelStyle,
+                  children: (
+                    <Row gutter={[16, 16]}>
+                      {taxis.map((taxi) => (
+                        <Col xs={24} sm={12} key={taxi.id}>
+                          <Card
+                            hoverable
+                            onClick={() => setSelectedTaxi(taxi)}
+                            style={styles.taxiCard}
                           >
-                            <CarOutlined
-                              style={{ fontSize: 24, color: "#000" }}
-                            />
-                            <Text strong>{taxi.registrationNumber}</Text>
-                          </div>
-                          <Text type="secondary">
-                            Driver: {taxi.driverFullName}
-                          </Text>
-                          <Text type="secondary">
-                            Capacity: {taxi.passengerCapacity}
-                          </Text>
-                          <Tag
-                            color={taxi.isFull ? "red" : "green"}
-                            style={{ marginTop: "8px" }}
-                          >
-                            {taxi.isFull ? "Full" : "Available"}
-                          </Tag>
-                          <Button
-                            type="primary"
-                            block
-                            icon={<AimOutlined />}
-                            style={{
-                              marginTop: 10,
-                              background: "#000",
-                              color: "#fff",
-                            }}
-                          >
-                            Track
-                          </Button>
-                        </Card>
-                      </Col>
-                    ))}
-                  </Row>
-                ),
-              }))}
+                            <div
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "10px",
+                              }}
+                            >
+                              <CarOutlined
+                                style={{ fontSize: 24, color: "#000" }}
+                              />
+                              <Text strong>{taxi.registrationNumber}</Text>
+                            </div>
+                            <Text type="secondary">
+                              Driver: {taxi.driverFullName}
+                            </Text>
+                            <Text type="secondary">
+                              Capacity: {taxi.passengerCapacity}
+                            </Text>
+                            <Tag
+                              color={taxi.isFull ? "red" : "green"}
+                              style={{ marginTop: "8px" }}
+                            >
+                              {taxi.isFull ? "Full" : "Available"}
+                            </Tag>
+                            <Button
+                              type="primary"
+                              block
+                              icon={<AimOutlined />}
+                              style={{
+                                marginTop: 10,
+                                background: "#000",
+                                color: "#fff",
+                              }}
+                            >
+                              Track
+                            </Button>
+                          </Card>
+                        </Col>
+                      ))}
+                    </Row>
+                  ),
+                })
+              )}
             />
           ) : (
             <Empty description="No taxis found" />

@@ -25,7 +25,11 @@ import {
   deleteFacilityError,
 } from "./actions";
 
-export const FacilityProvider = ({ children }: { children: React.ReactNode }) => {
+export const FacilityProvider = ({
+  children,
+}: {
+  children: React.ReactNode;
+}) => {
   const [state, dispatch] = useReducer(FacilityReducer, INITIAL_STATE);
   const instance = getAxiosInstace();
 
@@ -60,7 +64,6 @@ export const FacilityProvider = ({ children }: { children: React.ReactNode }) =>
   const createFacility = async (Facility: IFacility) => {
     dispatch(createFacilityPending());
     const endpoint = `/api/services/app/Facility/Create`;
-    console.log("Facility:",Facility)
     await instance
       .post(endpoint, Facility)
       .then((response) => {
@@ -128,7 +131,9 @@ export const useFacilityState = () => {
 export const useFacilityActions = () => {
   const context = useContext(FacilityActionContext);
   if (!context) {
-    throw new Error("useFacilityActions must be used within a FacilityProvider");
+    throw new Error(
+      "useFacilityActions must be used within a FacilityProvider"
+    );
   }
   return context;
 };

@@ -1,4 +1,3 @@
-
 "use client";
 import { GoogleMap, Marker, useJsApiLoader } from "@react-google-maps/api";
 import { Card, Col, Descriptions, Row, Spin, Tag, Typography } from "antd";
@@ -26,16 +25,14 @@ const TrackTaxi: React.FC<TrackTaxiProps> = ({ taxiId }) => {
   const [liveTaxis, setLiveTaxis] = useState<ITaxi[]>([]);
   const [center, setCenter] = useState({ lat: -1.2921, lng: 36.8219 });
 
-  const { isLoaded, loadError } = useJsApiLoader({
+  const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "",
   });
-
-  console.log("Map loader status:", { isLoaded, loadError });
 
   // Initialize from the existing Taxis state
   useEffect(() => {
     if (Taxis && Taxis.length > 0) {
-      const currentTaxi = Taxis.find(t => t.id === taxiId);
+      const currentTaxi = Taxis.find((t) => t.id === taxiId);
       if (currentTaxi) {
         setTaxi(currentTaxi);
         if (
@@ -55,11 +52,9 @@ const TrackTaxi: React.FC<TrackTaxiProps> = ({ taxiId }) => {
   useEffect(() => {
     // Handle individual taxi updates
     const handleTaxiUpdate = (updatedTaxi: ITaxi) => {
-      console.log("Received taxi update:", updatedTaxi);
-      
       // Update liveTaxis array
-      setLiveTaxis(prev => {
-        const index = prev.findIndex(t => t.id === updatedTaxi.id);
+      setLiveTaxis((prev) => {
+        const index = prev.findIndex((t) => t.id === updatedTaxi.id);
         if (index >= 0) {
           const newTaxis = [...prev];
           newTaxis[index] = updatedTaxi;
@@ -68,12 +63,11 @@ const TrackTaxi: React.FC<TrackTaxiProps> = ({ taxiId }) => {
           return [...prev, updatedTaxi];
         }
       });
-      
+
       // If this is the taxi we're tracking, update it specifically
       if (updatedTaxi.id === taxiId) {
-        console.log("✅ Tracked taxi updated:", updatedTaxi);
         setTaxi(updatedTaxi);
-        
+
         if (
           !isNaN(Number(updatedTaxi.latitude)) &&
           !isNaN(Number(updatedTaxi.longitude))
@@ -88,14 +82,13 @@ const TrackTaxi: React.FC<TrackTaxiProps> = ({ taxiId }) => {
 
     // Handle bulk taxi updates
     const handleTaxiListUpdate = (updatedTaxis: ITaxi[]) => {
-      console.log("All taxis updated:", updatedTaxis);
       setLiveTaxis(updatedTaxis);
-      
+
       // Find and update the taxi we're tracking
-      const updatedTrackedTaxi = updatedTaxis.find(t => t.id === taxiId);
+      const updatedTrackedTaxi = updatedTaxis.find((t) => t.id === taxiId);
       if (updatedTrackedTaxi) {
         setTaxi(updatedTrackedTaxi);
-        
+
         if (
           !isNaN(Number(updatedTrackedTaxi.latitude)) &&
           !isNaN(Number(updatedTrackedTaxi.longitude))
@@ -125,7 +118,7 @@ const TrackTaxi: React.FC<TrackTaxiProps> = ({ taxiId }) => {
   }
 
   // Check if taxi exists in liveTaxis array (real-time data)
-  const currentTaxi = taxi || liveTaxis.find(t => t.id === taxiId);
+  const currentTaxi = taxi || liveTaxis.find((t) => t.id === taxiId);
 
   // If taxi data is not loaded yet, show loading spinner
   if (!currentTaxi) {
@@ -222,14 +215,16 @@ const TrackTaxi: React.FC<TrackTaxiProps> = ({ taxiId }) => {
                 />
               </GoogleMap>
             ) : (
-              <div style={{ 
-                height: "400px", 
-                display: "flex", 
-                justifyContent: "center", 
-                alignItems: "center",
-                backgroundColor: "#f5f5f5",
-                borderRadius: "16px"
-              }}>
+              <div
+                style={{
+                  height: "400px",
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  backgroundColor: "#f5f5f5",
+                  borderRadius: "16px",
+                }}
+              >
                 <Spin tip="Loading map..." />
               </div>
             )}

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useLaneActions, useLaneState } from "@/providers/lane";
 import {
   Card,
@@ -36,9 +36,25 @@ const PassengerHome = () => {
   const { getLanes } = useLaneActions();
   const { Lanes, isError, isPending } = useLaneState();
   const [selectedRoute, setSelectedRoute] = useState<string | null>(null);
+  const didAgentLoaded = useRef(false);
 
   useEffect(() => {
     getLanes();
+    
+    // Load D-ID Agent script if it hasn't been loaded yet
+    if (!didAgentLoaded.current) {
+      const script = document.createElement('script');
+      script.type = 'module';
+      script.src = 'https://agent.d-id.com/v1/index.js';
+      script.setAttribute('data-name', 'did-agent');
+      script.setAttribute('data-mode', 'fabio');
+      script.setAttribute('data-client-key', 'Z29vZ2xlLW9hdXRoMnwxMDM4OTgwNzExMzg1Njc5Mzg1MTE6dHc5cGVubUlTSzliUEVRT05wa0Uy');
+      script.setAttribute('data-agent-id', 'agt_mENJd84P');
+      script.setAttribute('data-monitor', 'true');
+      
+      document.body.appendChild(script);
+      didAgentLoaded.current = true;
+    }
   }, []);
 
   if (isPending) {
@@ -320,6 +336,9 @@ const PassengerHome = () => {
           )}
         </Col>
       </Row>
+      
+      {/* This div is a placeholder for the D-ID Agent UI to appear */}
+      <div id="did-agent-container"></div>
     </div>
   );
 };

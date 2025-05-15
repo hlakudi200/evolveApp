@@ -65,8 +65,6 @@ const CreateDriverForm = ({ onClose }: { onClose: () => void }) => {
 
       const finalDriverData = { ...allValues, fullName };
 
-      console.log("Final driver data:", finalDriverData);
-
       await createDriver(finalDriverData);
       getDrivers();
 

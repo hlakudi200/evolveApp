@@ -32,7 +32,7 @@ const SignIn = () => {
       };
       await loginUser(loginData);
     } catch (error) {
-      console.log(error);
+      console.error(error);
       Toast("An error occurred during sign in, please try again", "error");
       setIsLoading(false);
     }
@@ -48,7 +48,6 @@ const SignIn = () => {
     if (isSuccess) {
       resetStateFlags();
       setTimeout(() => {
-        console.log(currentRole);
         switch (currentRole) {
           case "driver":
             router.push("/driver");
@@ -59,7 +58,7 @@ const SignIn = () => {
           case "passenger":
             router.push("/passenger");
             break;
-          default :
+          default:
             router.push("/auth/login");
             break;
         }
