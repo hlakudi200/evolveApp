@@ -67,17 +67,37 @@ namespace evolve.Web.Host.Startup
             services.Configure<SmtpSettings>(_appConfiguration.GetSection("SmtpSettings"));
             var paymentConfig = _appConfiguration.GetSection("Payment").Get<PaymentConfiguration>();
             services.AddSingleton(paymentConfig);
-            // Configure CORS
-            services.AddCors(options => options.AddPolicy(
-                _defaultCorsPolicyName,
-                builder => builder.WithOrigins(
-                    _appConfiguration["App:CorsOrigins"]
-                        .Split(",", StringSplitOptions.RemoveEmptyEntries)
-                        .Select(o => o.Trim().TrimEnd('/')) // safer for deployment
-                        .ToArray())
-                    .AllowAnyHeader()
-                    .AllowAnyMethod()
-                    .AllowCredentials()));
+
+            // Configure CORS - MODIFIED TO FIX PRODUCTION ISSUE
+            services.AddCors(options => {
+                options.AddPolicy(
+                    _defaultCorsPolicyName,
+                    builder => {
+                        // Get origins from configuration
+                        var corsOrigins = _appConfiguration["App:CorsOrigins"]
+                            .Split(",", StringSplitOptions.RemoveEmptyEntries)
+                            .Select(o => o.Trim().TrimEnd('/'))
+                            .ToList();
+
+                        // Explicitly add the Vercel production domain
+                        if (!corsOrigins.Contains("https://evolve-app-green.vercel.app"))
+                        {
+                            corsOrigins.Add("https://evolve-app-green.vercel.app");
+                        }
+
+                        // Also add the Render domain where your backend is hosted
+                        if (!corsOrigins.Contains("https://evolveapp.onrender.com"))
+                        {
+                            corsOrigins.Add("https://evolveapp.onrender.com");
+                        }
+
+                        builder
+                            .WithOrigins(corsOrigins.ToArray())
+                            .AllowAnyHeader()
+                            .AllowAnyMethod()
+                            .AllowCredentials();
+                    });
+            });
 
             // Swagger setup
             ConfigureSwagger(services);
@@ -95,7 +115,10 @@ namespace evolve.Web.Host.Startup
         {
             // Use ABP and configure other middleware
             app.UseAbp(options => { options.UseAbpRequestLocalization = false; });
+
+            // IMPORTANT: Apply CORS before other middleware
             app.UseCors(_defaultCorsPolicyName);
+
             app.UseStaticFiles();
             app.UseRouting();
             app.UseAuthentication();
