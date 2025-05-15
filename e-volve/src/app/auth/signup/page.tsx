@@ -7,9 +7,9 @@ import {
   IdcardOutlined,
 } from "@ant-design/icons";
 import Link from "next/link";
-import React, {useState } from "react";
+import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useAuthActions} from "@/providers/auth";
+import { useAuthActions } from "@/providers/auth";
 import { IUser } from "@/providers/auth/context";
 import { Toast } from "@/providers/toast/toast";
 import { motion } from "framer-motion";
@@ -54,7 +54,10 @@ const SignUp = () => {
       }
 
       if (!isStrongPassword(values.password)) {
-        Toast("Password must contain an uppercase letter, a number, and a special character", "error");
+        Toast(
+          "Password must contain an uppercase letter, a number, and a special character",
+          "error"
+        );
         setLoading(false);
         return;
       }
@@ -127,15 +130,6 @@ const SignUp = () => {
         animate={{ x: 0, opacity: 1 }}
         transition={{ duration: 0.8, ease: "easeOut" }}
       >
-        <motion.div
-          className={styles.logoContainer}
-          initial={{ y: -20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.3, duration: 0.5 }}
-        >
-          <img src="/images/hrlogo.png" alt="logo" className={styles.logo} />
-        </motion.div>
-
         <motion.div
           className={styles.formContainer}
           initial={{ y: 30, opacity: 0 }}
