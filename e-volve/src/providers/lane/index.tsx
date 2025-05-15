@@ -56,12 +56,8 @@ export const LaneProvider = ({ children }: { children: React.ReactNode }) => {
     const endpoint = `api/services/app/Que/AddTaxiToQue?queId=${queId}&taxiId=${taxiId}`;
     await instance
       .post(endpoint)
-      .then((response) => {
-        if(response.data==200){
-          console.log("Sucess:",response.data.result)
-        }
+      .then(() => {
         dispatch(addTaxiToQueSuccess());
-       
       })
       .catch((error) => {
         console.error(error);
@@ -86,7 +82,6 @@ export const LaneProvider = ({ children }: { children: React.ReactNode }) => {
   const createLane = async (Lane: ILane) => {
     dispatch(createLanePending());
     const endpoint = `/api/services/app/Lane/Create`;
-    console.log("Lane:", Lane);
     await instance
       .post(endpoint, Lane)
       .then((response) => {
@@ -133,7 +128,6 @@ export const LaneProvider = ({ children }: { children: React.ReactNode }) => {
       .get(endpoint)
       .then((response) => {
         dispatch(getQuesByTaxiIdSuccess(response.data.result));
-        console.log(response.data.result);
       })
       .catch((error) => {
         console.error(error);
@@ -141,7 +135,7 @@ export const LaneProvider = ({ children }: { children: React.ReactNode }) => {
       });
   };
 
-  const markTaxiAsArrived = async (taxiId: string|undefined) => {
+  const markTaxiAsArrived = async (taxiId: string | undefined) => {
     dispatch(markTaxiAsArrivedPending());
     const endpoint = `/api/services/app/Que/MarkTaxiAsArrived?taxiId=${taxiId}`;
     await instance
@@ -154,7 +148,10 @@ export const LaneProvider = ({ children }: { children: React.ReactNode }) => {
         dispatch(markTaxiAsArrivedError());
       });
   };
-  const dispatchTaxiFromQue = async (queid:string|undefined,taxiId:string|undefined) => {
+  const dispatchTaxiFromQue = async (
+    queid: string | undefined,
+    taxiId: string | undefined
+  ) => {
     dispatch(dispatchTaxiPending());
     const endpoint = `/api/services/app/Que/DispatchTaxiFromQue?queId=${queid}&taxiId=${taxiId}`;
     await instance

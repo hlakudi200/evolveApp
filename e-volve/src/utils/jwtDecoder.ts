@@ -38,15 +38,14 @@ export const decodeToken = (accessToken: string): IDecodedToken => {
 };
 
 export const getRole = (accessToken: string): string => {
-  console.log("accessToken",accessToken)
+
   if (accessToken) {
     const decoded = decodeToken(accessToken);
     return `${decoded[AbpTokenProperies.role]}`.toLocaleLowerCase();
   }
   return "provider";
 };
-export const getId = (token:string): string => {
-  console.log("Token",token )
+export const getId = (token: string): string => {
   if (token) {
     const decoded = decodeToken(token);
     return `${decoded[AbpTokenProperies.nameidentifier]}`.toLocaleLowerCase();

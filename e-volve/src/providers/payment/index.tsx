@@ -58,7 +58,6 @@ export const PaymentProvider = ({
       .get(endpoint)
       .then((response) => {
         dispatch(getPaymentSuccess(response.data.result));
-        console.log("PaymentData", response.data.result);
       })
       .catch((error) => {
         console.error(error);
@@ -69,7 +68,7 @@ export const PaymentProvider = ({
   const createPayment = async (Payment: IPayment) => {
     dispatch(createPaymentPending());
     const endpoint = `/api/services/app/Payment/Create`;
-    console.log("Payment:", Payment);
+
     await instance
       .post(endpoint, Payment)
       .then((response) => {
@@ -119,7 +118,6 @@ export const PaymentProvider = ({
       .post(endpoint, request)
       .then((response) => {
         dispatch(yocoCheckOutSuccess(response.data.result));
-        console.log((response.data.result))
       })
       .catch((err) => {
         console.error(err);

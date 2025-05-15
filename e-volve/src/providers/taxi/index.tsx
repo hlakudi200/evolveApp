@@ -27,7 +27,6 @@ import {
   updateTaxiRealtimeError,
 } from "./actions";
 
-
 export const TaxiProvider = ({ children }: { children: React.ReactNode }) => {
   const [state, dispatch] = useReducer(TaxiReducer, INITIAL_STATE);
   const instance = getAxiosInstace();
@@ -39,7 +38,6 @@ export const TaxiProvider = ({ children }: { children: React.ReactNode }) => {
       .get(endpoint)
       .then((response) => {
         dispatch(getTaxisSuccess(response.data.result));
-        console.log("taxi:",response.data.result)
       })
       .catch((error) => {
         console.error(error);
@@ -117,7 +115,7 @@ export const TaxiProvider = ({ children }: { children: React.ReactNode }) => {
       });
   };
 
-  const getTaxiByDriverId=async(driverId:string|undefined)=>{
+  const getTaxiByDriverId = async (driverId: string | undefined) => {
     dispatch(getTaxiByDriverIdPending());
     const endpoint = `api/services/app/Taxi/GetTaxiByDriverId?driverId=${driverId}`;
     await instance
@@ -129,8 +127,7 @@ export const TaxiProvider = ({ children }: { children: React.ReactNode }) => {
         console.error(error);
         dispatch(getTaxiByDriverIdError());
       });
-  }
-  
+  };
 
   return (
     <TaxiStateContext.Provider value={state}>
@@ -142,7 +139,7 @@ export const TaxiProvider = ({ children }: { children: React.ReactNode }) => {
           createTaxi,
           updateTaxi,
           deleteTaxi,
-          getTaxiByDriverId
+          getTaxiByDriverId,
         }}
       >
         {children}
