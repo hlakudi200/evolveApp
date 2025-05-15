@@ -63,11 +63,6 @@ const Passenger = ({ children }: { children: React.ReactNode }) => {
       key: "/passenger/track-taxi",
       icon: <CarFilled />,
     },
-    {
-      label: "Profile",
-      key: "/passenger/profile",
-      icon: <UserOutlined />,
-    },
   ];
 
   return (
