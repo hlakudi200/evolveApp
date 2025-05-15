@@ -25,7 +25,7 @@ const TrackTaxi: React.FC<TrackTaxiProps> = ({ taxiId }) => {
   const [liveTaxis, setLiveTaxis] = useState<ITaxi[]>([]);
   const [center, setCenter] = useState({ lat: -1.2921, lng: 36.8219 });
 
-  const { isLoaded, loadError } = useJsApiLoader({
+  const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "",
   });
 
