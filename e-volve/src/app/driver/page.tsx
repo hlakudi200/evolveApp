@@ -48,9 +48,6 @@ import { useGeolocation } from "@/providers/geolocation/Context";
 const { Title, Text } = Typography;
 const { TabPane } = Tabs;
 
-// Key for dispatched queues in localStorage
-const DISPATCHED_QUEUES_STORAGE_KEY = "driverDispatchedQueues";
-
 interface QueuePositionResult {
   position: number;
   total: number;
@@ -68,7 +65,6 @@ const Home = () => {
   const [activeQueueTab, setActiveQueueTab] = useState("active");
   const [dispatchingQueue, setDispatchingQueue] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
-  const [dispatchedQueues, setDispatchedQueues] = useState<string[]>([]);
   const [drivingQueueId, setDrivingQueueId] = useState<string | null>(null);
   const [isNavigationModalOpen, setIsNavigationModalOpen] = useState(false);
   const [tripInfo, setTripInfo] = useState<TripInfo | null>(null);
@@ -85,34 +81,6 @@ const Home = () => {
   const { Taxi } = useTaxiState();
 
   const driverStats = getDriverStats(Driver);
-
-  // Load dispatched queues from localStorage on component mount
-  useEffect(() => {
-    if (Driver?.id) {
-      // Use driver ID to create a unique key for each driver
-      const storageKey = `${DISPATCHED_QUEUES_STORAGE_KEY}_${Driver.id}`;
-      const savedDispatchedQueues = localStorage.getItem(storageKey);
-      
-      if (savedDispatchedQueues) {
-        try {
-          const parsedQueues = JSON.parse(savedDispatchedQueues);
-          setDispatchedQueues(parsedQueues);
-        } catch (error) {
-          console.error("Failed to parse saved dispatched queues", error);
-          // Reset if parsing fails
-          localStorage.removeItem(storageKey);
-        }
-      }
-    }
-  }, [Driver?.id]);
-
-  // Save dispatched queues to localStorage whenever they change
-  useEffect(() => {
-    if (Driver?.id && dispatchedQueues.length > 0) {
-      const storageKey = `${DISPATCHED_QUEUES_STORAGE_KEY}_${Driver.id}`;
-      localStorage.setItem(storageKey, JSON.stringify(dispatchedQueues));
-    }
-  }, [dispatchedQueues, Driver?.id]);
 
   useEffect(() => {
     if (Driver?.id) {
@@ -214,13 +182,6 @@ const Home = () => {
     return getAllQueues().filter(queue => queue.isOpen === false);
   };
 
-  // Get dispatched queues (found in dispatchedQueues array but not being driven)
-  const getDispatchedQueues = (): Array<IQue & { routeInfo?: IRoute; totalCapacity: number }> => {
-    return getAllQueues().filter(queue => 
-      queue.id && dispatchedQueues.includes(queue.id) && queue.id !== drivingQueueId
-    );
-  };
-
   const getQueuePosition = (
     queue: IQue & { routeInfo?: IRoute; totalCapacity: number }
   ): QueuePositionResult => {
@@ -249,9 +210,6 @@ const Home = () => {
       await dispatchTaxiFromQue(queueId, Taxi?.id);
       message.success({ content: "Taxi dispatched", key: "dispatch" });
       
-      // Add to dispatched queues tracking
-      setDispatchedQueues(prev => [...prev, queueId]);
-
       if (Taxi?.id) {
         await getQuesByTaxiId(Taxi.id);
 
@@ -291,7 +249,7 @@ const Home = () => {
     setDrivingQueueId(queueId);
     setIsTripModalOpen(false);
     setIsNavigationModalOpen(true);
-    Toast("Navigation started", "success");
+    Toast("Navigation will start", "success");
 
     if (!isWatching) {
       startWatching();
@@ -300,16 +258,6 @@ const Home = () => {
 
   const handleCompleteTrip = () => {
     if (drivingQueueId && Taxi?.id) {
-      // Remove the queue from dispatched queues list
-      setDispatchedQueues(prev => prev.filter(id => id !== drivingQueueId));
-      
-      // Update localStorage
-      if (Driver?.id) {
-        const storageKey = `${DISPATCHED_QUEUES_STORAGE_KEY}_${Driver.id}`;
-        const updatedQueues = dispatchedQueues.filter(id => id !== drivingQueueId);
-        localStorage.setItem(storageKey, JSON.stringify(updatedQueues));
-      }
-      
       // Mark taxi as arrived
       markTaxiAsArrived(Taxi.id);
       
@@ -329,7 +277,6 @@ const Home = () => {
     const { position, total, percentage } = getQueuePosition(queue);
     const amIInQueue = position > 0;
     const canDispatch = position === 1;
-    const isDispatched = queue.id && dispatchedQueues.includes(queue.id);
     const isDispatching = dispatchingQueue === queue.id;
 
     return (
@@ -348,8 +295,8 @@ const Home = () => {
               Created: {formatDate(queue.creationDate)}
             </Text>
           </Space>
-          <Tag color={isDispatched ? "blue" : queue.isOpen ? "green" : "red"}>
-            {isDispatched ? "DISPATCHED" : queue.isOpen ? "OPEN" : "CLOSED"}
+          <Tag color={queue.isOpen ? "green" : "red"}>
+            {queue.isOpen ? "OPEN" : "CLOSED"}
           </Tag>
         </div>
 
@@ -372,51 +319,49 @@ const Home = () => {
           />
         </div>
 
-        {(amIInQueue || isDispatched) && (
+        {amIInQueue && (
           <Space direction="vertical" style={{ width: "100%" }}>
-            {!isDispatched && (
-              <>
-                <div className={homeStyles.queuePosition}>
-                  <Text>
-                    Position: {position} of {total}
-                  </Text>
-                  <Text strong>{Math.round(percentage)}%</Text>
-                </div>
-                <Progress
-                  percent={percentage}
-                  showInfo={false}
-                  strokeColor={{ from: "#108ee9", to: "#87d068" }}
-                />
-              </>
-            )}
+            <div className={homeStyles.queuePosition}>
+              <Text>
+                Position: {position} of {total}
+              </Text>
+              <Text strong>{Math.round(percentage)}%</Text>
+            </div>
+            <Progress
+              percent={percentage}
+              showInfo={false}
+              strokeColor={{ from: "#108ee9", to: "#87d068" }}
+            />
             <div className={homeStyles.queueActions}>
-              {!isDispatched ? (
-                <Button
-                  type="primary"
-                  disabled={!canDispatch || isDispatching}
-                  loading={isDispatching}
-                  onClick={() => handleDispatchTaxi(queue.id!)}
-                  icon={<ListOrdered size={16} />}
-                >
-                  {canDispatch ? "Dispatch Now" : "Waiting"}
-                </Button>
-              ) : (
-                <Button
-                  type="primary"
-                  icon={<Car size={16} />}
-                  onClick={() => showTripModal(queue)}
-                >
-                  View Trip Details
-                </Button>
-              )}
+              <Button
+                type="primary"
+                disabled={!canDispatch || isDispatching}
+                loading={isDispatching}
+                onClick={() => handleDispatchTaxi(queue.id!)}
+                icon={<ListOrdered size={16} />}
+              >
+                {canDispatch ? "Dispatch Now" : "Waiting"}
+              </Button>
             </div>
           </Space>
+        )}
+
+        {/* Add View Trip Details button for a queue that's being driven */}
+        {drivingQueueId === queue.id && (
+          <div className={homeStyles.queueActions}>
+            <Button
+              type="primary"
+              icon={<Car size={16} />}
+              onClick={() => showTripModal(queue)}
+            >
+              View Trip Details
+            </Button>
+          </div>
         )}
       </Card>
     );
   };
 
-  // No need for a separate function as we'll use the implementation directly in the JSX
 
   return (
     <div className={homeStyles.container}>
@@ -530,28 +475,6 @@ const Home = () => {
               />
             )}
           </TabPane>
-          
-          {/* Add the dispatched trips tab */}
-          <TabPane
-            tab={
-              <span>
-                <Badge status="processing" color="blue" />
-                Dispatched Trips {getDispatchedQueues().length > 0 && `(${getDispatchedQueues().length})`}
-              </span>
-            }
-            key="dispatched"
-          >
-            {isPending ? (
-              <Skeleton active />
-            ) : getDispatchedQueues().length > 0 ? (
-              getDispatchedQueues().map(renderQueueCard)
-            ) : (
-              <Empty
-                description="No dispatched trips"
-                image={Empty.PRESENTED_IMAGE_SIMPLE}
-              />
-            )}
-          </TabPane>
 
           <TabPane
             tab={
@@ -642,10 +565,6 @@ const Home = () => {
                   {tripInfo.routeInfo.estimatedTravelTime} hours
                 </Descriptions.Item>
 
-                <Descriptions.Item label="Coordinates">
-                  Lat: {tripInfo.routeInfo.latitude}, Lng:{" "}
-                  {tripInfo.routeInfo.longitude}
-                </Descriptions.Item>
               </Descriptions>
             </Card>
           </div>
