@@ -8,7 +8,7 @@ export const startTaxiHubConnection = async (
     onTaxiListUpdated?: (taxis: ITaxi[]) => void
 ) => {
     connection = new signalR.HubConnectionBuilder()
-        .withUrl("https://localhost:44311/taxihub")
+        .withUrl("https://https://evolveapp.onrender.com/taxihub")
         .withAutomaticReconnect()
         .build();
 

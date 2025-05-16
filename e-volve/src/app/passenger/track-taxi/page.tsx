@@ -35,31 +35,6 @@ const containerStyle = {
 
 const defaultCenter = { lat: -1.2921, lng: 36.8219 };
 
-// Define styles directly in the component for better organization
-// const styles = {
-//   pageContainer: {
-//     padding: "2rem",
-//     maxWidth: "1400px",
-//     margin: "0 auto",
-//     margintop:"-55px"
-//   },
-//   panelStyle: {
-//     marginBottom: "1rem",
-//     borderRadius: "8px",
-//     overflow: "hidden",
-//     background: "#213547",
-//   },
-//   taxiCard: {
-//     display: "flex",
-//     flexDirection: "column" as const,
-//     height: "100%",
-//     borderRadius: "8px",
-//     border: "1px solid #e8e8e8",
-//     transition: "all 0.3s",
-//     background: "#fff",
-//   },
-// };
-
 const TrackingPage = () => {
   const { getTaxis } = useTaxiActions();
   const { Taxis } = useTaxiState();
